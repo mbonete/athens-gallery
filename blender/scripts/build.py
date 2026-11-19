@@ -250,8 +250,7 @@ for yc in P.PAINTINGS_Y:
         PAINTINGS.append((n, side * (NW - 0.04), yc, z0 + P.PAINTING_H / 2))
 
 # ---------------------------------------------------------------- finished nave arm (stage 1)
-if FINISH:
-    finish.apply()
+FMATS = finish.apply() if FINISH else None
 
 # ---------------------------------------------------------------- consistent outward normals
 # Booleans can leave faces flipped; Cycles shades flipped faces black. finish.py orients its own.
@@ -279,8 +278,10 @@ if FINISH:
     next(i for i in dim.inputs if i.identifier == "B_Color").default_value = (P.GREY_DIM,) * 3 + (1,)
     nt.links.new(info.outputs["Color"], next(i for i in dim.inputs if i.identifier == "A_Color"))
     nt.links.new(next(o for o in dim.outputs if o.identifier == "Result_Color"), bsdf.inputs["Base Color"])
-    floor_mat = finish.floor_material((*P.ALBEDO["floor_white"], 1))   # platform outside the nave: plain white
-    bpy.data.objects["platform"].data.materials.append(floor_mat)
+    import finish2
+    finish2.floors(FMATS, finish.floor_material())
+    if os.environ.get("BAY1_HANG"):          # "below" or "inside": the Mucha and the Klimt in bay 1
+        finish2.hang_bay1(os.environ["BAY1_HANG"], os.environ.get("PAINTINGS_DIR", "web/public/paintings"))
 for ob in list(coll.objects):
     if ob.type == "MESH" and not ob.data.materials:
         ob.data.materials.append(mat)
@@ -355,6 +356,20 @@ VIEWS = {
                       "CYCLES", (1200, 900)),
     "coffer-close": (make_camera("coffer-close", (0.0, 22.0, EYE + 6.0), target=(0.0, 27.0, 18.2), lens=50),
                      "CYCLES", (1200, 900)),
+    # Stage 2 gate: eye level (1.6 m) at the entrance, mid-nave, under the dome, at the end door;
+    # bay 1 towards each wall for the hanging options. Positions follow the crossing option.
+    "s2-entrance": (make_camera("s2-entrance", (0, 12.5, EYE), target=(0, 40, EYE + 4.5), lens=17),
+                    "CYCLES", (1600, 1000)),
+    "s2-midnave": (make_camera("s2-midnave", (0, 25.5, EYE), target=(0, 45, EYE + 3.5), lens=17),
+                   "CYCLES", (1600, 1000)),
+    "s2-dome": (make_camera("s2-dome", (0, (P.CROSS_Y0 + P.CROSS_Y1) / 2 - 2.0, EYE),
+                            target=(0, P.CROSS_Y1 + 6, EYE + 8.5), lens=14), "CYCLES", (1600, 1000)),
+    "s2-door": (make_camera("s2-door", (0, P.ARM2_Y1 - 6.5, EYE), target=(0, P.ARM2_Y1 + 4, EYE + 3.0), lens=18),
+                "CYCLES", (1600, 1000)),
+    "s2-bay1-left": (make_camera("s2-bay1-left", (2.4, 16.4, EYE), target=(-6.5, 21.0, EYE + 1.6), lens=17),
+                     "CYCLES", (1400, 1000)),
+    "s2-bay1-right": (make_camera("s2-bay1-right", (-2.4, 16.4, EYE), target=(6.5, 21.0, EYE + 1.6), lens=17),
+                      "CYCLES", (1400, 1000)),
     "crop-coffers": (raphael, "CYCLES", (P.IMG_W, P.IMG_H), (1650, 400, 2250, 720)),
     "crop-capital": (raphael, "CYCLES", (P.IMG_W, P.IMG_H), (1140, 560, 1480, 940)),
 }

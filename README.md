@@ -10,7 +10,8 @@ painting. Architecture only: no figures, no statues.
 |---|---|---|---|
 | 1 | 3–4 h of modelling | Camera solve and depth choice: `renders/checkpoint-a/checkpoint-a.jpg`, `reference/camera.json` | approved: ~5 m depth |
 | 2 | 4–6 h of web work | Grey model: `renders/grey/gate-2-sheet.jpg` (overlay, lit views, phone view, plan) | approved, at 70 % size |
-| Hall stage 1 | 4–6 h on the rest of the hall | The nave arm finished in Blender (coffers, mouldings, materials, Cycles light) beside the fresco: `renders/hall-stage1/REPORT.md` | waiting for review (branch `hall-look`) |
+| Hall stage 1 | 4–6 h on the rest of the hall | The nave arm finished in Blender (coffers, mouldings, materials, Cycles light) beside the fresco: `renders/hall-stage1/REPORT.md` | approved with changes |
+| Hall stage 2 | The bake for the web | The whole hall finished in Blender beside the fresco, eye-level views, bay 1's hanging options, crossing options: `renders/hall-stage2/` | waiting for review: the crossing size is Maria's call (branch `hall-look`) |
 | Final | — | The prototype on the Galaxy A55 | landscape tested on the A55 (60 fps, pinch walk, tap, Back); portrait pending |
 
 ## Web prototype (`web/`)
@@ -76,14 +77,14 @@ frames the canvas at the fresco's proportions to check the opening view.
   lunette frame, the dome above the drum, the crossing's side walls (closed), the sides of
   the second arm, the outside of the building. Nothing exists outside the walls; it's only
   visible if the camera turns sideways on the platform.
-- **The nave walls are simplified.** The fresco shows niches, statues and deep recesses
-  along them; the model has flat walls with two pilasters per side to hang paintings. In
-  the overlay its pilasters don't fall exactly on the fresco's.
-- **Detail only in the nave arm, and only in Blender** (hall stage 1, `blender/scripts/finish.py`):
-  coffered vault, entablature, pilaster bases and capitals, string course, archivolt, materials
-  and floor, with the sun where Raphael's light comes from. Its limits are listed in
-  `renders/hall-stage1/REPORT.md`. The crossing, dome, second arm, end wall and facade are
-  still grey; the web model hasn't been re-exported or baked.
+- **The nave walls are simplified past bay 1.** The fresco shows niches, statues and deep
+  recesses along them; bays 2-3 and the second arm have flat walls with pilasters to hang
+  paintings. In the overlay their pilasters don't fall exactly on the fresco's.
+- **The finished hall exists only in Blender** (hall stages 1-2, `blender/scripts/finish.py`,
+  `finish2.py`): coffered vaults, mouldings, bay 1's recesses and niches, facade, floors and steps,
+  crossing with tondo frames, drum and dome, end wall, materials, Raphael's light. Its limits are
+  listed in `renders/hall-stage1/REPORT.md` and `renders/hall-stage2/REPORT.md`. The web model
+  hasn't been re-exported or baked; the crossing's size is waiting for Maria's decision.
 - **Lighting in the web prototype is a placeholder:** one sun from the front left plus a
   uniform sky. (Raphael's light comes from the front right; the stage 1 renders use that.)
 - **Paintings are 1.8 × 2.4 m red placeholders,** all the same size and hung at the same
@@ -105,6 +106,9 @@ frames the canvas at the fresco's proportions to check the opening view.
   Add `grey` for the Gate 2 grey model (`athens-grey.blend`), `physical` for an unlinked sun.
   `SAMPLES=128` sets Cycles samples. The finished parts need the CC0 scans: run
   `tools/fetch_textures.py` once (Poly Haven and ambientCG, into `blender/textures/`, not committed).
-- `blender/scripts/finish.py` — the finished nave arm (stage 1); its numbers live in `params.py`.
+- `blender/scripts/finish.py` — materials, the coffered vaults, walls and mouldings, Raphael's light;
+  `finish2.py` — bay 1, facade, floors and steps, crossing, end wall (stage 2). Numbers in `params.py`.
+  `CROSSING=A` (or `A2`) builds a crossing option; `BAY1_HANG=below|inside` hangs the Mucha and the
+  Klimt in bay 1 (`PAINTINGS_DIR` = the `*-texture.jpg` files).
 - `tools/` — measurement, overlay and plan scripts (`.venv` holds OpenCV, NumPy, Pillow).
 - `renders/` — gate images and measurement crops.

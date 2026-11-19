@@ -6,6 +6,7 @@ plane (the fresco's wall) is at Y = PICTURE_PLANE_Y. The lower floor is Z = 0.
 Frontal elements were placed by choosing a depth Y and reading their outline from the
 image: X = (u - CX) * Y / F_PX, Z = EYE_Z - (v - CY) * Y / F_PX (u, v on the 3840 px scan).
 """
+import os
 
 # Overall size for the web export (Gate 2): 70 % makes Plato and Aristotle life-size,
 # keeping Raphael's ratio between the figures and the hall. Renders stay at 100 %.
@@ -40,40 +41,54 @@ NAVE_HALF_W = 5.9
 WALL_T = 1.0
 SPRING_Z = 12.3               # vault springing (crossing arches 12.1-12.5)
 CORNICE = (11.3, 12.3, 0.5)   # z0, z1, projection
-NAVE_Y1 = 31.7
 PILASTERS_Y = [22.9, 27.3]    # three even bays on each nave wall (fresco: dark strips u 1345-1515)
 PILASTER_W, PILASTER_D = 1.0, 0.35
 
 # Niches on the facade piers (Apollo left, Athena right): X 6.37-8.07, Z 4.79-8.72.
 NICHE_X = (6.37, 8.07)
 NICHE_Z = (4.79, 8.72)
-NICHE_DEPTH = 0.9
+NICHE_DEPTH = 0.5             # stage 2: was 0.9; the screen in front of bay 1's recesses is 0.7 m
 RELIEF_Z = (3.2, 4.6)
 
-# Crossing: square, side = arch span. Front arch face at Y 32.5 (766 px), back at 43.45.
-CROSS_HALF = 5.475
-CROSS_Y0, CROSS_Y1 = 32.5, 43.45
+# Crossing: square, side = arch span. Gate 2: front arch face at Y 32.5 (766 px), back at 43.45.
+# Stage 2 options (CROSSING env var; renders/hall-stage2/REPORT.md, "Crossing"):
+#   gate2: the approved Gate 2 crossing, 10.95 m. Painted front opening's crown at v 686, the
+#          model's at 662 (24 px high); back arch crown 937 painted, 942.5 model.
+#   A:     square 11.8 m: the nave barrel runs on at its own radius to the painted opening
+#          (crown v 689) and the back arch is 11.8 m behind it (crown v 968, 31 px low).
+#   A2:    square 11.8 m, shifted so both arches miss equally (front v 669, back v 957).
+CROSSINGS = {"gate2": (32.5, 5.475), "A": (34.2, 5.9), "A2": (33.6, 5.9)}
+CROSSING = os.environ.get("CROSSING", "gate2")
+CROSS_Y0, CROSS_HALF = CROSSINGS[CROSSING]
+CROSS_Y1 = round(CROSS_Y0 + 2 * CROSS_HALF, 3)
 TRANSVERSE_T = 0.8
-DRUM_Z0 = SPRING_Z + CROSS_HALF       # 17.775, crown of the crossing arches
-DRUM_WIN_Z = (19.6, 22.6)
-DRUM_Z1 = 22.8
+NAVE_Y1 = round(CROSS_Y0 - TRANSVERSE_T, 3)
+DRUM_Z0 = round(SPRING_Z + CROSS_HALF, 3)   # crown of the crossing arches (17.775 in gate2)
+# The drum's visible back half keeps its painted heights: scale them about the eye with the
+# depth of the crossing's back (43.45 in gate2).
+_K = CROSS_Y1 / 43.45
+DRUM_WIN_Z = tuple(round(EYE_Z + (z - EYE_Z) * _K, 3) for z in (19.6, 22.6))
+DRUM_Z1 = round(EYE_Z + (22.8 - EYE_Z) * _K, 3)
 DRUM_WINDOWS = 18     # fresco: 3 windows at the back, ~72 px wide, piers ~28 px, one on the axis
-DRUM_WINDOW_W = 1.4
+DRUM_WINDOW_W = 1.4 * _K
 OCULUS_R = 0.9
 
 # Second arm and end wall.
 ARM2_Y1 = 55.0
 END_T = 1.0
 END_ENTABLATURE = (12.3, 13.0)
-END_ATTIC_TOP = 14.3
+END_ATTIC_TOP = 14.57         # stage 2: top of the painted Doric cornice (v 1250 at Y 55); was 14.3
 DOOR_HALF = 3.67
 DOOR_SPRING = 7.56
-ARM2_PILASTERS_Y = [49.6]
+# One pilaster mid-arm (gate2 keeps its approved 49.6).
+ARM2_PILASTERS_Y = [49.6] if CROSSING == "gate2" else [round((CROSS_Y1 + TRANSVERSE_T + ARM2_Y1) / 2, 2)]
 
 # Painting places (placeholders): bay centres on the side walls, 3 per nave wall and 2 per
 # wall in the second arm. Real sizes come later; placeholders are 1.8 x 2.4 m.
 PAINTING_W, PAINTING_H, PAINTING_BOTTOM = 1.8, 2.4, 1.3   # bottom above the platform
-PAINTINGS_Y = [20.45, 25.1, 29.75, 46.7, 52.55]
+_A2 = (CROSS_Y1 + TRANSVERSE_T, ARM2_PILASTERS_Y[0] - PILASTER_W / 2, ARM2_PILASTERS_Y[0] + PILASTER_W / 2, ARM2_Y1)
+PAINTINGS_Y = [20.45, 25.1, 29.75] + ([46.7, 52.55] if CROSSING == "gate2" else
+                                      [round((_A2[0] + _A2[1]) / 2, 2), round((_A2[2] + _A2[3]) / 2, 2)])
 
 
 # ---------------------------------------------------------------- Stage 1 finish (branch hall-look)
@@ -125,10 +140,14 @@ FRESCO_SRGB = {
 ALBEDO = {   # linear; started from the fresco's lit colours, then calibrated (REPORT.md, "Colour")
     "stucco": (0.563, 0.462, 0.426), "stucco_dark": (0.507, 0.416, 0.383),
     "stone": (0.57, 0.468, 0.43), "stone_dark": (0.53, 0.435, 0.40),
-    "rib": (0.58, 0.488, 0.389), "rib_dark": (0.51, 0.43, 0.342),
-    "coffer_light": (0.68, 0.59, 0.48), "coffer_dark": (0.40, 0.345, 0.28),     # panels: mottled, ~0.8 x rib
+    "rib": (0.58, 0.49, 0.39), "rib_dark": (0.51, 0.43, 0.343),
+    "coffer_light": (0.64, 0.56, 0.45), "coffer_dark": (0.38, 0.33, 0.27),     # panels: mottled, ~0.8 x rib
     "riser_light": (0.41, 0.375, 0.34), "riser_dark": (0.25, 0.23, 0.205),      # risers: darker (see REPORT)
     "floor_white": (0.68, 0.57, 0.58), "floor_rose": (0.36, 0.21, 0.20), "floor_band": (0.23, 0.15, 0.20),
+    "floor_mauve": (0.12, 0.08, 0.12),                                        # lower floor, darker field (105,91,104)
+    "lower_white": (0.36, 0.34, 0.42),                                        # lower floor, white bands (168,164,194)
+    "step": (0.68, 0.60, 0.58), "step_dark": (0.61, 0.54, 0.52),              # treads (nosing 234,219,221)
+    "step_riser": (0.39, 0.34, 0.35),                                         # risers (191,175,162)
 }
 
 # Light. The fresco's shading: faces turned to +X (left nave wall) are lit (median 215,190,176),
@@ -136,14 +155,76 @@ ALBEDO = {   # linear; started from the fresco's lit colours, then calibrated (R
 # both sides (202-204), soffits get only bounce light. In linear terms the direct part on +X faces
 # vs frontal faces is 0.32 : 0.26 -> light travels 39 deg off the -X axis towards +Y, i.e. the sun
 # is to the front right. Cast shadows on the platform floor run at ~45 deg in plan the same way.
-SUN_AZIMUTH = 39.0           # degrees from -X towards +Y (direction of travel)
+SUN_AZIMUTH = float(os.environ.get('SUN_AZIMUTH', 39.0))  # stage 2 tried 50 (REPORT, "Light"); kept 39          # degrees from -X towards +Y (direction of travel)
 SUN_ELEVATION = 35.0         # not measurable precisely: floor shadows ~1-1.5x the figures' height
                              # (45-55 deg), but the frieze under the cornice is lit (needs < ~30 deg)
 SUN_ANGLE = 3.0
 SUN_STRENGTH = 4.0
-SUN_COLOR = (1.0, 0.97, 0.92)
+SUN_COLOR = (1.0, 0.98, 0.9)       # stage 2: lit faces want more blue, shade less (G-B)
 SKY = (0.43, 0.43, 0.91)     # fresco sky in the far door, linear
-SKY_LIGHT = (1.0, 0.85, 0.52)  # colour of the sky as light: fresco shade/lit ratio per channel, normalised
+SKY_LIGHT = (0.95, 0.93, 0.45)  # colour of the sky as light: fresco shade/lit ratio per channel, normalised
 SKY_STRENGTH = 0.6
 GREY_DIM = 0.6               # unfinished grey parts are dimmed in the finished renders so they do not clip
 EXPOSURE = 0.0               # Standard view transform (no tone curve), stops
+
+# ---------------------------------------------------------------- Stage 2 finish (finish2.py)
+# Bay 1 (renders/hall-stage2/REPORT.md, "Bay 1"). Where the model had the facade's 3 m jamb
+# Raphael paints a frontal face (horizontal mouldings at u 1050-1168 left, 2652-2800 right):
+# behind a thin front screen the space opens sideways into a recess, whose back wall faces the
+# visitor. Its inner edge reads at Y 17.5 (left) and 18.66 (right); the model takes 18.1.
+BAY1_RECESS_Y0 = 16.2        # front screen 0.7 m (facade niches made 0.5 m deep to fit)
+BAY1_RECESS_Y1 = 18.1        # the frontal back wall
+BAY1_RECESS_X = 7.3          # outer wall; hidden from Raphael's eye (needs > 5.9 * 18.1 / 15.5 = 6.9)
+BAY1_RECESS_TOP = 10.45      # painted band on the frontal face at v 700-770 -> Z 9.9-10.4
+# Recess between the short block behind the vestibule and the first pilaster, full height to the
+# springing: the painted cornice in bay 1 recedes along a line through the vanishing point with
+# X / (Z - EYE) = 0.61-0.62 on both sides (u 1180-1265 / 2590-2670, v 580-690), i.e. X ~6.4 at
+# Z 12.3; it ends at the first pier's ressaut (frontal, v 680-690 -> Y ~21.7).
+BAY1_SIDE_RECESS = (18.9, 22.4, 6.5)   # y0, y1 (the first pilaster's face), |x| of its back wall
+# The empty niche on the recess's back wall (statue niches at u 1170-1206 left, 2606-2647 right
+# -> Y 20.1 and 21.7 on X 6.5): head at v ~835 (Z 9.6-9.8), sill at v ~1350 (Z 5.3).
+BAY1_NICHE_YC, BAY1_NICHE_W = 20.6, 1.2   # left reads 19.9, right 21.3: the painting isn't symmetric
+BAY1_NICHE_Z = (5.3, 9.6)
+BAY1_NICHE_DEPTH = 0.35
+
+# Lower floor (u 1150-2700, v 2380-2661, plan unroll): mauve fields with a white square ring,
+# set in white bands; module 1.68 x 0.95 m, rings centred at X 0.65 + k * 1.68, Y ~5.95.
+LOWER_FLOOR_MODULE = (1.68, 0.95)
+LOWER_FLOOR_BAND = 0.07                  # half the white band between fields
+LOWER_FLOOR_RING = ((0.42, 0.36), 0.10)  # ring outer half-sizes (x, y), band width
+LOWER_FLOOR_X0, LOWER_FLOOR_Y0 = -0.19, 5.475
+
+# Crossing (designed where the fresco shows nothing): tondo frames on the pendentives, centred
+# on the diagonals; the drum's pilasters; ribs on the dome.
+TONDO_H = round(0.68 * CROSS_HALF, 3)   # height of the tondo's centre above the springing
+TONDO_R = 0.7
+DOME_COFFER_RINGS, DOME_COFFER_COUNT = 5, 28
+
+# End wall: the painted Doric entablature (u 1700-2170, v 1250-1330 at Y 55): architrave
+# Z 12.64-13.36, triglyph frieze 13.36-14.28, cornice 14.28-14.57. Triglyphs every 68 px
+# (1.64 m), 15 px wide (0.36 m). The coordinator's brief said "balustrade": the pixels show a
+# triglyph frieze, so that is what is built. Pilasters beside the door at u 1720-1760 / 2110-2150.
+END_DORIC = (12.64, 13.36, 14.28, 14.57)
+END_TRIGLYPH = (1.64, 0.36)
+END_PILASTER_X0, END_PILASTER_W, END_PILASTER_D = 0.5, 0.95, 0.12
+
+# Painted surfaces (Maria, stage 2): (noise scale per m, contrast, speckle darkness). The
+# fresco's cracks and stains are left out on purpose (its age, not the building).
+PAINTED = {"coffer": (6.0, 0.6, 0.0), "rib": (4.0, 0.06, 0.35), "stone": (1.5, 0.05, 0.0),
+           "stucco": (1.0, 0.04, 0.0)}
+
+# Raphael's light, beyond one sun (finish.light; REPORT.md "Light"):
+RIGHT_UNDERSIDE = 0.55       # downward faces on the right side painted darker (cornice soffit 105 vs 140)
+RIGHT_WALL = (0.55, 0.5, 0.38)  # faces turned to -X on the right: the painted shade is darker and olive
+FRONT_BOUNCE = float(os.environ.get("FRONT_BOUNCE", 4000.0))        # W, area light on bay 1's floor lighting only the vault over it (soffit 191)
+NO_SUN = ()                  # stage 2 tried the facade here (a mis-sampled box); it is lit
+FAR = (1.3, 1.43, 1.56)      # the end wall is painted lighter and cooler than the near walls (229,208,199)
+DRUM = (0.75, 0.74, 0.65)
+FACADE = (0.7, 0.68, 0.72)   # the facade's front is painted a little darker than the hall's lit stone
+TREAD = 1.5                  # coffer treads painted lighter than the ribs (light lines between the risers)    # the drum is painted darker and more olive than lit stucco (197,172,150)
+
+# Bay 1 hanging options for the Mucha (left) and the Klimt (right), web size / 0.7 (REPORT.md):
+# "below": both on the recess's back wall under the niches; "inside": the Mucha in its niche.
+MUCHA_100 = (0.65 / SCALE, 1.25 / SCALE)    # w, h at 100 %
+KLIMT_100 = (1.74 / SCALE, 0.96 / SCALE)
+HANG_CENTRE_Z = PLATFORM_Z + 1.55 / SCALE  # web: centre 1.55 m above the floor

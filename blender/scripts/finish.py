@@ -182,7 +182,7 @@ def coffer_sheet(name, radius, spring, y0, y1, field, pat, mats, cut=0.25):
                 nxt = _inset(r, tread)
                 if nxt is None:
                     break
-                ring(r, d, nxt, d, 0)
+                ring(r, d, nxt, d, 3 if len(mats) > 3 else 0)
                 r = nxt
         flat(r, d, 1 if d > 0 else 0)
 
@@ -423,40 +423,32 @@ def textured(name, tex, lum_range, c_dark, c_light, scale, rough=(0.55, 0.85), b
 
 
 def floor_image():
-    """The nave floor, designed in the fresco's floor vocabulary (white slabs, rose lozenges,
-    mauve bands; colours sampled from the platform and the lower floor). Rows follow the coffer
-    rows above, seven slabs across. Returns (image, x0, y0, width, height) in metres."""
-    x0, x1 = -P.NAVE_HALF_W, P.NAVE_HALF_W
-    y0, y1 = P.FACADE_Y1, P.CROSS_Y0
-    ppm = 100
-    W, H = int((x1 - x0) * ppm), int((y1 - y0) * ppm)
-    xs = x0 + (np.arange(W) + 0.5) / ppm
-    ys = y0 + (np.arange(H) + 0.5) / ppm
-    X, Y = np.meshgrid(xs, ys)
-    mx, my = (x1 - x0) / P.FLOOR_SLABS_ACROSS, P.COFFER_ROW
-    u = (X - x0) / mx
-    v = (Y - (P.COFFER_Y_REF - my / 2)) / my
-    fu, fv = u - np.floor(u) - 0.5, v - np.floor(v) - 0.5            # -0.5..0.5 in the slab
-    du, dv = np.abs(fu) * mx, np.abs(fv) * my                          # metres from the slab centre
+    """One slab of the hall's floor, designed in the fresco's floor vocabulary (white slabs, rose
+    lozenges with a white core, mauve bands; colours sampled from the platform and the lower
+    floor). Tiled over the whole platform: seven slabs across the nave, rows on the coffer rows."""
+    mx, my = 2 * P.NAVE_HALF_W / P.FLOOR_SLABS_ACROSS, P.COFFER_ROW
+    ppm = 120
+    W, H = int(mx * ppm), int(my * ppm)
+    X, Y = np.meshgrid((np.arange(W) + 0.5) / ppm, (np.arange(H) + 0.5) / ppm)
+    du, dv = np.abs(X - mx / 2), np.abs(Y - my / 2)
     band = (mx / 2 - du < P.FLOOR_BAND / 2) | (my / 2 - dv < P.FLOOR_BAND / 2)
     k = P.FLOOR_BAND / 2 + P.FLOOR_MARGIN
     loz = du / (mx / 2 - k) + dv / (my / 2 - k)
-    rose = (loz < 1.0) & (loz > P.FLOOR_LOZENGE_CORE)                 # rose lozenge, white core
-    edge = (X - x0 < P.FLOOR_BAND) | (x1 - X < P.FLOOR_BAND)
+    rose = (loz < 1.0) & (loz > P.FLOOR_LOZENGE_CORE)
     c = np.empty((H, W, 4), np.float32)
     c[...] = (*P.ALBEDO["floor_white"], 1)
     c[rose] = (*P.ALBEDO["floor_rose"], 1)
-    c[band | edge] = (*P.ALBEDO["floor_band"], 1)
-    img = bpy.data.images.new("nave_floor", W, H, alpha=False, float_buffer=True)
+    c[band] = (*P.ALBEDO["floor_band"], 1)
+    img = bpy.data.images.new("hall_floor_slab", W, H, alpha=False, float_buffer=True)
     img.colorspace_settings.name = "Linear Rec.709"
     img.pixels.foreach_set(c.ravel())
     img.pack()
-    return img, x0, y0, x1 - x0, y1 - y0
+    return img, -P.NAVE_HALF_W, P.COFFER_Y_REF - my / 2, mx, my
 
 
-def floor_material(grey):
+def floor_material(grey=None):
     img, x0, y0, w, h = floor_image()
-    m = bpy.data.materials.new("floor_nave")
+    m = bpy.data.materials.new("floor_hall")
     m.use_nodes = True
     N, L = m.node_tree.nodes, m.node_tree.links
     bsdf = N.get("Principled BSDF")
@@ -466,7 +458,7 @@ def floor_material(grey):
     mp.inputs["Scale"].default_value = (1 / w, 1 / h, 1)
     L.new(tc.outputs["Object"], mp.inputs["Vector"])
     t = N.new("ShaderNodeTexImage")
-    t.image, t.extension, t.interpolation = img, "EXTEND", "Linear"
+    t.image, t.extension, t.interpolation = img, "REPEAT", "Linear"
     L.new(mp.outputs["Vector"], t.inputs["Vector"])
     # Veining from a CC0 marble scan, +-12 % on the designed colours.
     vm = N.new("ShaderNodeMapping")
@@ -486,35 +478,129 @@ def floor_material(grey):
     _sock(mul, "Factor_Float").default_value = 1.0
     L.new(t.outputs["Color"], _sock(mul, "A_Color"))
     L.new(mr.outputs["Result"], _sock(mul, "B_Color"))
-    # Outside the nave the platform is plain (not finished): the colour passed in.
-    sep = N.new("ShaderNodeSeparateXYZ")
-    L.new(tc.outputs["Object"], sep.inputs["Vector"])
-    inside = None
-    for comp, lo, hi in (("X", x0, x0 + w), ("Y", y0, y0 + h)):
-        a = N.new("ShaderNodeMath"); a.operation = "GREATER_THAN"; a.inputs[1].default_value = lo
-        b = N.new("ShaderNodeMath"); b.operation = "LESS_THAN"; b.inputs[1].default_value = hi
-        L.new(sep.outputs[comp], a.inputs[0]); L.new(sep.outputs[comp], b.inputs[0])
-        ab = N.new("ShaderNodeMath"); ab.operation = "MULTIPLY"
-        L.new(a.outputs[0], ab.inputs[0]); L.new(b.outputs[0], ab.inputs[1])
-        if inside is None:
-            inside = ab
-        else:
-            both = N.new("ShaderNodeMath"); both.operation = "MULTIPLY"
-            L.new(inside.outputs[0], both.inputs[0]); L.new(ab.outputs[0], both.inputs[1])
-            inside = both
-    sel = N.new("ShaderNodeMix")
-    sel.data_type = "RGBA"
-    _sock(sel, "A_Color").default_value = grey
-    L.new(inside.outputs[0], _sock(sel, "Factor_Float"))
+    # Vertical faces (the platform's front = the top riser) take the steps' plain marble colour.
+    geo, sep = N.new("ShaderNodeNewGeometry"), N.new("ShaderNodeSeparateXYZ")
+    L.new(geo.outputs["Normal"], sep.inputs["Vector"])
+    up = N.new("ShaderNodeMath"); up.operation = "GREATER_THAN"; up.inputs[1].default_value = 0.5
+    L.new(sep.outputs["Z"], up.inputs[0])
+    sel = N.new("ShaderNodeMix"); sel.data_type = "RGBA"
+    _sock(sel, "A_Color").default_value = (*P.ALBEDO["step_riser"], 1)
+    L.new(up.outputs[0], _sock(sel, "Factor_Float"))
     L.new(_sock(mul, "Result_Color", True), _sock(sel, "B_Color"))
     L.new(_sock(sel, "Result_Color", True), bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = 0.35
     return m
 
 
+def painted(m, scale, contrast, speckle=0.0):
+    """Painted surface on top of a textured() material: large soft mottling (noise, +-contrast)
+    and, if speckle > 0, fine dark specks as on the fresco's ribs. Cracks and stains of the
+    fresco's surface are deliberately left out."""
+    N, L = m.node_tree.nodes, m.node_tree.links
+    bsdf = N.get("Principled BSDF")
+    src = bsdf.inputs["Base Color"].links[0].from_socket
+    tc = N.new("ShaderNodeTexCoord")
+    nz = N.new("ShaderNodeTexNoise")
+    nz.inputs["Scale"].default_value = scale
+    nz.inputs["Detail"].default_value = 6.0
+    nz.inputs["Roughness"].default_value = 0.6
+    L.new(tc.outputs["Object"], nz.inputs["Vector"])
+    mr = N.new("ShaderNodeMapRange")
+    mr.inputs["From Min"].default_value, mr.inputs["From Max"].default_value = 0.3, 0.7
+    mr.inputs["To Min"].default_value, mr.inputs["To Max"].default_value = 1 - contrast, 1 + contrast
+    L.new(nz.outputs["Fac"], mr.inputs["Value"])
+    mul = N.new("ShaderNodeMix")
+    mul.data_type, mul.blend_type = "RGBA", "MULTIPLY"
+    _sock(mul, "Factor_Float").default_value = 1.0
+    L.new(src, _sock(mul, "A_Color"))
+    L.new(mr.outputs["Result"], _sock(mul, "B_Color"))
+    out = _sock(mul, "Result_Color", True)
+    if speckle > 0:
+        sp = N.new("ShaderNodeTexNoise")
+        sp.inputs["Scale"].default_value = 90.0
+        sp.inputs["Detail"].default_value = 2.0
+        L.new(tc.outputs["Object"], sp.inputs["Vector"])
+        th = N.new("ShaderNodeMapRange")
+        th.inputs["From Min"].default_value, th.inputs["From Max"].default_value = 0.62, 0.70
+        th.inputs["To Min"].default_value, th.inputs["To Max"].default_value = 1.0, 1.0 - speckle
+        L.new(sp.outputs["Fac"], th.inputs["Value"])
+        mul2 = N.new("ShaderNodeMix")
+        mul2.data_type, mul2.blend_type = "RGBA", "MULTIPLY"
+        _sock(mul2, "Factor_Float").default_value = 1.0
+        L.new(out, _sock(mul2, "A_Color"))
+        L.new(th.outputs["Result"], _sock(mul2, "B_Color"))
+        out = _sock(mul2, "Result_Color", True)
+    L.new(out, bsdf.inputs["Base Color"])
+    return m
+
+
+def right_shade(m):
+    """Raphael's convention for the right side: its downward faces (cornice soffits) are painted
+    much darker than physics gives with the lit left wall bouncing onto them. Multiplies the
+    colour of faces with normal Z < -0.5 at X > 0.5 by RIGHT_UNDERSIDE, and of faces turned to -X
+    there (the right wall in shade) by RIGHT_WALL. Not physical: the convention sun lights the left
+    wall, and its bounce would light the right side far more than Raphael paints it."""
+    N, L = m.node_tree.nodes, m.node_tree.links
+    bsdf = N.get("Principled BSDF")
+    src = bsdf.inputs["Base Color"].links[0].from_socket
+    geo = N.new("ShaderNodeNewGeometry")
+    sn, sp = N.new("ShaderNodeSeparateXYZ"), N.new("ShaderNodeSeparateXYZ")
+    L.new(geo.outputs["Normal"], sn.inputs["Vector"])
+    L.new(geo.outputs["Position"], sp.inputs["Vector"])
+    down, right, both = N.new("ShaderNodeMath"), N.new("ShaderNodeMath"), N.new("ShaderNodeMath")
+    down.operation, right.operation, both.operation = "LESS_THAN", "GREATER_THAN", "MULTIPLY"
+    down.inputs[1].default_value, right.inputs[1].default_value = -0.5, 0.5
+    L.new(sn.outputs["Z"], down.inputs[0]); L.new(sp.outputs["X"], right.inputs[0])
+    L.new(down.outputs[0], both.inputs[0]); L.new(right.outputs[0], both.inputs[1])
+    mix = N.new("ShaderNodeMix")
+    mix.data_type, mix.blend_type = "RGBA", "MULTIPLY"
+    L.new(both.outputs[0], _sock(mix, "Factor_Float"))
+    L.new(src, _sock(mix, "A_Color"))
+    _sock(mix, "B_Color").default_value = (P.RIGHT_UNDERSIDE,) * 3 + (1,)
+    # Faces turned to -X on the right (the right wall, its pilasters' sides): Raphael's shade.
+    west, both2 = N.new("ShaderNodeMath"), N.new("ShaderNodeMath")
+    west.operation, both2.operation = "LESS_THAN", "MULTIPLY"
+    west.inputs[1].default_value = -0.5
+    L.new(sn.outputs["X"], west.inputs[0])
+    L.new(west.outputs[0], both2.inputs[0]); L.new(right.outputs[0], both2.inputs[1])
+    mix2 = N.new("ShaderNodeMix")
+    mix2.data_type, mix2.blend_type = "RGBA", "MULTIPLY"
+    L.new(both2.outputs[0], _sock(mix2, "Factor_Float"))
+    L.new(_sock(mix, "Result_Color", True), _sock(mix2, "A_Color"))
+    _sock(mix2, "B_Color").default_value = (*P.RIGHT_WALL, 1)
+    L.new(_sock(mix2, "Result_Color", True), bsdf.inputs["Base Color"])
+    return m
+
+
+def risers(m):
+    """Steps: vertical faces take the painted riser colour (191,175,162), treads stay white."""
+    N, L = m.node_tree.nodes, m.node_tree.links
+    bsdf = N.get("Principled BSDF")
+    src = bsdf.inputs["Base Color"].links[0].from_socket
+    geo, sep = N.new("ShaderNodeNewGeometry"), N.new("ShaderNodeSeparateXYZ")
+    L.new(geo.outputs["Normal"], sep.inputs["Vector"])
+    up = N.new("ShaderNodeMath"); up.operation = "GREATER_THAN"; up.inputs[1].default_value = 0.5
+    L.new(sep.outputs["Z"], up.inputs[0])
+    sel = N.new("ShaderNodeMix"); sel.data_type = "RGBA"
+    _sock(sel, "A_Color").default_value = (*P.ALBEDO["step_riser"], 1)
+    L.new(up.outputs[0], _sock(sel, "Factor_Float"))
+    L.new(src, _sock(sel, "B_Color"))
+    L.new(_sock(sel, "Result_Color", True), bsdf.inputs["Base Color"])
+    return m
+
+
+def flat(name, rgb, rough=0.8):
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    b = m.node_tree.nodes.get("Principled BSDF")
+    b.inputs["Base Color"].default_value = (*rgb, 1)
+    b.inputs["Roughness"].default_value = rough
+    return m
+
+
 def materials():
     A = P.ALBEDO
-    return {
+    M = {
         "stucco": textured("stucco", "white_plaster_02", (0.15, 0.34), A["stucco_dark"], A["stucco"], 2.0,
                            rough=(0.75, 0.95), bump=0.10),
         "stone": textured("stone", "Travertine009", (0.51, 0.74), A["stone_dark"], A["stone"], 1.5,
@@ -525,103 +611,181 @@ def materials():
                            rough=(0.45, 0.75), bump=0.05),
         "coffer_riser": textured("coffer_riser", "Marble009", (0.0, 0.012), A["riser_dark"], A["riser_light"], 0.7,
                                  rough=(0.45, 0.75), bump=0.05),
+        "step": textured("step", "Marble014", (0.32, 0.65), A["step_dark"], A["step"], 1.6,
+                         rough=(0.35, 0.6), bump=0.05),
+        "tondo": flat("tondo", A["stucco"]),
+        "groove": flat("groove", tuple(c * 0.35 for c in A["stone"])),
     }
+    def scaled(c, f):
+        return tuple(min(0.9, a * b) for a, b in zip(c, f))
+    M["stucco_far"] = textured("stucco_far", "white_plaster_02", (0.15, 0.34), scaled(A["stucco_dark"], P.FAR),
+                               scaled(A["stucco"], P.FAR), 2.0, rough=(0.75, 0.95), bump=0.10)
+    M["stone_far"] = textured("stone_far", "Travertine009", (0.51, 0.74), scaled(A["stone_dark"], P.FAR),
+                              scaled(A["stone"], P.FAR), 1.5, rough=(0.55, 0.80), bump=0.12)
+    M["stucco_drum"] = textured("stucco_drum", "white_plaster_02", (0.15, 0.34), scaled(A["stucco_dark"], P.DRUM),
+                                scaled(A["stucco"], P.DRUM), 2.0, rough=(0.75, 0.95), bump=0.10)
+    M["stone_facade"] = textured("stone_facade", "Travertine009", (0.51, 0.74), scaled(A["stone_dark"], P.FACADE),
+                                 scaled(A["stone"], P.FACADE), 1.5, rough=(0.55, 0.80), bump=0.12)
+    M["coffer_tread"] = textured("coffer_tread", "white_plaster_02", (0.15, 0.34), scaled(A["rib_dark"], (P.TREAD,) * 3),
+                                 scaled(A["rib"], (P.TREAD,) * 3), 1.5, rough=(0.75, 0.95), bump=0.08)
+    risers(M["step"])
+    for key in ("stone", "stucco", "stucco_far", "stone_far", "stucco_drum", "stone_facade"):
+        right_shade(M[key])
+    # Painted look (Maria, stage 2): the coffers' marble mottling and the ribs' fine speckle.
+    painted(M["coffer"], *P.PAINTED["coffer"])
+    painted(M["coffer_riser"], *P.PAINTED["coffer"])
+    painted(M["vault_rib"], *P.PAINTED["rib"])
+    painted(M["stone"], *P.PAINTED["stone"])
+    painted(M["stucco"], *P.PAINTED["stucco"])
+    return M
 
 
 # ================================================================ build the finished parts
-def apply():
-    """Replace the nave arm's grey parts with the finished ones. Returns the materials."""
-    NW, CH, T = P.NAVE_HALF_W, P.CROSS_HALF, P.WALL_T
-    PZ, SZ = P.PLATFORM_Z, P.SPRING_Z
-    Y0, Y1 = P.FACADE_Y1, P.CROSS_Y0 - P.TRANSVERSE_T        # nave between facade and crossing arch
-    M = materials()
-    stone, stucco = [M["stone"]], [M["stucco"]]
-
-    _remove("nave_vault", "nave_cornice_-1", "nave_cornice_1", "arch_front",
-            *[f"nave_pilaster_{s}_{y}" for s in (-1, 1) for y in P.PILASTERS_Y])
-
-    # Vault: coffered inner surface over a backing shell behind the coffers.
+def vault(tag, y0, y1, field_y0, M):
+    """Coffered barrel between y0 and y1 (field from field_y0) over a hidden backing shell."""
+    NW, SZ = P.NAVE_HALF_W, P.SPRING_Z
     pat = dict(col=P.COFFER_COL, row=P.COFFER_ROW, flat=P.COFFER_FLAT, s0=0.0, y_ref=P.COFFER_Y_REF,
                rib=P.COFFER_RIB, steps=P.COFFER_STEPS, splay=P.COFFER_SPLAY)
     fs = P.COFFER_FIELD_S
-    coffer_sheet("nave_vault_coffers", NW, SZ, Y0, Y1, (-fs, fs, P.COFFER_FIELD_Y0, Y1), pat,
-                 [M["vault_rib"], M["coffer"], M["coffer_riser"]])
+    if field_y0 > y0 + 1e-6:                      # plain band before the field: its own object
+        coffer_sheet(f"{tag}_vault_band", NW, SZ, y0, field_y0, (-fs, fs, field_y0, field_y0), pat,
+                     [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]])
+    coffer_sheet(f"{tag}_vault_coffers", NW, SZ, field_y0, y1, (-fs, fs, field_y0, y1), pat,
+                 [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]])
     back = P.COFFER_BACK
     bm = bmesh.new()
     outer = [(math.cos(t) * (NW + 0.6), SZ + math.sin(t) * (NW + 0.6)) for t in np.linspace(0, math.pi, 73)]
     inner = [(math.cos(t) * (NW + back), SZ + math.sin(t) * (NW + back)) for t in np.linspace(math.pi, 0, 73)]
-    vs = [bm.verts.new((x, Y0, z)) for x, z in outer + inner]
-    f = bm.faces.new(vs)
+    f = bm.faces.new([bm.verts.new((x, y0, z)) for x, z in outer + inner])
     ext = bmesh.ops.extrude_face_region(bm, geom=[f])
-    bmesh.ops.translate(bm, verts=[e for e in ext["geom"] if isinstance(e, bmesh.types.BMVert)], vec=(0, Y1 - Y0, 0))
+    bmesh.ops.translate(bm, verts=[e for e in ext["geom"] if isinstance(e, bmesh.types.BMVert)], vec=(0, y1 - y0, 0))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
-    _obj("nave_vault_backing", bm, "stucco", stucco)
+    _obj(f"{tag}_vault_backing", bm, "stucco", [M["stucco"]])
 
-    # Crossing arch: same intrados, opening enlarged above the springing to take the coffered soffit.
+
+def pilaster(tag, side, yc, M):
+    NW, PZ, SZ = P.NAVE_HALF_W, P.PLATFORM_Z, P.SPRING_Z
+    W, D = P.PILASTER_W, P.PILASTER_D
+    wx = side * NW
+    hand = 1 if side < 0 else -1
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    x0, x1 = sorted((wx, wx - side * D))
+    for v in bm.verts:
+        v.co = Vector((x0 + (v.co.x + 0.5) * (x1 - x0), yc - W / 2 + (v.co.y + 0.5) * W,
+                       PZ + (v.co.z + 0.5) * (SZ - 0.05 - PZ)))   # fills the ressaut behind the entablature
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    _obj(f"{tag}_pilaster_{side}_{yc}", bm, "stone", [M["stone"]])
+    ring = [(wx + side * 0.03, yc - W / 2), (wx - side * D, yc - W / 2),
+            (wx - side * D, yc + W / 2), (wx + side * 0.03, yc + W / 2)]
+    for kind, prof in (("base", attic_base(P.PLATFORM_Z)), ("capital", capital(P.ENTABLATURE_Z0))):
+        sweep(f"{tag}_pilaster_{kind}_{side}_{yc}", prof, *plan_path(ring, hand), "stone", [M["stone"]])
+
+
+def _clean(path):
+    out = []
+    for p in path:
+        if not out or abs(p[0] - out[-1][0]) + abs(p[1] - out[-1][1]) > 1e-6:
+            out.append(p)
+    # drop collinear middle points
+    res = [out[0]]
+    for i in range(1, len(out) - 1):
+        a, b, c = res[-1], out[i], out[i + 1]
+        if abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) > 1e-9:
+            res.append(b)
+    res.append(out[-1])
+    return res
+
+
+def apply():
+    """Replace the grey hall with the finished one (stage 1 + 2). Returns the materials."""
+    import finish2
+    NW, CH, T = P.NAVE_HALF_W, P.CROSS_HALF, P.WALL_T
+    PZ, SZ = P.PLATFORM_Z, P.SPRING_Z
+    Y0, Y1 = P.FACADE_Y1, P.NAVE_Y1
+    A0, A1 = P.CROSS_Y1 + P.TRANSVERSE_T, P.ARM2_Y1
+    W, D = P.PILASTER_W, P.PILASTER_D
+    M = materials()
+    stone, stucco = [M["stone"]], [M["stucco"]]
+    _remove("nave_vault", "arm2_vault", "arch_front",
+            *[f"{t}_cornice_{s}" for t in ("nave", "arm2") for s in (-1, 1)],
+            *[f"nave_pilaster_{s}_{y}" for s in (-1, 1) for y in P.PILASTERS_Y],
+            *[f"arm2_pilaster_{s}_{y}" for s in (-1, 1) for y in P.ARM2_PILASTERS_Y])
+
+    vault("nave", Y0, Y1, P.COFFER_FIELD_Y0, M)
+    vault("arm2", A0, A1, A0, M)
+
+    # Front transverse arch: opening enlarged above the springing to take the coffered soffit.
     top = P.DRUM_Z0 + 1.5
-    rb = CH + back
+    rb = CH + P.COFFER_BACK
     pts = [(-(NW + T), PZ), (-CH, PZ), (-CH, SZ), (-rb, SZ)]
     pts += [(rb * math.cos(t), SZ + rb * math.sin(t)) for t in np.linspace(math.pi, 0, 97)[1:-1]]
     pts += [(rb, SZ), (CH, SZ), (CH, PZ), (NW + T, PZ), (NW + T, top), (-(NW + T), top)]
     bm = bmesh.new()
-    vs = [bm.verts.new((x, Y1, z)) for x, z in pts]
-    f = bm.faces.new(vs)
+    f = bm.faces.new([bm.verts.new((x, Y1, z)) for x, z in pts])
     ext = bmesh.ops.extrude_face_region(bm, geom=[f])
     bmesh.ops.translate(bm, verts=[e for e in ext["geom"] if isinstance(e, bmesh.types.BMVert)],
                         vec=(0, P.CROSS_Y0 - Y1, 0))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     _obj("arch_front", bm, "stone", stone)
     k = CH / NW                                   # same pattern in angle, so the columns run on
-    apat = dict(pat, col=P.COFFER_COL * k, flat=P.COFFER_FLAT * k)
-    coffer_sheet("arch_front_soffit", CH, SZ, Y1, P.CROSS_Y0, (-fs * k, fs * k, Y1, P.CROSS_Y0), apat,
-                 [M["vault_rib"], M["coffer"], M["coffer_riser"]])
-    # Archivolt on the nave face of the arch.
-    prof = archivolt()
-    ts = np.linspace(0, math.pi, 97)
-    sweep("arch_front_archivolt", prof,
-          [Vector((CH * math.cos(t), Y1, SZ + CH * math.sin(t))) for t in ts],
-          [Vector((0, -1, 0))] * len(ts), [Vector((math.cos(t), 0, math.sin(t))) for t in ts], "stone", stone)
+    pat = dict(col=P.COFFER_COL * k, row=P.COFFER_ROW, flat=P.COFFER_FLAT * k, s0=0.0, y_ref=P.COFFER_Y_REF,
+               rib=P.COFFER_RIB, steps=P.COFFER_STEPS, splay=P.COFFER_SPLAY)
+    fs = P.COFFER_FIELD_S * k
+    coffer_sheet("arch_front_soffit", CH, SZ, Y1, P.CROSS_Y0, (-fs, fs, Y1, P.CROSS_Y0), pat,
+                 [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]])
 
-    # Walls: pilasters (shaft, base, capital), entablature with ressauts, string course.
-    W, D = P.PILASTER_W, P.PILASTER_D
-    z_arch = P.ENTABLATURE_Z0
-    for side in (-1, 1):
-        wx = side * NW
-        ob = bpy.data.objects.get(f"nave_wall_{side}")
+    # Walls: stucco; pilasters; one entablature run per side from the facade front to the end
+    # wall, breaking forward over every pilaster and wrapping the crossing piers.
+    for name in ("nave_wall_-1", "nave_wall_1", "arm2_wall_-1", "arm2_wall_1"):
+        ob = bpy.data.objects.get(name)
         if ob:
             ob.data.materials.clear()
             ob.data.materials.append(M["stucco"])
-        # side = -1 is the left wall: travelling +y, the room is on the right.
+    for side in (-1, 1):
+        wx, cx = side * NW, side * CH
         hand = 1 if side < 0 else -1
         for yc in P.PILASTERS_Y:
-            bm = bmesh.new()
-            bmesh.ops.create_cube(bm, size=1.0)
-            x0, x1 = sorted((wx, wx - side * D))
-            for v in bm.verts:
-                v.co = Vector((x0 + (v.co.x + 0.5) * (x1 - x0), yc - W / 2 + (v.co.y + 0.5) * W,
-                               PZ + (v.co.z + 0.5) * (SZ - 0.05 - PZ)))   # fills the ressaut behind the entablature
-            bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
-            _obj(f"nave_pilaster_{side}_{yc}", bm, "stone", stone)
-            ring = [(wx + side * 0.03, yc - W / 2), (wx - side * D, yc - W / 2),
-                    (wx - side * D, yc + W / 2), (wx + side * 0.03, yc + W / 2)]
-            for tag, prof in (("base", attic_base(PZ)), ("capital", capital(z_arch))):
-                sweep(f"nave_pilaster_{tag}_{side}_{yc}", prof, *plan_path(ring, hand), "stone", stone)
-        # Entablature: along the wall, breaking forward over each pilaster, round the crossing pier.
-        path = [(wx, Y0)]
-        for yc in P.PILASTERS_Y:
-            path += [(wx, yc - W / 2), (wx - side * D, yc - W / 2), (wx - side * D, yc + W / 2), (wx, yc + W / 2)]
-        pier = [(wx, Y1), (side * CH, Y1), (side * CH, P.CROSS_Y0)]
-        sweep(f"nave_entablature_{side}", entablature(z_arch), *plan_path(path + pier, hand), "stone", stone)
-        # String course between the pilasters, and round the pier.
-        edges = [Y0] + [y for yc in P.PILASTERS_Y for y in (yc - W / 2, yc + W / 2)] + [Y1]
-        for i in range(0, len(edges), 2):
-            a, b = edges[i], edges[i + 1]
-            run = [(wx, a - (0.03 if i else 0.0)), (wx, b + 0.03)] if i + 2 < len(edges) else [(wx, a - 0.03)] + pier
-            sweep(f"nave_string_course_{side}_{i // 2}", string_course(*P.STRING_COURSE), *plan_path(run, hand),
-                  "stone", stone)
-        # Base along the crossing pier (its jamb is a plain pier face).
-        sweep(f"arch_front_base_{side}", attic_base(PZ),
-              *plan_path([(wx + side * 0.03, Y1), (side * CH, Y1), (side * CH, P.CROSS_Y0)], hand), "stone", stone)
+            pilaster("nave", side, yc, M)
+        for yc in P.ARM2_PILASTERS_Y:
+            pilaster("arm2", side, yc, M)
+
+        def ressauts(ys):
+            out = []
+            for yc in ys:
+                out += [(wx, yc - W / 2), (wx - side * D, yc - W / 2), (wx - side * D, yc + W / 2), (wx, yc + W / 2)]
+            return out
+        # Bay 1's recess: the entablature runs into it and round the first pilaster.
+        r0, r1, rx = P.BAY1_SIDE_RECESS
+        yc0 = P.PILASTERS_Y[0]
+        run = [(side * P.FACADE_HALF_W, P.FACADE_Y0), (wx, P.FACADE_Y0), (wx, r0), (side * rx, r0), (side * rx, r1),
+               (wx - side * D, yc0 - W / 2), (wx - side * D, yc0 + W / 2), (wx, yc0 + W / 2)]
+        run += ressauts(P.PILASTERS_Y[1:])
+        run += [(wx, Y1), (cx, Y1), (cx, A0), (wx, A0)] + ressauts(P.ARM2_PILASTERS_Y) + [(wx, A1)]
+        sweep(f"entablature_{side}", entablature(P.ENTABLATURE_Z0), *plan_path(_clean(run), hand), "stone", stone)
+        # String course: bays 2-3 of the nave, the crossing (round its piers), the second arm's bays.
+        # Bay 1 has none: its niche rises through that height (fresco).
+        sc = string_course(*P.STRING_COURSE)
+        segs = []
+        e = [y for yc in P.PILASTERS_Y for y in (yc - W / 2, yc + W / 2)]
+        for a, b in zip(e[1::2], e[2::2] + [None]):
+            segs.append([(wx, a - 0.03)] + ([(wx, b + 0.03)] if b is not None else
+                                            [(wx, Y1), (cx, Y1), (cx, A0), (wx, A0)]))
+        e2 = [A0] + [y for yc in P.ARM2_PILASTERS_Y for y in (yc - W / 2, yc + W / 2)] + [A1]
+        segs[-1] += [(wx, e2[1] + 0.03)]
+        for a, b in zip(e2[2::2], e2[3::2]):
+            segs.append([(wx, a - 0.03), (wx, b)])
+        for i, sgm in enumerate(segs):
+            sweep(f"string_course_{side}_{i}", sc, *plan_path(_clean(sgm), hand), "stone", stone)
+        # Bases along the crossing piers.
+        sweep(f"crossing_base_{side}", attic_base(PZ),
+              *plan_path(_clean([(wx + side * 0.03, Y1), (cx, Y1), (cx, A0), (wx + side * 0.03, A0)]), hand),
+              "stone", stone)
+
+    finish2.bay1(M)
+    finish2.facade(M)
+    finish2.crossing(M)
+    finish2.end_wall(M)
     return M
 
 
@@ -667,11 +831,31 @@ def light(sun, world, raphael=True):
             co.light_linking.link_state = "EXCLUDE"
         return c
 
-    vault = ["nave_vault_coffers", "nave_vault_backing", "arch_front_soffit"]
-    right = [ob.name for ob in bpy.data.objects
-             if ob.type == "MESH" and ob.name.startswith(("nave_", "arch_front_"))
+    meshes = [ob for ob in bpy.data.objects if ob.type == "MESH" and ob.get("kind") != "painting"]
+    vault = [ob.name for ob in meshes if ob.name.startswith(
+        ("nave_vault", "arm2_vault", "arch_front_soffit", "arch_back_soffit", "dome"))]
+    upper = [ob.name for ob in meshes if ob.name.startswith(("pendentives", "drum", "tondo", "facade", "arch_front",
+                                                               "arch_back", "crossing_blind"))]
+    floors = ("floor", "platform", "step", "podium", "pedestal", "ground")
+    right = [ob.name for ob in meshes if not ob.name.startswith(floors)
              and min((ob.matrix_world @ Vector(c)).x for c in ob.bound_box) > 0.5]
-    sun.light_linking.blocker_collection = excluded("sun_not_blocking", vault + right + ["facade", "arch_front"])
-    # Nor do the faces up under the vault (the crossing arch's archivolt and face).
-    sun.light_linking.receiver_collection = excluded("sun_not_received", vault + ["arch_front_archivolt", "arch_front"])
+    sun.light_linking.blocker_collection = excluded("sun_not_blocking", vault + upper + right)
+    # Nor do the vaults and the faces up under them take the sun; nor the facade's front (painted
+    # at 147, darker than the frontal faces deeper in) and the drum (P.NO_SUN).
+    no_sun = [ob.name for ob in meshes if ob.name.startswith(P.NO_SUN) and not ob.name.startswith("bay1")]
+    sun.light_linking.receiver_collection = excluded(
+        "sun_not_received", vault + no_sun + [n for n in upper if n.startswith(("arch_front", "arch_back"))])
+    # The vault over bay 1 is painted as bright as a lit wall (191): a bounce card on bay 1's floor
+    # standing for the sunlit pavement, lighting only that vault.
+    card = bpy.data.lights.new("front_bounce", "AREA")
+    card.shape, card.size, card.size_y = "RECTANGLE", 2 * P.NAVE_HALF_W, P.COFFER_FIELD_Y0 - P.FACADE_Y0
+    card.energy, card.color = P.FRONT_BOUNCE, (1.0, 0.93, 0.85)
+    cob = bpy.data.objects.new("front_bounce", card)
+    cob.location = (0, (P.FACADE_Y0 + P.COFFER_FIELD_Y0) / 2, P.PLATFORM_Z + 0.3)
+    cob.rotation_euler = (math.pi, 0, 0)          # pointing up
+    cob.visible_camera = cob.visible_glossy = False
+    bpy.context.scene.collection.objects.link(cob)
+    rc = bpy.data.collections.new("front_bounce_receivers")
+    rc.objects.link(bpy.data.objects["nave_vault_band"])
+    cob.light_linking.receiver_collection = rc
     return travel
