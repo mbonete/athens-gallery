@@ -1,0 +1,282 @@
+{
+ "wall, lit side (left nave, faces +X)": {
+  "box_3840": [
+   1200,
+   1000,
+   1240,
+   1100
+  ],
+  "median_srgb": [
+   215,
+   190,
+   176
+  ],
+  "hex": "#d7beb0"
+ },
+ "wall, shaded side (right nave, faces -X)": {
+  "box_3840": [
+   2600,
+   1000,
+   2650,
+   1100
+  ],
+  "median_srgb": [
+   153,
+   128,
+   98
+  ],
+  "hex": "#998062"
+ },
+ "frontal face, left (faces viewer)": {
+  "box_3840": [
+   1060,
+   900,
+   1120,
+   1100
+  ],
+  "median_srgb": [
+   202,
+   179,
+   170
+  ],
+  "hex": "#cab3aa"
+ },
+ "frontal face, right (faces viewer)": {
+  "box_3840": [
+   2720,
+   900,
+   2800,
+   1100
+  ],
+  "median_srgb": [
+   204,
+   183,
+   172
+  ],
+  "hex": "#ccb7ac"
+ },
+ "plain soffit over bay 1, left": {
+  "box_3840": [
+   1270,
+   580,
+   1320,
+   660
+  ],
+  "median_srgb": [
+   191,
+   170,
+   161
+  ],
+  "hex": "#bfaaa1"
+ },
+ "plain soffit over bay 1, right": {
+  "box_3840": [
+   2510,
+   560,
+   2560,
+   640
+  ],
+  "median_srgb": [
+   188,
+   168,
+   158
+  ],
+  "hex": "#bca89e"
+ },
+ "entablature frieze on first left pier": {
+  "box_3840": [
+   1285,
+   745,
+   1330,
+   790
+  ],
+  "median_srgb": [
+   200,
+   179,
+   174
+  ],
+  "hex": "#c8b3ae"
+ },
+ "cornice soffit, left (lit side)": {
+  "box_3840": [
+   1400,
+   860,
+   1440,
+   940
+  ],
+  "median_srgb": [
+   150,
+   126,
+   99
+  ],
+  "hex": "#967e63"
+ },
+ "cornice soffit, right (shaded side)": {
+  "box_3840": [
+   2440,
+   860,
+   2480,
+   940
+  ],
+  "median_srgb": [
+   105,
+   83,
+   65
+  ],
+  "hex": "#695341"
+ },
+ "pilaster shaft, first right pier (shade)": {
+  "box_3840": [
+   2525,
+   740,
+   2580,
+   790
+  ],
+  "median_srgb": [
+   152,
+   125,
+   94
+  ],
+  "hex": "#987d5e"
+ },
+ "sky in the far door": {
+  "box_3840": [
+   1880,
+   1395,
+   1940,
+   1420
+  ],
+  "median_srgb": [
+   175,
+   175,
+   245
+  ],
+  "hex": "#afaff5"
+ },
+ "vault rib": {
+  "median_srgb": [
+   124,
+   102,
+   85
+  ],
+  "hex": "#7c6655",
+  "source": "vault unroll + fitted tiling mask"
+ },
+ "coffer, darkest 30% (risers)": {
+  "median_srgb": [
+   86,
+   71,
+   60
+  ],
+  "hex": "#56473c",
+  "source": "vault unroll + fitted tiling mask"
+ },
+ "coffer, lightest 40% (panels/treads)": {
+  "median_srgb": [
+   141,
+   117,
+   98
+  ],
+  "hex": "#8d7562",
+  "source": "vault unroll + fitted tiling mask"
+ },
+ "coffer all": {
+  "median_srgb": [
+   116,
+   95,
+   80
+  ],
+  "hex": "#745f50",
+  "source": "vault unroll + fitted tiling mask"
+ },
+ "lower floor, cluster 0 (37%)": {
+  "box_3840": [
+   2000,
+   2400,
+   2400,
+   2600
+  ],
+  "median_srgb": [
+   143,
+   114,
+   135
+  ],
+  "hex": "#8f7287",
+  "source": "k-means"
+ },
+ "lower floor, cluster 1 (35%)": {
+  "box_3840": [
+   2000,
+   2400,
+   2400,
+   2600
+  ],
+  "median_srgb": [
+   169,
+   164,
+   188
+  ],
+  "hex": "#a9a4bc",
+  "source": "k-means"
+ },
+ "lower floor, cluster 2 (28%)": {
+  "box_3840": [
+   2000,
+   2400,
+   2400,
+   2600
+  ],
+  "median_srgb": [
+   123,
+   97,
+   116
+  ],
+  "hex": "#7b6174",
+  "source": "k-means"
+ },
+ "platform floor near the steps, cluster 0 (43%)": {
+  "box_3840": [
+   1560,
+   1995,
+   1760,
+   2028
+  ],
+  "median_srgb": [
+   174,
+   135,
+   134
+  ],
+  "hex": "#ae8786",
+  "source": "k-means"
+ },
+ "platform floor near the steps, cluster 1 (47%)": {
+  "box_3840": [
+   1560,
+   1995,
+   1760,
+   2028
+  ],
+  "median_srgb": [
+   231,
+   214,
+   217
+  ],
+  "hex": "#e7d6d9",
+  "source": "k-means"
+ },
+ "platform floor near the steps, cluster 2 (10%)": {
+  "box_3840": [
+   1560,
+   1995,
+   1760,
+   2028
+  ],
+  "median_srgb": [
+   134,
+   99,
+   57
+  ],
+  "hex": "#866339",
+  "source": "k-means"
+ }
+}
