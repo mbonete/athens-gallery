@@ -1,0 +1,38 @@
+{
+  "image": "reference/download/athens-3840.jpg (3840x2661); original 20111x13936",
+  "principal_point_px": [
+    1933.3,
+    1775.9
+  ],
+  "horizon_y_px": 1775.9,
+  "frontal_check": {
+    "horizontals_tilt_deg": 0.089,
+    "verticals_tilt_deg": -0.138
+  },
+  "eye_height_above_lower_floor_m": 1.85,
+  "platform_height_m": 1.1,
+  "plato_height_check_m": 1.79,
+  "depth_readings": {
+    "square_crossing (measured)": {
+      "f_px": 2274,
+      "viewing_distance_m": [
+        4.9,
+        5.6
+      ]
+    },
+    "floor modules 2:1 (WebExhibits alt.)": {
+      "viewing_distance_m": 4.5
+    },
+    "floor modules square (WebExhibits)": {
+      "viewing_distance_m": 9.0,
+      "f_px": [
+        3627,
+        4149
+      ]
+    }
+  },
+  "chosen": {
+    "f_px": 2274,
+    "reason": "a dome on pendentives needs a square crossing"
+  }
+}

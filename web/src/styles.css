@@ -1,0 +1,31 @@
+:root { --paper: #f4f1ea; --ink: #2a2724; --muted: #6b655d; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #c9d4e2; color: var(--ink); font-family: Georgia, "Times New Roman", serif; }
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+.stage { position: fixed; inset: 0; }
+.stage, .stage canvas { touch-action: none; }
+.stage canvas { display: block; }
+.loading, .hint { position: fixed; left: 50%; transform: translateX(-50%); font-size: 15px; letter-spacing: 0.02em; }
+.loading { top: 50%; }
+.hint { bottom: calc(28px + env(safe-area-inset-bottom)); padding: 8px 14px; border-radius: 999px;
+  background: rgb(244 241 234 / 0.85); opacity: 0; transition: opacity 0.6s; pointer-events: none; }
+.hint.show { opacity: 1; }
+.osd { position: fixed; inset: 0; visibility: hidden; opacity: 0; z-index: 5; }
+.panel { position: fixed; visibility: hidden; opacity: 0; z-index: 6; background: var(--paper);
+  overflow: hidden; --content: 0; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06); }
+.panel .content { opacity: var(--content); height: 100%; overflow-y: auto; padding: 20px 22px calc(20px + env(safe-area-inset-bottom)); }
+.panel h1 { font-style: italic; font-weight: normal; font-size: 24px; line-height: 1.2; margin: 14px 0 4px; }
+.panel .who { margin: 0 0 14px; font-size: 16px; }
+.panel dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0 0 16px; font-size: 14px; }
+.panel dt { color: var(--muted); }
+.panel dd { margin: 0; }
+.panel .source { font-size: 12px; color: var(--muted); }
+.panel a { color: inherit; }
+.close { font: inherit; font-size: 14px; background: none; border: 0; padding: 6px 0; color: var(--muted); cursor: pointer; min-height: 44px; }
+.facts { display: grid; gap: 6px; margin: 0 0 16px; }
+.fact { font: inherit; font-size: 14px; text-align: left; background: none; border: 1px solid rgb(0 0 0 / 0.1);
+  border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; gap: 10px; align-items: baseline; color: inherit; }
+.fact.on { border-color: #a8452c; }
+.fact .dot, .hotspot { width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px #a8452c; flex: none; }
+.hotspot { border: 0; padding: 0; cursor: pointer; width: 18px; height: 18px; }
+.stage.fresco-frame { inset: auto; top: 0; left: 0; height: 100vh; width: calc(100vh * 3840 / 2661); }

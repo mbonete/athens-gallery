@@ -1,0 +1,22 @@
+{
+  "image": "athens-3840.jpg",
+  "size": [
+    3840,
+    2661
+  ],
+  "vanishing_point_px": [
+    1933.3,
+    1775.9
+  ],
+  "vanishing_point_frac": [
+    0.5035,
+    0.6674
+  ],
+  "inlier_lines": 47,
+  "receding_candidates": 629,
+  "rms_line_distance_px": 6.06,
+  "horizontals_mean_tilt_deg": 0.089,
+  "horizontals_n": 521,
+  "verticals_mean_tilt_deg": -0.138,
+  "verticals_n": 316
+}

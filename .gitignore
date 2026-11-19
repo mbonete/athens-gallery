@@ -1,0 +1,23 @@
+tools/.venv/
+reference/download/
+.DS_Store
+node_modules/
+reference/paintings/candidates/
+reference/paintings/*.jpg
+reference/paintings/originals/
+reference/paintings/processed/
+web/dist/
+*.tsbuildinfo
+# Generated from the originals by tools/prepare_collection.py (132 MB)
+web/public/paintings/
+# Measurement crops and render intermediates (regenerable); gate images stay
+renders/measure/
+renders/**/*.png
+!renders/grey/plan.png
+renders/checkpoint-a/vp-lines*.jpg
+renders/checkpoint-a/vp-zoom.jpg
+renders/grey/raphael-blend.jpg
+renders/web/opening-raw.jpg
+renders/web/opening-blend.jpg
+__pycache__/
+*.blend1
