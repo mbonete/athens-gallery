@@ -304,8 +304,9 @@ def entablature(z0):
 def capital(z_top):
     """Doric (Tuscan) pilaster capital, 0.5 m: astragal, necking, annulets, echinus, abacus.
     The fresco shows banded Doric capitals on the piers (u 2480-2600, v 680-850); profile designed."""
-    pr = Profile(z_top - 0.50)
-    pr.torus(0.05).v(0.17).h(0.015).v(0.02).h(0.01).v(0.02).ovolo(0.07, 0.09)
+    pr = Profile(z_top - 0.50)   # top 3 mm under z_top: no face coplanar with the architrave soffit
+    z_top -= 0.003
+    pr.torus(0.05).h(0.004).v(0.17).h(0.011)     # necking 4 mm proud: not coplanar with the shaft.v(0.02).h(0.01).v(0.02).ovolo(0.07, 0.09)
     pr.h(0.025).v(0.11).cyma_reversa(0.02, 0.03)
     pr.v(z_top - pr.q)
     return pr.closed()
@@ -314,7 +315,7 @@ def capital(z_top):
 def attic_base(z0):
     """Attic base, 0.5 m (half the pilaster width): plinth, torus, scotia, torus, apophyge.
     Bramante's vocabulary; the fresco hides the bases behind the figures."""
-    pr = Profile(z0)
+    pr = Profile(z0 - 0.01)      # sunk 1 cm into the floor: no face coplanar with it
     pr.h(0.14).v(0.16).h(-0.055).torus(0.11).h(-0.01).v(0.015).scotia(0.07, 0.035)
     pr.v(0.015).h(-0.005).torus(0.08)
     pr._arc(pr.p, pr.q + 0.05, 0.06, 0.05, -math.pi / 2, -math.pi)                  # apophyge
@@ -336,7 +337,7 @@ def archivolt():
     (u 1780-2100, v 1320-1400); widths fitted to the 0.425 m ring the model leaves."""
     pr = Profile(0.0)
     pr.h(0.04).v(0.15).h(0.025).v(0.16).cyma_reversa(0.03, 0.06).h(0.012).v(0.03)
-    return pr.closed()
+    return pr.closed(embed=0.0)  # its back is the arch face; embedding it would overlap the soffit
 
 
 def sweep(name, prof, path, outs, ups, kind, mats):
