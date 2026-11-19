@@ -10,6 +10,7 @@ painting. Architecture only: no figures, no statues.
 |---|---|---|---|
 | 1 | 3–4 h of modelling | Camera solve and depth choice: `renders/checkpoint-a/checkpoint-a.jpg`, `reference/camera.json` | approved: ~5 m depth |
 | 2 | 4–6 h of web work | Grey model: `renders/grey/gate-2-sheet.jpg` (overlay, lit views, phone view, plan) | approved, at 70 % size |
+| Hall stage 1 | 4–6 h on the rest of the hall | The nave arm finished in Blender (coffers, mouldings, materials, Cycles light) beside the fresco: `renders/hall-stage1/REPORT.md` | waiting for review (branch `hall-look`) |
 | Final | — | The prototype on the Galaxy A55 | landscape tested on the A55 (60 fps, pinch walk, tap, Back); portrait pending |
 
 ## Web prototype (`web/`)
@@ -78,9 +79,13 @@ frames the canvas at the fresco's proportions to check the opening view.
 - **The nave walls are simplified.** The fresco shows niches, statues and deep recesses
   along them; the model has flat walls with two pilasters per side to hang paintings. In
   the overlay its pilasters don't fall exactly on the fresco's.
-- **No detail yet:** no coffers on the vaults, no mouldings or capitals, no balustrade on the
-  far attic, no materials. Floors are flat; the fresco's patterns aren't modelled.
-- **Lighting is a placeholder:** one sun from the front left plus a uniform sky.
+- **Detail only in the nave arm, and only in Blender** (hall stage 1, `blender/scripts/finish.py`):
+  coffered vault, entablature, pilaster bases and capitals, string course, archivolt, materials
+  and floor, with the sun where Raphael's light comes from. Its limits are listed in
+  `renders/hall-stage1/REPORT.md`. The crossing, dome, second arm, end wall and facade are
+  still grey; the web model hasn't been re-exported or baked.
+- **Lighting in the web prototype is a placeholder:** one sun from the front left plus a
+  uniform sky. (Raphael's light comes from the front right; the stage 1 renders use that.)
 - **Paintings are 1.8 × 2.4 m red placeholders,** all the same size and hung at the same
   height.
 - **The steps don't follow equal risers.** Read off the fresco they come out 27, 19, 18 and
@@ -95,7 +100,11 @@ frames the canvas at the fresco's proportions to check the opening view.
   version.jpg", 20111×13936). Not committed (size).
 - `reference/camera.json` — camera solve results.
 - `blender/scripts/params.py` — every dimension, with the image reading it came from.
-- `blender/scripts/build.py` — builds the model, saves `blender/athens-grey.blend`, renders
-  views: `blender -b --factory-startup -P blender/scripts/build.py -- renders/grey raphael`.
+- `blender/scripts/build.py` — builds the model, saves `blender/athens-hall.blend`, renders
+  views: `blender -b --factory-startup -P blender/scripts/build.py -- renders/hall-stage1 hall-raphael`.
+  Add `grey` for the Gate 2 grey model (`athens-grey.blend`), `physical` for an unlinked sun.
+  `SAMPLES=128` sets Cycles samples. The finished parts need the CC0 scans: run
+  `tools/fetch_textures.py` once (Poly Haven and ambientCG, into `blender/textures/`, not committed).
+- `blender/scripts/finish.py` — the finished nave arm (stage 1); its numbers live in `params.py`.
 - `tools/` — measurement, overlay and plan scripts (`.venv` holds OpenCV, NumPy, Pillow).
 - `renders/` — gate images and measurement crops.

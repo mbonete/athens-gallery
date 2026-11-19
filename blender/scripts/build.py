@@ -1,10 +1,13 @@
-"""Build the grey model of the School of Athens hall and render it from Raphael's camera.
+"""Build the model of the School of Athens hall and render it from Raphael's camera.
 
-Run: blender -b --factory-startup -P blender/scripts/build.py -- <out_dir> [view ...]
+Run: blender -b --factory-startup -P blender/scripts/build.py -- <out_dir> [view ...] [grey]
 Views: raphael (default), plus any defined in VIEWS below. The plan is drawn by tools/plan.py.
-Writes <out_dir>/<view>.png and blender/athens-grey.blend.
+The nave arm is finished (finish.py: coffers, mouldings, materials, Raphael's light) unless
+"grey" is passed, which builds the Gate 2 grey model.
+Writes <out_dir>/<view>.png and blender/athens-hall.blend (athens-grey.blend with "grey").
 """
 import math
+import os
 import sys
 from pathlib import Path
 
@@ -19,7 +22,8 @@ import params as P  # noqa: E402
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 OUT = Path(argv[0]) if argv else HERE.parent.parent / "renders" / "grey"
-VIEW_NAMES = argv[1:] or ["raphael"]
+FINISH = P.FINISH and "grey" not in argv[1:]
+VIEW_NAMES = [v for v in argv[1:] if v not in ("grey", "physical")] or ["raphael"]
 OUT.mkdir(parents=True, exist_ok=True)
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -33,6 +37,9 @@ GREY = {
     "crossing": (0.84, 0.82, 0.78, 1), "dome": (0.88, 0.86, 0.82, 1),
     "painting": (0.55, 0.12, 0.10, 1),
 }
+if FINISH:
+    import finish  # noqa: E402
+    GREY.update(finish.GREY_FINISH)
 
 
 # ---------------------------------------------------------------- mesh helpers
@@ -242,10 +249,14 @@ for yc in P.PAINTINGS_Y:
             z0, z0 + P.PAINTING_H, "painting")
         PAINTINGS.append((n, side * (NW - 0.04), yc, z0 + P.PAINTING_H / 2))
 
+# ---------------------------------------------------------------- finished nave arm (stage 1)
+if FINISH:
+    finish.apply()
+
 # ---------------------------------------------------------------- consistent outward normals
-# Booleans can leave faces flipped; Cycles shades flipped faces black.
+# Booleans can leave faces flipped; Cycles shades flipped faces black. finish.py orients its own.
 for ob in list(coll.objects):
-    if ob.type == "MESH":
+    if ob.type == "MESH" and not ob.get("oriented"):
         bm = bmesh.new()
         bm.from_mesh(ob.data)
         bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=1e-5)
@@ -261,8 +272,17 @@ bsdf = nt.nodes.get("Principled BSDF")
 info = nt.nodes.new("ShaderNodeObjectInfo")
 nt.links.new(info.outputs["Color"], bsdf.inputs["Base Color"])
 bsdf.inputs["Roughness"].default_value = 0.75
+if FINISH:
+    dim = nt.nodes.new("ShaderNodeMix")
+    dim.data_type, dim.blend_type = "RGBA", "MULTIPLY"
+    next(i for i in dim.inputs if i.identifier == "Factor_Float").default_value = 1.0
+    next(i for i in dim.inputs if i.identifier == "B_Color").default_value = (P.GREY_DIM,) * 3 + (1,)
+    nt.links.new(info.outputs["Color"], next(i for i in dim.inputs if i.identifier == "A_Color"))
+    nt.links.new(next(o for o in dim.outputs if o.identifier == "Result_Color"), bsdf.inputs["Base Color"])
+    floor_mat = finish.floor_material((*P.ALBEDO["floor_white"], 1))   # platform outside the nave: plain white
+    bpy.data.objects["platform"].data.materials.append(floor_mat)
 for ob in list(coll.objects):
-    if ob.type == "MESH":
+    if ob.type == "MESH" and not ob.data.materials:
         ob.data.materials.append(mat)
 
 # ---------------------------------------------------------------- light and world
@@ -280,6 +300,8 @@ bg = world.node_tree.nodes.get("Background")
 bg.inputs["Color"].default_value = (0.55, 0.68, 0.86, 1)
 bg.inputs["Strength"].default_value = 1.2
 scene.world = world
+if FINISH:
+    finish.light(sun, world, raphael="physical" not in argv[1:])
 
 
 # ---------------------------------------------------------------- cameras
@@ -324,6 +346,17 @@ VIEWS = {
                 "CYCLES", (1600, 900)),
     "phone-nave": (make_camera("phone-nave", (0, 19.5, EYE), target=(0, 45, EYE + 6.0), lens=18),
                    "CYCLES", (720, 1560)),
+    # Stage 1 (hall-look): Raphael's view lit, eye level in bay 1, close-ups, and full-resolution
+    # crops of Raphael's view (border in 3840-scan pixels) to set beside the same fresco crops.
+    "hall-raphael": (raphael, "CYCLES", (P.IMG_W // 2, P.IMG_H // 2)),
+    "bay-eye": (make_camera("bay-eye", (1.2, 19.0, EYE), target=(-0.5, 33.0, 7.5), lens=14),
+                "CYCLES", (1600, 1000)),
+    "capital-close": (make_camera("capital-close", (-2.6, 20.2, 8.6), target=(-5.6, 22.9, 10.6), lens=40),
+                      "CYCLES", (1200, 900)),
+    "coffer-close": (make_camera("coffer-close", (0.0, 22.0, EYE + 6.0), target=(0.0, 27.0, 18.2), lens=50),
+                     "CYCLES", (1200, 900)),
+    "crop-coffers": (raphael, "CYCLES", (P.IMG_W, P.IMG_H), (1650, 400, 2250, 720)),
+    "crop-capital": (raphael, "CYCLES", (P.IMG_W, P.IMG_H), (1140, 560, 1480, 940)),
 }
 
 # Projection check against the formula used to place the elements.
@@ -337,7 +370,7 @@ for pt in [(-NW, P.CROSS_Y0, P.SPRING_Z), (P.DOOR_HALF, P.ARM2_Y1, P.DOOR_SPRING
     print(f"projection check {pt}: blender ({u_b:.1f}, {v_b:.1f}) formula ({u_f:.1f}, {v_f:.1f})")
 
 
-bpy.ops.wm.save_as_mainfile(filepath=str(HERE.parent / "athens-grey.blend"))
+bpy.ops.wm.save_as_mainfile(filepath=str(HERE.parent / ("athens-hall.blend" if FINISH else "athens-grey.blend")))
 
 # ---------------------------------------------------------------- render
 prefs = bpy.context.preferences.addons["cycles"].preferences
@@ -349,10 +382,13 @@ try:
     scene.cycles.device = "GPU"
 except Exception as exc:  # fall back to CPU
     print("GPU unavailable:", exc)
-scene.cycles.samples = 64
+scene.cycles.samples = int(os.environ.get("SAMPLES", 64))
 scene.cycles.use_denoising = True
 scene.view_settings.exposure = -0.4
 scene.view_settings.look = "AgX - Medium High Contrast"
+if FINISH:   # colours are calibrated against the fresco's pixels: no tone curve in between
+    scene.view_settings.view_transform, scene.view_settings.look = "Standard", "None"
+    scene.view_settings.exposure = P.EXPOSURE
 
 sh = scene.display.shading
 sh.light = "STUDIO"
@@ -364,7 +400,12 @@ scene.display.light_direction = (-0.45, -0.55, 0.7)
 scene.display.render_aa = "16"
 
 for name in [v for v in VIEW_NAMES if v != "export"]:
-    cam_ob, engine, (w, h) = VIEWS[name]
+    cam_ob, engine, (w, h), *border = VIEWS[name]
+    scene.render.use_border = scene.render.use_crop_to_border = bool(border)
+    if border:
+        u0, v0, u1, v1 = border[0]
+        scene.render.border_min_x, scene.render.border_max_x = u0 / P.IMG_W, u1 / P.IMG_W
+        scene.render.border_min_y, scene.render.border_max_y = 1 - v1 / P.IMG_H, 1 - v0 / P.IMG_H
     scene.camera = cam_ob
     scene.render.engine = "BLENDER_WORKBENCH" if engine == "WORKBENCH" else "CYCLES"
     scene.render.resolution_x, scene.render.resolution_y = w, h

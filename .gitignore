@@ -23,3 +23,6 @@ __pycache__/
 *.blend1
 # Local ML environment and model weights (Segment Anything, LaMa)
 .ml/
+# Stage 1 finish: CC0 scans fetched by tools/fetch_textures.py, and the finished .blend (packed floor image)
+blender/textures/
+blender/athens-hall.blend
