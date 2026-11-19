@@ -21,3 +21,5 @@ renders/web/opening-raw.jpg
 renders/web/opening-blend.jpg
 __pycache__/
 *.blend1
+# Local ML environment and model weights (Segment Anything, LaMa)
+.ml/
