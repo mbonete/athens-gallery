@@ -2,16 +2,19 @@ import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
+import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import hall from "./data/hall.json";
 import { displayH, displayW, type Painting } from "./paintings";
 import { rig } from "./rig";
 import { ShiftCamera } from "./ShiftCamera";
-import { setState } from "./store";
+import { getState, setState } from "./store";
 import { glide } from "./input";
-import { frustumFor, poseAt, SHIFT_X, STATIONS } from "./walk";
+import { frustumFor, poseAt, progressNear, SHIFT_X, STATIONS, TOTAL } from "./walk";
 
-const SKY = new THREE.Color("#c9d4e2");
+// The fresco's sky, as seen through the far door and the drum (sRGB 175, 175, 245).
+const SKY = new THREE.Color().setRGB(175 / 255, 175 / 255, 245 / 255, THREE.SRGBColorSpace);
 const SKY_DIM = new THREE.Color("#2a2826");
 
 export function Scene() {
@@ -29,6 +32,23 @@ export function Scene() {
   }, [sunTarget]);
 
   useEffect(() => {
+    if (import.meta.env.DEV) {
+      // Test hook (dev only): where a painting is on screen, for scripted taps.
+      (window as unknown as Record<string, unknown>).__gallery = {
+        rig,
+        STATIONS,
+        TOTAL,
+        progressNear,
+        getState,
+        screenOf(slug: string) {
+          const m = rig.paintingMeshes.get(slug);
+          if (!m) return null;
+          const p = m.getWorldPosition(new THREE.Vector3()).project(camera);
+          const r = gl.domElement.getBoundingClientRect();
+          return { x: r.left + ((p.x + 1) / 2) * r.width, y: r.top + ((1 - p.y) / 2) * r.height, z: p.z };
+        },
+      };
+    }
     rig.camera = camera;
     set({ camera });
     const pmrem = new THREE.PMREMGenerator(gl);
@@ -63,22 +83,8 @@ export function Scene() {
   return (
     <>
       <hemisphereLight ref={hemi} args={["#e6edf6", "#8f8576", 1.6]} />
-      <directionalLight
-        ref={sun}
-        position={[-27, 46, 13]}
-        intensity={1.8}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-bias={-0.0004}
-        shadow-normalBias={0.03}
-        shadow-camera-left={-42}
-        shadow-camera-right={42}
-        shadow-camera-top={42}
-        shadow-camera-bottom={-42}
-        shadow-camera-near={1}
-        shadow-camera-far={120}
-      >
-      </directionalLight>
+      {/* Lights only for the frames and the doorway's base: the hall itself is baked. */}
+      <directionalLight ref={sun} position={[-27, 46, 13]} intensity={1.8} />
       <primitive object={sunTarget} />
       <Hall />
       {STATIONS.map((st) => (
@@ -88,17 +94,40 @@ export function Scene() {
   );
 }
 
+/** The hall, baked in Blender (tools/bake_hall.sh): every surface carries its light in a
+ * lightmap atlas (KTX2), so it is drawn unlit. Dimming around a painting tints the colour. */
+const hallMaterials: { mat: THREE.MeshBasicMaterial; base: THREE.Color }[] = [];
+
 function Hall() {
-  const gltf = useLoader(GLTFLoader, "/models/hall.glb");
   const { gl } = useThree();
+  const gltf = useLoader(GLTFLoader, "/models/hall.glb", (loader) => {
+    const ktx2 = new KTX2Loader().setTranscoderPath("/basis/").detectSupport(gl);
+    loader.setKTX2Loader(ktx2);
+    loader.setMeshoptDecoder(MeshoptDecoder);
+  });
   useEffect(() => {
+    hallMaterials.length = 0;
     gltf.scene.traverse((o) => {
-      if ((o as THREE.Mesh).isMesh) o.castShadow = o.receiveShadow = true;
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const old = mesh.material as THREE.MeshStandardMaterial;
+      const map = old.map ?? null;
+      if (map) {
+        map.colorSpace = THREE.SRGBColorSpace;
+        map.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy());
+      }
+      const mat = new THREE.MeshBasicMaterial({ map, color: map ? 0xffffff : old.color, toneMapped: false });
+      mesh.material = mat;
+      old.dispose();
+      hallMaterials.push({ mat, base: mat.color.clone() });
+      mesh.castShadow = false;
+      mesh.receiveShadow = false;
     });
-    gl.shadowMap.autoUpdate = false; // static hall: draw the shadow map once
-    gl.shadowMap.needsUpdate = true;
     setState({ ready: true });
   }, [gltf, gl]);
+  useFrame(() => {
+    for (const { mat, base } of hallMaterials) mat.color.copy(base).multiplyScalar(rig.light);
+  });
   return <primitive object={gltf.scene} />;
 }
 

@@ -11,7 +11,8 @@ painting. Architecture only: no figures, no statues.
 | 1 | 3–4 h of modelling | Camera solve and depth choice: `renders/checkpoint-a/checkpoint-a.jpg`, `reference/camera.json` | approved: ~5 m depth |
 | 2 | 4–6 h of web work | Grey model: `renders/grey/gate-2-sheet.jpg` (overlay, lit views, phone view, plan) | approved, at 70 % size |
 | Hall stage 1 | 4–6 h on the rest of the hall | The nave arm finished in Blender (coffers, mouldings, materials, Cycles light) beside the fresco: `renders/hall-stage1/REPORT.md` | approved with changes |
-| Hall stage 2 | The bake for the web | The whole hall finished in Blender beside the fresco, eye-level views, bay 1's hanging options, crossing options: `renders/hall-stage2/` | waiting for review: the crossing size is Maria's call (branch `hall-look`) |
+| Hall stage 2 | The bake for the web | The whole hall finished in Blender beside the fresco, eye-level views, bay 1's hanging options, crossing options: `renders/hall-stage2/` | approved: crossing A, shade halved, paintings below the niches |
+| Hall stage 3 | The recesses in bays 2-3 and the second arm | The baked hall walkable in the web (port 5202 on the worktree): `renders/hall-stage3/` | waiting for review on the Mac and the A55 |
 | Final | — | The prototype on the Galaxy A55 | landscape tested on the A55 (60 fps, pinch walk, tap, Back); portrait pending |
 
 ## Web prototype (`web/`)
@@ -21,8 +22,11 @@ Run: `cd web && npm install && npm run dev` (Vite on 127.0.0.1:5199). The painti
 `reference/paintings/collection.md` and run `tools/prepare_collection.py` first. `?fresco` (dev only)
 frames the canvas at the fresco's proportions to check the opening view.
 
-- The hall is exported from Blender at 70 % (`blender ... -- renders/grey export` writes
-  `web/public/models/hall.glb` and `web/src/data/hall.json`).
+- The hall is the finished Blender model, baked (hall stage 3): `tools/bake_hall.sh [rough|final]`
+  rebuilds it, bakes Cycles' light into lightmap atlases (`blender/scripts/bake.py`), fills and
+  denoises them, and packs `web/public/models/hall.glb` (KTX2 textures, meshopt geometry, 70 %)
+  plus `web/src/data/hall.json`. Needs `basisu` (Homebrew `basis_universal`) and `web/node_modules`.
+  The web draws it unlit; `web/public/basis/` holds the KTX2 transcoder.
 - The camera is a shift-lens camera: horizontal axis, horizon one third up, as in the
   fresco. In the browser the opening view lands on Raphael's lines (checked with an overlay,
   `renders/web/opening-edges.jpg`).
@@ -60,10 +64,8 @@ frames the canvas at the fresco's proportions to check the opening view.
     tested on the phone.
 
 - **Web:** no facts yet (Maria writes them); the panel shows museum data only.
-  The hall's light is real-time (sun shadows drawn once, hemisphere and environment light),
-  not baked. No reduced-motion walk yet (transitions just get very short). Not tested on an
-  iPhone. The JavaScript is 451 KB gzipped and the model 856 KB uncompressed (neither split
-  nor compressed yet).
+  The hall's light is baked (rough bake so far: see `renders/hall-stage3/`). No reduced-motion walk yet (transitions just get very short). Not tested on an
+  iPhone. The JavaScript is not split yet.
 
 - **Depth is a choice, not a measurement.** One image fixes the view, not the depth. The
   model assumes the domed crossing is square (Gate 1).
@@ -83,10 +85,8 @@ frames the canvas at the fresco's proportions to check the opening view.
 - **The finished hall exists only in Blender** (hall stages 1-2, `blender/scripts/finish.py`,
   `finish2.py`): coffered vaults, mouldings, bay 1's recesses and niches, facade, floors and steps,
   crossing with tondo frames, drum and dome, end wall, materials, Raphael's light. Its limits are
-  listed in `renders/hall-stage1/REPORT.md` and `renders/hall-stage2/REPORT.md`. The web model
-  hasn't been re-exported or baked; the crossing's size is waiting for Maria's decision.
-- **Lighting in the web prototype is a placeholder:** one sun from the front left plus a
-  uniform sky. (Raphael's light comes from the front right; the stage 1 renders use that.)
+  listed in `renders/hall-stage1/REPORT.md`, `renders/hall-stage2/REPORT.md` and
+  `renders/hall-stage3/REPORT.md`. The crossing is option A (Maria, stage 2 gate).
 - **Paintings are 1.8 × 2.4 m red placeholders,** all the same size and hung at the same
   height.
 - **The steps don't follow equal risers.** Read off the fresco they come out 27, 19, 18 and

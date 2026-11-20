@@ -54,7 +54,6 @@ export function App() {
       <div ref={stage} className={`stage ${FRESCO_FRAME ? "fresco-frame" : ""}`}>
         <Canvas
           dpr={[1, 2]}
-          shadows={{ type: THREE.PCFSoftShadowMap }}
           gl={{ antialias: true, toneMapping: THREE.AgXToneMapping, toneMappingExposure: 1.0 }}
           onCreated={({ gl }) => gl.setClearColor("#c9d4e2")}
         >
