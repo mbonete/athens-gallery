@@ -354,14 +354,35 @@ def sweep(name, prof, path, outs, ups, kind, mats, closed=False):
     bm = bmesh.new()
     rings = [[bm.verts.new(c + o * p + u * q) for p, q in prof] for c, o, u in zip(path, outs, ups)]
     n = len(prof)
+    # Lightmap UVs along the sweep (round 7): u = length along each profile point's own run,
+    # v = length along the profile. Every facet of the moulding is then a strip along the
+    # texel rows, however the run curves: smart project's islands cut facets narrower than a
+    # texel across the rows, and on an arch they read as dashes. bake.py uses this layer.
+    uvl = bm.loops.layers.uv.new("lightmap_sweep")
+    pts3 = [[v.co.copy() for v in r] for r in rings] + ([[v.co.copy() for v in rings[0]]] if closed else [])
+    us = [[0.0] * n]
+    for k in range(1, len(pts3)):
+        us.append([us[-1][j] + (pts3[k][j] - pts3[k - 1][j]).length for j in range(n)])
+    vs = [0.0]
+    for j in range(1, n + 1):
+        a, b = prof[j - 1], prof[j % n]
+        vs.append(vs[-1] + math.hypot(b[0] - a[0], b[1] - a[1]))
     pairs = list(zip(rings, rings[1:])) + ([(rings[-1], rings[0])] if closed else [])
-    for a, b in pairs:
+    for k, (a, b) in enumerate(pairs):
         for i in range(n):
             j = (i + 1) % n
-            bm.faces.new((a[i], a[j], b[j], b[i]))
+            f = bm.faces.new((a[i], a[j], b[j], b[i]))
+            for loop, (rk, pj, pv) in zip(f.loops, ((k, i, i), (k, j, i + 1), (k + 1, j, i + 1), (k + 1, i, i))):
+                loop[uvl].uv = (us[rk][pj], vs[pv])
     if not closed:
-        bm.faces.new(rings[0])
-        bm.faces.new(rings[-1][::-1])
+        pmin = min(p for p, q in prof)
+        qmin = min(q for p, q in prof)
+        width = max(p for p, q in prof) - pmin
+        for ring, order, u0 in ((rings[0], rings[0], -width - 0.05), (rings[-1], rings[-1][::-1], us[-1][0] + 0.05)):
+            f = bm.faces.new(order)
+            for loop in f.loops:
+                p_, q_ = prof[ring.index(loop.vert)]
+                loop[uvl].uv = (u0 + p_ - pmin, q_ - qmin)
     bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=1e-6)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     return _obj(name, bm, kind, mats, smooth_angle=35)
@@ -654,10 +675,14 @@ def materials():
                           rough=(0.55, 0.80), bump=0.12),
         "vault_rib": textured("vault_rib", "white_plaster_02", (0.15, 0.34), A["rib_dark"], A["rib"], 1.5,
                               rough=(0.75, 0.95), bump=0.08),
-        "coffer": textured("coffer", "Marble009", (0.0, 0.012), A["coffer_dark"], A["coffer_light"], 0.7,
-                           rough=(0.45, 0.75), bump=0.05),
-        "coffer_riser": textured("coffer_riser", "Marble009", (0.0, 0.012), A["riser_dark"], A["riser_light"], 0.7,
-                                 rough=(0.45, 0.75), bump=0.05),
+        # Round 7 (Maria): the coffers clean and even. The fresco's blotches are 500 years of grime
+        # (Marble009 stretched over a wide dark-light range, mottled +-60 %), and its dark risers
+        # are shade, which the bake gives them. One tone for ribs, panels, risers and treads, with
+        # the walls' fine plaster grain.
+        "coffer": textured("coffer", "white_plaster_02", (0.15, 0.34), A["rib_dark"], A["rib"], 1.5,
+                           rough=(0.75, 0.95), bump=0.08),
+        "coffer_riser": textured("coffer_riser", "white_plaster_02", (0.15, 0.34), A["rib_dark"], A["rib"], 1.5,
+                                 rough=(0.75, 0.95), bump=0.08),
         "step": textured("step", "Marble014", (0.32, 0.65), A["step_dark"], A["step"], 1.6,
                          rough=(0.35, 0.6), bump=0.05),
         "tondo": flat("tondo", A["stucco"]),
@@ -673,12 +698,13 @@ def materials():
                                 scaled(A["stucco"], P.DRUM), 2.0, rough=(0.75, 0.95), bump=0.10)
     M["stone_facade"] = textured("stone_facade", "Travertine009", (0.51, 0.74), scaled(A["stone_dark"], P.FACADE),
                                  scaled(A["stone"], P.FACADE), 1.5, rough=(0.55, 0.80), bump=0.12)
-    M["coffer_tread"] = textured("coffer_tread", "white_plaster_02", (0.15, 0.34), scaled(A["rib_dark"], (P.TREAD,) * 3),
-                                 scaled(A["rib"], (P.TREAD,) * 3), 1.5, rough=(0.75, 0.95), bump=0.08)
+    M["coffer_tread"] = textured("coffer_tread", "white_plaster_02", (0.15, 0.34), A["rib_dark"], A["rib"], 1.5,
+                                 rough=(0.75, 0.95), bump=0.08)
     risers(M["step"])
-    # Painted look (Maria, stage 2): the coffers' marble mottling and the ribs' fine speckle.
+    # Painted look: since round 7 the coffers and ribs carry only the walls' fine grain.
     painted(M["coffer"], *P.PAINTED["coffer"])
     painted(M["coffer_riser"], *P.PAINTED["coffer"])
+    painted(M["coffer_tread"], *P.PAINTED["coffer"])
     painted(M["vault_rib"], *P.PAINTED["rib"])
     for key in ("stone", "stone_far", "stone_facade"):
         painted(M[key], *P.PAINTED["stone"])
@@ -690,8 +716,8 @@ def materials():
     # only by a colour factor share its detail texture and carry the factor as a tint.
     detail = {"stucco": ("stucco", None), "stucco_far": ("stucco", P.FAR), "stucco_drum": ("stucco", P.DRUM),
               "stone": ("stone", None), "stone_far": ("stone", P.FAR), "stone_facade": ("stone", P.FACADE),
-              "vault_rib": ("rib", None), "coffer": ("coffer", None), "coffer_riser": ("coffer_riser", None),
-              "coffer_tread": ("coffer_tread", None), "step": ("step", None)}
+              "vault_rib": ("rib", None), "coffer": ("rib", None), "coffer_riser": ("rib", None),
+              "coffer_tread": ("rib", None), "step": ("step", None)}
     for name, (key, tint) in detail.items():
         M[name]["detail"] = key
         M[name]["tint"] = list(tint) if tint else [1.0, 1.0, 1.0]
@@ -893,4 +919,18 @@ def light(sun, world, raphael=True):
     rc = bpy.data.collections.new("front_bounce_receivers")
     rc.objects.link(bpy.data.objects["nave_vault_band"])
     cob.light_linking.receiver_collection = rc
+    # Round 7: daylight spilling through the oculus onto the dome's inside (designed: the oculus
+    # is open sky). A small sphere light just under the opening, lighting only the coffered
+    # sheet, so the plain band brightens towards the oculus instead of reading as a flat disc.
+    if bpy.data.objects.get("dome_coffers") is not None:
+        R = P.CROSS_HALF
+        spill = bpy.data.lights.new("oculus_spill", "POINT")
+        spill.energy, spill.shadow_soft_size, spill.color = P.OCULUS_SPILL_W, 0.4, P.SKY_LIGHT
+        sob = bpy.data.objects.new("oculus_spill", spill)
+        sob.location = (0, (P.CROSS_Y0 + P.CROSS_Y1) / 2, P.DRUM_Z1 + math.sqrt(R ** 2 - P.OCULUS_R ** 2) - 0.35)
+        sob.visible_camera = sob.visible_glossy = False
+        bpy.context.scene.collection.objects.link(sob)
+        oc = bpy.data.collections.new("oculus_spill_receivers")
+        oc.objects.link(bpy.data.objects["dome_coffers"])
+        sob.light_linking.receiver_collection = oc
     return travel

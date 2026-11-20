@@ -241,12 +241,32 @@ def dome_unwrap(ob):
     mw = ob.matrix_world
     c0 = Vector((0, (P.CROSS_Y0 + P.CROSS_Y1) / 2, P.DRUM_Z1))
     R = P.CROSS_HALF
+    # Round 7: the step walls get their own texels. Inside a coffer every point is drawn in
+    # towards the coffer's middle by its depth (each sunk level shrinks round the middle), so a
+    # radial step wall opens into a band as wide as it is deep, between the levels it joins.
+    cols, rings = P.DOME_COFFER_COUNT, P.DOME_COFFER_RINGS
+    dth = 2 * math.pi / cols
+    phis = [P.DOME_BASE_BAND]
+    for _ in range(rings):
+        a = phis[-1]
+        phis.append(a + dth * math.cos(a + dth * math.cos(a) / 2))
     for li, loop in enumerate(me.loops):
         w = mw @ me.vertices[loop.vertex_index].co - c0
         el = math.atan2(w.z, math.hypot(w.x, w.y))
-        rho = R * (math.pi / 2 - el)
         t = math.atan2(w.y, w.x)
-        uv.data[li].uv = (0.5 + 0.5 * rho * math.cos(t) / (R * math.pi / 2), 0.5 + 0.5 * rho * math.sin(t) / (R * math.pi / 2))
+        rho = R * (math.pi / 2 - el)
+        x, y = rho * math.cos(t), rho * math.sin(t)
+        depth = w.length - R
+        if depth > 1e-4 and phis[0] < el < phis[-1]:
+            i = max(k for k in range(rings) if phis[k] <= el)
+            j = int((t % (2 * math.pi)) // dth)
+            tc, ec = (j + 0.5) * dth, (phis[i] + phis[i + 1]) / 2
+            rc = R * (math.pi / 2 - ec)
+            cx, cy = rc * math.cos(tc), rc * math.sin(tc)
+            half = 0.5 * min(R * math.cos(ec) * dth, R * (phis[i + 1] - phis[i]))
+            k = max(0.2, 1 - depth / half)
+            x, y = cx + (x - cx) * k, cy + (y - cy) * k
+        uv.data[li].uv = (0.5 + 0.5 * x / (R * math.pi / 2), 0.5 + 0.5 * y / (R * math.pi / 2))
     return max(uv_coverage([ob]), 1e-4)
 
 
@@ -255,8 +275,23 @@ def unwrap_one(ob):
     came out collapsed or overlapping). Returns the share of the unit square its islands cover."""
     if ob.name == "dome_coffers":
         return dome_unwrap(ob)
-    split_long(ob, P.BAKE_ISLAND_MAX)
     me = ob.data
+    if "lightmap_sweep" in me.uv_layers:
+        # A swept moulding: its own UVs along the run (finish.sweep), facets along the texel rows.
+        data = [d.uv.copy() for d in me.uv_layers["lightmap_sweep"].data]
+        me.uv_layers.remove(me.uv_layers["lightmap_sweep"])
+        if "detail" not in me.uv_layers:            # created first: TEXCOORD_0 in the glTF
+            me.uv_layers.new(name="detail")
+        uv = me.uv_layers.get("lightmap") or me.uv_layers.new(name="lightmap")
+        for d, c in zip(uv.data, data):
+            d.uv = c
+        lo = Vector((min(c.x for c in data), min(c.y for c in data)))
+        hi = Vector((max(c.x for c in data), max(c.y for c in data)))
+        ext = max(hi.x - lo.x, hi.y - lo.y, 1e-6)
+        for d in uv.data:
+            d.uv = (d.uv - lo) / ext
+        return max(uv_coverage([ob]), 1e-4)
+    split_long(ob, P.BAKE_ISLAND_MAX)
     for uvl in [u for u in me.uv_layers if u.name not in ("detail", "lightmap")]:
         me.uv_layers.remove(uvl)
     if "detail" not in me.uv_layers:            # created first: TEXCOORD_0 in the glTF
@@ -328,8 +363,30 @@ def layout(objs):
             for li in p.loop_indices:
                 loop_face[li] = p
         for loops in islands(ob):
-            # Scale each island on its own: its 3D area and UV area give px per UV unit.
+            # Round 7: turn the island so its edges run along the texel grid (smart project and
+            # its packer leave islands at any angle: a straight shadow edge then becomes a
+            # one-texel staircase). Angle: length-weighted mean of the edges' angles mod 90.
             faces = {loop_face[i].index: loop_face[i] for i in loops}.values()
+            sx = sy = 0.0
+            for p in faces:
+                li = list(p.loop_indices)
+                for a, b in zip(li, li[1:] + li[:1]):
+                    d = uv[b].uv - uv[a].uv
+                    w3 = (mw @ me.vertices[me.loops[b].vertex_index].co - mw @ me.vertices[me.loops[a].vertex_index].co).length
+                    if d.length < 1e-9:
+                        continue
+                    t = 4 * math.atan2(d.y, d.x)
+                    sx += w3 * math.cos(t)
+                    sy += w3 * math.sin(t)
+            ang = math.atan2(sy, sx) / 4
+            if abs(ang) > 1e-4:
+                ca, sa = math.cos(-ang), math.sin(-ang)
+                cx = sum(uv[i].uv.x for i in loops) / len(loops)
+                cy = sum(uv[i].uv.y for i in loops) / len(loops)
+                for i in loops:
+                    x, y = uv[i].uv.x - cx, uv[i].uv.y - cy
+                    uv[i].uv = (cx + ca * x - sa * y, cy + sa * x + ca * y)
+            # Scale each island on its own: its 3D area and UV area give px per UV unit.
             a3 = sum(p.area for p in faces) * (mw.to_scale().x ** 2)
             a2i = 0.0
             for p in faces:
@@ -402,7 +459,7 @@ def layout(objs):
     # vault band takes the bounce card) meet at a deliberate step the stitch must keep.
     def light_class(ob):
         cls = 0
-        for bit, cname in ((1, "sun_not_received"), (2, "front_bounce_receivers")):
+        for bit, cname in ((1, "sun_not_received"), (2, "front_bounce_receivers"), (4, "oculus_spill_receivers")):
             c = bpy.data.collections.get(cname)
             if c is not None and ob.name in c.objects:
                 cls += bit

@@ -104,6 +104,45 @@ export function Scene() {
  * around a painting scales the tint. */
 const hallMaterials: { mat: THREE.MeshBasicMaterial; base: THREE.Color }[] = [];
 
+/** Lightmap lookup with a cubic B-spline filter (4 bilinear taps; Sigg & Hadwiger, GPU Gems 2,
+ * ch. 20) instead of one bilinear tap: the light between texel centres is smooth, so edges that
+ * cross the texel grid at an angle no longer read as one-texel steps. ?lmfilter=bilinear turns it
+ * off (to compare frame times). */
+const LM_BICUBIC = new URLSearchParams(window.location.search).get("lmfilter") !== "bilinear";
+const LM_BICUBIC_GLSL = /* glsl */ `
+vec4 lmCubicWeights(float v) {
+  vec4 n = vec4(1.0, 2.0, 3.0, 4.0) - v;
+  vec4 s = n * n * n;
+  float x = s.x;
+  float y = s.y - 4.0 * s.x;
+  float z = s.z - 4.0 * s.y + 6.0 * s.x;
+  return vec4(x, y, z, 6.0 - x - y - z) * (1.0 / 6.0);
+}
+vec4 lmBicubic(sampler2D tex, vec2 uv) {
+  vec2 size = vec2(textureSize(tex, 0));
+  vec2 px = uv * size - 0.5;
+  vec2 f = fract(px);
+  px -= f;
+  vec4 xc = lmCubicWeights(f.x);
+  vec4 yc = lmCubicWeights(f.y);
+  vec4 c = px.xxyy + vec2(-0.5, 1.5).xyxy;
+  vec4 s = vec4(xc.xz + xc.yw, yc.xz + yc.yw);
+  vec4 o = (c + vec4(xc.yw, yc.yw) / s) / size.xxyy;
+  vec4 s0 = texture2D(tex, o.xz), s1 = texture2D(tex, o.yz), s2 = texture2D(tex, o.xw), s3 = texture2D(tex, o.yw);
+  float sx = s.x / (s.x + s.y), sy = s.z / (s.z + s.w);
+  return mix(mix(s3, s2, sx), mix(s1, s0, sx), sy);
+}
+`;
+function lightmapBicubic(mat: THREE.MeshBasicMaterial) {
+  if (!LM_BICUBIC) return;
+  mat.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader
+      .replace("void main() {", `${LM_BICUBIC_GLSL}\nvoid main() {`)
+      .replace("texture2D( lightMap, vLightMapUv )", "lmBicubic( lightMap, vLightMapUv )");
+  };
+  mat.customProgramCacheKey = () => "lm-bicubic";
+}
+
 function Hall() {
   const { gl } = useThree();
   const gltf = useLoader(GLTFLoader, "/models/hall.glb", (loader) => {
@@ -138,6 +177,7 @@ function Hall() {
         color: old.color,
         toneMapped: false,
       });
+      lightmapBicubic(mat);
       mesh.material = mat;
       old.dispose();
       hallMaterials.push({ mat, base: mat.color.clone() });

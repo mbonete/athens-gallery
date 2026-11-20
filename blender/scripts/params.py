@@ -206,6 +206,7 @@ DOME_RIB = 0.2                      # rib width, fraction of a cell
 DOME_STEP_INSETS = (0.08, 0.05, 0.11)   # per step: each side, upper, lower (fractions of the cell)
 DOME_STEP_DEPTH = 0.05              # per step, fraction of the cell's width (5 cm in the first ring)
 OCULUS_RIM_R = 1.3                  # the smooth band ends here; the oculus' ring runs to OCULUS_R
+OCULUS_SPILL_W = 120.0              # round 7: point light under the oculus, lighting the dome sheet only (finish.light)
 
 # End wall: the painted Doric entablature (u 1700-2170, v 1250-1330 at Y 55): architrave
 # Z 12.64-13.36, triglyph frieze 13.36-14.28, cornice 14.28-14.57. Triglyphs every 68 px
@@ -219,8 +220,9 @@ END_PILASTER_X0, END_PILASTER_W, END_PILASTER_D = 0.45, 0.8, 0.25
 
 # Painted surfaces (Maria, stage 2): (noise scale per m, contrast, speckle darkness). The
 # fresco's cracks and stains are left out on purpose (its age, not the building).
-PAINTED = {"coffer": (6.0, 0.6, 0.0), "rib": (4.0, 0.06, 0.35), "stone": (1.5, 0.05, 0.0),
+PAINTED = {"coffer": (1.0, 0.04, 0.0), "rib": (1.0, 0.04, 0.0), "stone": (1.5, 0.05, 0.0),
            "stucco": (1.0, 0.04, 0.0)}
+# Round 7 (Maria): coffers and ribs clean, at the walls' grain (were (6.0, 0.6) mottle and a 0.35 speckle).
 
 # Raphael's light, beyond one sun (finish.light; REPORT.md "Light"):
 # Maria, stage 2 gate: halve the darkening, f -> 1 - (1 - f) / 2 (was 0.55 and (0.55, 0.5, 0.38)).
