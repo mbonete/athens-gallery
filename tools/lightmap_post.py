@@ -17,7 +17,8 @@ light x factor / LIGHT_SCALE, the format tools/pack_hall.mjs reads, and stitch-r
    class) and receiving light at all (texels inside another solid are left out). Both sides of a cut then meet at the
    same value; away from cuts G_island = G_plane and nothing changes. The factor is multiplied in
    afterwards, so its deliberate steps (Raphael's right-side shade, the buff side walls) stay sharp.
-3. Fill: texels inside other solids (no light at all) count as empty. Cycles' own margin round each island (bake.margin, "extend": each island's edge
+3. Fill: covered texels with almost no light (inside another solid) take the light of lit texels
+   of their own island up to 8 texels away. Cycles' own margin round each island (bake.margin, "extend": each island's edge
    carried outward) stays as baked and denoised, so bilinear filtering at an island's edge reads
    that island; texels beyond it take the nearest baked texel's value, so mipmaps never pull in
    black. (Filling the margin from the nearest covered texel instead hands a texel between two
@@ -41,7 +42,6 @@ SIGMA = R / 2
 PLANE_TOL = 0.015                                            # same plane: within 1.5 cm
 K = 64
 DARK = 0.015                                                 # linear light: inside a solid
-VOID = 1e-4                                                  # no light at all: inside a solid (filled)
 PARALLEL = 0.995                                             # same plane: normals within 6 degrees
 
 
@@ -54,6 +54,26 @@ def enc(lin):
 def dec(levels):
     x = np.clip(levels / 255.0, 0.0, 1.0)
     return P.LIGHT_SCALE * np.where(x <= 0.04045, x / 12.92, np.power((x + 0.055) / 1.055, 2.4))
+
+
+def island_dilate(img, good, ids, todo, iters=8):
+    """Fill the texels in todo from good neighbours of the same island, ring by ring (8 rings)."""
+    img, good = img.copy(), good.copy()
+    for _ in range(iters):
+        acc = np.zeros_like(img)
+        cnt = np.zeros(good.shape, np.float32)
+        for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)):
+            sg = np.roll(np.roll(good, dy, 0), dx, 1)
+            si = np.roll(np.roll(ids, dy, 0), dx, 1)
+            m = sg & (si == ids) & todo & ~good
+            acc[m] += np.roll(np.roll(img, dy, 0), dx, 1)[m]
+            cnt[m] += 1
+        new = cnt > 0
+        if not new.any():
+            break
+        img[new] = acc[new] / cnt[new][:, None]
+        good |= new
+    return img, good
 
 
 def fill_nearest(img, covered):
@@ -73,10 +93,14 @@ for f in sorted(OUT.glob("bake_*.npz")):
     g = f.stem[len("bake_"):]
     cov = d["covered"]
     light = d["light"][..., :3].astype(np.float32)
-    # Covered texels and Cycles' margin round each island; texels that get no light at all
-    # (VOID; a deep coffer step in shade still gets some) are inside another solid (a wall under a frame, a pilaster's foot in its base): they are filled
-    # from their lit neighbours like empty ones, so filtering at the junction reads lit texels.
-    baked = (d["light"][..., 3] > 0) & (light.max(-1) > VOID)
+    # Covered texels that get (almost) no light lie inside another solid (a wall under a frame, a
+    # thin face's texels straddling its neighbour): they take the light of lit texels of the same
+    # island nearby, so filtering at a junction reads lit texels and a thin face never reads black.
+    # Cycles' margin round each island stays; empty texels take the nearest baked one (step 3).
+    alpha = d["light"][..., 3] > 0
+    dark = cov & (light.max(-1) <= DARK)
+    light, filled = island_dilate(light, alpha & ~dark, d["island"], dark)
+    baked = (alpha & ~dark) | filled
     # 1. denoise (on the filled atlas, so the search windows never meet black)
     e8 = np.clip(np.round(enc(fill_nearest(light, baked))), 0, 255).astype(np.uint8)
     den = cv2.fastNlMeansDenoisingColored(e8, None, H_NLM, H_NLM, 5, 15) if H_NLM > 0 else e8
