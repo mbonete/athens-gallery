@@ -98,13 +98,17 @@ for f in sorted(OUT.glob("bake_*.npz")):
     # island nearby, so filtering at a junction reads lit texels and a thin face never reads black.
     # Cycles' margin round each island stays; empty texels take the nearest baked one (step 3).
     alpha = d["light"][..., 3] > 0
-    dark = cov & (light.max(-1) <= DARK)
-    light, filled = island_dilate(light, alpha & ~dark, d["island"], dark)
+    dark = alpha & (light.max(-1) <= DARK)
+    light, filled = island_dilate(light, alpha & ~dark, d["island"], dark & cov)
+    # Dark margin texels (the margin carries the island's dark edge outward) count as empty: the
+    # nearest baked texel is their own island's lit edge, two texels away at most.
     baked = (alpha & ~dark) | filled
     # 1. denoise (on the filled atlas, so the search windows never meet black)
     e8 = np.clip(np.round(enc(fill_nearest(light, baked))), 0, 255).astype(np.uint8)
     den = cv2.fastNlMeansDenoisingColored(e8, None, H_NLM, H_NLM, 5, 15) if H_NLM > 0 else e8
-    groups[g] = dict(cov=cov, baked=baked, light=dec(den.astype(np.float32)), factor=d["factor"].astype(np.float32),
+    factor = d["factor"].astype(np.float32)
+    factor[d["position"][..., 2] > P.DRUM_Z1 + 0.005] = 1.0       # the dome takes no factor (bake.face_factor)
+    groups[g] = dict(cov=cov, baked=baked, light=dec(den.astype(np.float32)), factor=factor,
                      pos=d["position"], nrm=d["normal"].astype(np.float32), isl=d["island"],
                      cls=d["light_class"] if "light_class" in d else np.zeros(cov.shape, np.int8))
     print(f"[post {time.time() - t0:5.1f}s] {g}: {cov.shape[1]}x{cov.shape[0]}, {cov.mean():.0%} covered, denoised (h {H_NLM})")

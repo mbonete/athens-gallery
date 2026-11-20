@@ -448,6 +448,8 @@ def face_factor(c, n):
     - the side walls of the nave and the second arm (walls, pilasters, recesses, their mouldings,
       bay 1's vestibule excepted) x SIDE_TINT: the fresco's receding walls are buff."""
     f = Vector((1.0, 1.0, 1.0))
+    if c.z > P.DRUM_Z1 + 0.005:          # the dome: lit all round by the drum's windows (round 6)
+        return f
     if c.x > 0.5 and n.z < -0.5:
         f *= P.RIGHT_UNDERSIDE
     if c.x > 0.5 and (n.x < -0.5 or c.x > P.NAVE_HALF_W + 0.05) and c.y > P.FACADE_Y1 and c.z < P.SPRING_Z + 0.5:
