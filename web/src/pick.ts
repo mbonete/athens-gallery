@@ -8,7 +8,7 @@ import { PAINTINGS } from "./paintings";
 import { rig } from "./rig";
 import { getState } from "./store";
 import { enter } from "./transition";
-import { hoverDome, tapDome } from "./dome";
+import { hoverDome, lookDown, tapDome } from "./dome";
 
 const MIN_PX = 48; // a target is never smaller than this on screen
 const MARGIN_PX = 12;
@@ -52,13 +52,21 @@ export function pickAt(clientX: number, clientY: number, el: HTMLElement) {
 }
 
 export function attachPicking(el: HTMLElement) {
-  let down: { x: number; y: number; t: number } | null = null;
+  let down: { x: number; y: number; t: number; up: boolean } | null = null;
+  const lookingUp = () => getState().mode === "dome";
   const onDown = (e: PointerEvent) => {
-    down = e.isPrimary ? { x: e.clientX, y: e.clientY, t: performance.now() } : null;
+    down = e.isPrimary ? { x: e.clientX, y: e.clientY, t: performance.now(), up: lookingUp() } : null;
   };
   const onUp = (e: PointerEvent) => {
     // A tap, not the end of a pinch or a drag.
     if (!down || !e.isPrimary || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10) return;
+    // Looking up into the dome, a tap anywhere goes back (only one that starts and ends there:
+    // taps during the tilts do nothing).
+    if (down.up && lookingUp()) {
+      down = null;
+      lookDown();
+      return;
+    }
     const p = pickAt(e.clientX, e.clientY, el);
     if (p) enter(p);
     else tapDome(e.clientX, e.clientY, el);
@@ -67,9 +75,10 @@ export function attachPicking(el: HTMLElement) {
   const onCancel = () => (down = null);
   const onMove = (e: PointerEvent) => {
     if (e.pointerType !== "mouse") return;
-    const p = pickAt(e.clientX, e.clientY, el);
-    el.style.cursor = p ? "pointer" : "";
-    hoverDome(e.clientX, e.clientY, el, !!p);
+    const up = lookingUp(); // a click anywhere goes back
+    const p = up ? null : pickAt(e.clientX, e.clientY, el);
+    el.style.cursor = p || up ? "pointer" : "";
+    hoverDome(e.clientX, e.clientY, el, !!p || up);
   };
   // A second finger turns the gesture into a pinch.
   const onTouch = (e: TouchEvent) => e.touches.length > 1 && (down = null);
