@@ -241,8 +241,8 @@ BAKE_QUALITY = os.environ.get("BAKE", "rough")
 # Groups baked into one atlas each, by the object's centre along Y (metres, 100 %).
 BAKE_GROUPS = [("front", -999, 15.0), ("facade", 15.0, 19.0), ("nave", 19.0, 33.0),
                ("crossing", 33.0, 46.9), ("arm2", 46.9, 999)]
-BAKE_DENSITY_SCALE = {"platform": 0.5, "floor_lower": 0.6, "floor_lower_sides_l": 0.4, "floor_lower_sides_r": 0.4,
-                      "facade": 0.8}
+BAKE_DENSITY_SCALE = {"floor_lower_sides_l": 0.6, "floor_lower_sides_r": 0.6, "facade": 0.8}
+BAKE_HALL_X = 7.4                         # m: nothing beyond this behind the facade is seen
 BAKE_ISLAND_MAX = 2.5                     # m: longer surfaces are cut into islands this long
 BAKE_SKIP = ("ground_beyond",)            # flat colour in the web, not baked
 BAKE_OCCLUDERS_ONLY = ("_vault_backing",)  # take part in the light, not exported

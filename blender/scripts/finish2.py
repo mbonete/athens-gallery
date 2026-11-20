@@ -161,6 +161,10 @@ def bay1(M):
         sweep(f"bay1_vestibule_base_{side}", attic_base(PZ), *plan_path(ring, hand), "stone", stone)
         box(f"bay1_vestibule_back_{side}", side * NW, side * xo, y1 - 0.02, y1 + 0.001, PZ, ztop, "stucco", stucco)
         box(f"bay1_vestibule_side_{side}", side * xo, side * (xo - 0.02), y0, y1, PZ, ztop, "stucco", stucco)
+        # Recess ceiling at the springing, between the vault's edge and the recess wall (the hidden
+        # vault backing closed it in Blender renders; the web model has no backing).
+        box(f"bay1_recess_ceiling_{side}", side * (NW - 0.05), side * (rx + 0.05), r0, r1, SZ, SZ + 0.35,
+            "stucco", stucco)
         # Recess: base along its walls (the entablature run wraps it, see finish.apply).
         sweep(f"bay1_recess_base_{side}", attic_base(PZ),
               *plan_path([(side * (NW + 0.03), r0), (side * rx, r0), (side * rx, r1), (side * (NW + 0.03), r1)], hand),

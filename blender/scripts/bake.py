@@ -59,6 +59,10 @@ try:
 except Exception as exc:  # fall back to CPU
     log("GPU unavailable:", exc)
 scene.cycles.samples = CFG["samples"]
+# Same colour pipeline as build.py's renders (the .blend is saved before build.py sets it):
+# Standard view transform, no look, so the atlases hold the colours calibrated on the fresco.
+scene.view_settings.view_transform, scene.view_settings.look = "Standard", "None"
+scene.view_settings.exposure, scene.view_settings.gamma = P.EXPOSURE, 1.0
 # The world shows the fresco's blue to camera rays and lights with a warmer colour (finish.light).
 # Bake rays start as camera rays, so pin the switch to the light colour: the visible sky is the
 # web page's background, not part of the bake.
@@ -95,6 +99,45 @@ for ob in meshes:
     bm.free()
 
 
+def cull_hidden(ob):
+    """Delete faces no visitor can see, so they take no atlas space:
+    - beyond the hall's side walls behind the facade (every vertex at |x| > HALL_X, y > facade front);
+    - undersides of floors and steps;
+    - the far side of the end wall;
+    - the outer shells of the drum and dome."""
+    mw = ob.matrix_world
+    rot = mw.to_3x3()
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    ycen = (P.CROSS_Y0 + P.CROSS_Y1) / 2
+    gone = []
+    for f in bm.faces:
+        vs = [mw @ v.co for v in f.verts]
+        n = (rot @ f.normal).normalized()
+        c = sum(vs, Vector()) / len(vs)
+        if all(abs(v.x) > P.BAKE_HALL_X and v.y > P.FACADE_Y0 + 0.05 for v in vs):
+            gone.append(f)
+        elif n.z < -0.99 and c.z < P.PLATFORM_Z + 0.05:
+            gone.append(f)
+        elif all(v.y > P.ARM2_Y1 + P.END_T - 0.01 for v in vs) and n.y > 0.9:
+            gone.append(f)
+        elif ob.name.startswith(("drum", "dome")) and c.z > P.DRUM_Z0 + 0.5:
+            radial = Vector((c.x, c.y - ycen, 0))
+            out = Vector((c.x, c.y - ycen, c.z - P.DRUM_Z1 if c.z > P.DRUM_Z1 else 0.0))
+            if radial.length > P.CROSS_HALF + 0.35 and n.dot(out) > 0.2:
+                gone.append(f)
+    if gone:
+        bmesh.ops.delete(bm, geom=gone, context="FACES")
+    bm.to_mesh(ob.data)
+    bm.free()
+    return len(gone)
+
+
+culled = sum(cull_hidden(ob) for ob in meshes)
+log(f"culled {culled} hidden faces")
+meshes = [ob for ob in meshes if ob.data.polygons]
+
+
 def centre_y(ob):
     cs = [ob.matrix_world @ Vector(c) for c in ob.bound_box]
     return sum(c.y for c in cs) / 8
@@ -117,30 +160,36 @@ def density_scale(ob):
 
 # ---------------------------------------------------------------- lightmap UVs per group
 def split_long(ob, step):
-    """Cut the mesh's edges along a world grid (every `step` m in X, Y and Z) so no UV island is
-    longer than that: long mouldings and the coffers' rib lattice would otherwise each be one
-    island whose bounding box swallows the atlas."""
+    """Cut the mesh along a world grid (every `step` m in X, Y and Z) and split it there, so no UV
+    island is longer than that: long mouldings, floors and the coffers' rib lattice would
+    otherwise each be one island whose bounding box swallows the atlas."""
     bm = bmesh.new()
     bm.from_mesh(ob.data)
     mw = ob.matrix_world
-    lo = [min((mw @ v.co)[i] for v in bm.verts) for i in range(3)]
-    hi = [max((mw @ v.co)[i] for v in bm.verts) for i in range(3)]
     inv = mw.inverted()
-    cut = []
+    planes = []
     for axis in range(3):
-        if hi[axis] - lo[axis] <= step:
+        lo = min((mw @ v.co)[axis] for v in bm.verts)
+        hi = max((mw @ v.co)[axis] for v in bm.verts)
+        if hi - lo <= step:
             continue
-        k = math.floor(lo[axis] / step) + 1
-        while k * step < hi[axis]:
+        k = math.floor(lo / step) + 1
+        while k * step < hi - 1e-4:
             no = Vector([1.0 if i == axis else 0.0 for i in range(3)])
             co = Vector([k * step if i == axis else 0.0 for i in range(3)])
-            res = bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], dist=1e-5,
-                                         plane_co=inv @ co, plane_no=(inv.to_3x3().transposed() @ no).normalized())
-            cut += [e for e in res["geom_cut"] if isinstance(e, bmesh.types.BMEdge)]
+            bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], dist=1e-5,
+                                   plane_co=inv @ co, plane_no=(inv.to_3x3().transposed() @ no).normalized())
+            planes.append((axis, k * step))
             k += 1
-    cut = [e for e in set(cut) if e.is_valid]
-    if cut:
-        bmesh.ops.split_edges(bm, edges=cut)
+    # Split every edge that lies in one of the cut planes (found after all cuts: later cuts
+    # subdivide the edges of earlier ones).
+    if planes:
+        world = {v: mw @ v.co for v in bm.verts}
+        cut = [e for e in bm.edges
+               if any(abs(world[e.verts[0]][ax] - val) < 1e-4 and abs(world[e.verts[1]][ax] - val) < 1e-4
+                      for ax, val in planes)]
+        if cut:
+            bmesh.ops.split_edges(bm, edges=cut)
     bmesh.ops.dissolve_degenerate(bm, dist=1e-5, edges=bm.edges[:])
     bad = [f for f in bm.faces if f.calc_area() < 1e-7]
     if bad:
@@ -213,9 +262,22 @@ def layout(objs):
         t0 = time.time()
         unwrap_one(ob)
         a2 = uv_coverage([ob])
-        f = CFG["density"] * density_scale(ob) * math.sqrt(area(ob) / max(a2, 1e-9))   # px per UV unit
         uv = ob.data.uv_layers["lightmap"].data
+        me = ob.data
+        mw = ob.matrix_world
+        loop_face = {}
+        for p in me.polygons:
+            for li in p.loop_indices:
+                loop_face[li] = p
         for loops in islands(ob):
+            # Scale each island on its own: its 3D area and UV area give px per UV unit.
+            faces = {loop_face[i].index: loop_face[i] for i in loops}.values()
+            a3 = sum(p.area for p in faces) * (mw.to_scale().x ** 2)
+            a2i = 0.0
+            for p in faces:
+                pts = [uv[i].uv for i in p.loop_indices]
+                a2i += abs(sum(pts[j].x * pts[j - 1].y - pts[j - 1].x * pts[j].y for j in range(len(pts)))) / 2
+            f = CFG["density"] * density_scale(ob) * math.sqrt(a3 / a2i) if a2i > 1e-12 else 1.0
             xs = [uv[i].uv.x for i in loops]
             ys = [uv[i].uv.y for i in loops]
             lo = Vector((min(xs), min(ys)))
@@ -227,6 +289,13 @@ def layout(objs):
         if time.time() - t0 > 5:
             log(f"  slow unwrap: {ob.name} {time.time() - t0:.0f}s")
     items.sort(key=lambda it: -it[0])
+    if os.environ.get("BAKE_DEBUG"):
+        log("  largest islands (h, w px):", [(round(it[0]), round(it[1]), it[2].name) for it in items[:6]])
+        it = items[0]
+        vs = [it[2].matrix_world @ it[2].data.vertices[it[2].data.loops[i].vertex_index].co for i in it[3]]
+        log("  largest island 3D bbox:", [round(min(v[k] for v in vs), 2) for k in range(3)],
+            [round(max(v[k] for v in vs), 2) for k in range(3)], len(it[3]), "loops")
+        log(f"  {len(items)} islands, {sum(it[0] * it[1] for it in items) / 1e6:.2f} Mpx")
     total = sum(it[0] * it[1] for it in items)
     page = max(256, int(math.ceil(math.sqrt(total / 0.8) / 64)) * 64)
     shrink = 1.0
@@ -246,6 +315,7 @@ def layout(objs):
             page = min(CFG["max_size"], page + 64)
         else:
             shrink *= 0.97
+    page_h = int(math.ceil((y + shelf) / 64)) * 64        # trim the unused rows: atlases need not be square
     for it, (x0, y0) in zip(items, pos):
         h, w, ob, loops, lo, f, rot = it
         uv = ob.data.uv_layers["lightmap"].data
@@ -254,10 +324,10 @@ def layout(objs):
             d = (uv[i].uv - lo) * k
             if rot:
                 d = Vector((d.y, d.x))
-            uv[i].uv = Vector(((x0 + m * shrink + d.x) / page, (y0 + m * shrink + d.y) / page))
+            uv[i].uv = Vector(((x0 + m * shrink + d.x) / page, (y0 + m * shrink + d.y) / page_h))
     if shrink < 1.0:
         log(f"  atlas capped at {page}: density x{shrink:.2f}")
-    return page
+    return page, page_h
 
 
 def uv_coverage(objs):
@@ -270,13 +340,6 @@ def uv_coverage(objs):
     return tot
 
 
-def atlas_size(objs):
-    px = sum(area(ob) * (CFG["density"] * density_scale(ob)) ** 2 for ob in objs) / 0.55
-    s = min(CFG["max_size"], max(256, int(math.ceil(math.sqrt(px) / 64)) * 64))   # NPOT is fine in WebGL2
-    eff = CFG["density"] * min(1.0, s / math.sqrt(px))
-    return s, eff, px
-
-
 # ---------------------------------------------------------------- bake each group
 report = {"quality": QUALITY, "config": CFG, "groups": {}}
 targets = {}
@@ -284,9 +347,9 @@ ONLY = os.environ.get("BAKE_ONLY")
 for name, objs in groups.items():
     if not objs or (ONLY and name != ONLY):
         continue
-    size = layout(objs)
+    size, size_h = layout(objs)
     eff = CFG["density"]
-    log(f"group {name}: {len(objs)} objects, {sum(area(o) for o in objs):.0f} m2, atlas {size}^2")
+    log(f"group {name}: {len(objs)} objects, {sum(area(o) for o in objs):.0f} m2, atlas {size} x {size_h}")
     lo, hi = [9.0, 9.0], [-9.0, -9.0]
     for ob in objs:
         for d in ob.data.uv_layers["lightmap"].data:
@@ -296,7 +359,7 @@ for name, objs in groups.items():
     log(f"  lightmap UV bounds {lo[0]:.3f},{lo[1]:.3f} .. {hi[0]:.3f},{hi[1]:.3f}, atlas used {cov:.0%}")
     if os.environ.get("BAKE_DRY"):
         continue
-    img = bpy.data.images.new(f"lightmap_{name}", size, size, alpha=True, float_buffer=True)  # alpha 0 = unbaked
+    img = bpy.data.images.new(f"lightmap_{name}", size, size_h, alpha=True, float_buffer=True)  # alpha 0 = unbaked
     targets[name] = img
     mats = {m for ob in objs for m in ob.data.materials if m}
     for m in mats:
@@ -314,7 +377,7 @@ for name, objs in groups.items():
     path = OUT / f"lightmap_{name}.png"
     img.save_render(str(path), scene=scene)     # view transform (Standard) -> sRGB PNG, like the renders
     report["groups"][name] = {"objects": len(objs), "area_m2": round(sum(area(o) for o in objs), 1),
-                              "atlas": size, "density_px_per_m": round(eff, 1),
+                              "atlas": [size, size_h], "density_px_per_m": round(eff, 1),
                               "bake_s": round(time.time() - t0, 1)}
     log(f"baked {name} in {time.time() - t0:.0f}s -> {path.name}")
 
