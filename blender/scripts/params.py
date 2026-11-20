@@ -58,7 +58,7 @@ RELIEF_Z = (3.2, 4.6)
 #          (crown v 689) and the back arch is 11.8 m behind it (crown v 968, 31 px low).
 #   A2:    square 11.8 m, shifted so both arches miss equally (front v 669, back v 957).
 CROSSINGS = {"gate2": (32.5, 5.475), "A": (34.2, 5.9), "A2": (33.6, 5.9)}
-CROSSING = os.environ.get("CROSSING", "gate2")
+CROSSING = os.environ.get("CROSSING", "A")   # Maria, stage 2 gate: option A
 CROSS_Y0, CROSS_HALF = CROSSINGS[CROSSING]
 CROSS_Y1 = round(CROSS_Y0 + 2 * CROSS_HALF, 3)
 TRANSVERSE_T = 0.8
@@ -214,8 +214,9 @@ PAINTED = {"coffer": (6.0, 0.6, 0.0), "rib": (4.0, 0.06, 0.35), "stone": (1.5, 0
            "stucco": (1.0, 0.04, 0.0)}
 
 # Raphael's light, beyond one sun (finish.light; REPORT.md "Light"):
-RIGHT_UNDERSIDE = 0.55       # downward faces on the right side painted darker (cornice soffit 105 vs 140)
-RIGHT_WALL = (0.55, 0.5, 0.38)  # faces turned to -X on the right: the painted shade is darker and olive
+# Maria, stage 2 gate: halve the darkening, f -> 1 - (1 - f) / 2 (was 0.55 and (0.55, 0.5, 0.38)).
+RIGHT_UNDERSIDE = 0.775      # downward faces on the right side painted darker (cornice soffit)
+RIGHT_WALL = (0.775, 0.75, 0.69)  # faces turned to -X on the right: the painted shade is darker and olive
 FRONT_BOUNCE = float(os.environ.get("FRONT_BOUNCE", 4000.0))        # W, area light on bay 1's floor lighting only the vault over it (soffit 191)
 NO_SUN = ()                  # stage 2 tried the facade here (a mis-sampled box); it is lit
 FAR = (1.3, 1.43, 1.56)      # the end wall is painted lighter and cooler than the near walls (229,208,199)

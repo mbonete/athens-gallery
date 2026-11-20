@@ -33,7 +33,8 @@ export const STATIONS: Station[] = PAINTINGS.map((painting) => {
   if (painting.place === "dome-left") return { painting, side: -1, z: dome.z, wallX: dome.wallX, room: dome.length };
   if (painting.place === "dome-right") return { painting, side: 1, z: dome.z, wallX: dome.wallX, room: dome.length };
   const place = hall.places.find((p) => p.n === painting.place)!;
-  return { painting, side: place.side, z: place.z, wallX: hall.wallX, room: place.bayWidth };
+  // Each place has its own wall plane (bay 1's paintings hang in the recess, further out).
+  return { painting, side: place.side, z: place.z, wallX: place.wallX ?? hall.wallX, room: place.bayWidth };
 }).sort((a, b) => b.z - a.z);
 
 /** The walk stops where a painting in the doorway is seen whole (5.5 m before it). */

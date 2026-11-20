@@ -414,7 +414,7 @@ sh.background_type = "WORLD"
 scene.display.light_direction = (-0.45, -0.55, 0.7)
 scene.display.render_aa = "16"
 
-for name in [v for v in VIEW_NAMES if v != "export"]:
+for name in [v for v in VIEW_NAMES if v not in ("export", "json")]:
     cam_ob, engine, (w, h), *border = VIEWS[name]
     scene.render.use_border = scene.render.use_crop_to_border = bool(border)
     if border:
@@ -432,7 +432,9 @@ for name in [v for v in VIEW_NAMES if v != "export"]:
 
 
 # ---------------------------------------------------------------- web export (70 %)
-if "export" in VIEW_NAMES:
+# "json": web/src/data/hall.json only. "export": also the untextured model as hall-grey.glb (the
+# web loads hall.glb, written by the bake pipeline: tools/bake_hall.sh).
+if "export" in VIEW_NAMES or "json" in VIEW_NAMES:
     import json
     from mathutils import Matrix
 
@@ -448,24 +450,22 @@ if "export" in VIEW_NAMES:
         b.inputs["Base Color"].default_value = col
         b.inputs["Roughness"].default_value = 0.85
         mats[kind] = m
-    for ob in list(coll.objects):
-        if ob.type != "MESH":
-            continue
-        if ob.get("kind") == "painting":
-            bpy.data.objects.remove(ob)
-            continue
-        ob.data.transform(Matrix.Scale(k, 4))
-        ob.location = ob.location * k
-        ob.data.materials.clear()
-        ob.data.materials.append(mats[ob.get("kind", "wall")])
-    for ob in list(coll.objects):
-        if ob.type != "MESH":
-            ob.select_set(False)
-        else:
-            ob.select_set(True)
-    bpy.ops.export_scene.gltf(filepath=str(WEB / "public" / "models" / "hall.glb"), export_format="GLB",
-                              use_selection=True, export_apply=True, export_cameras=False,
-                              export_lights=False, export_extras=False, export_yup=True)
+    if "export" in VIEW_NAMES:
+        for ob in list(coll.objects):
+            if ob.type != "MESH":
+                continue
+            if ob.get("kind") == "painting":
+                bpy.data.objects.remove(ob)
+                continue
+            ob.data.transform(Matrix.Scale(k, 4))
+            ob.location = ob.location * k
+            ob.data.materials.clear()
+            ob.data.materials.append(mats.get(ob.get("kind", "wall"), mats["wall"]))
+        for ob in list(coll.objects):
+            ob.select_set(ob.type == "MESH")
+        bpy.ops.export_scene.gltf(filepath=str(WEB / "public" / "models" / "hall-grey.glb"), export_format="GLB",
+                                  use_selection=True, export_apply=True, export_cameras=False,
+                                  export_lights=False, export_extras=False, export_yup=True)
 
     def three(x, y, z):
         """Blender (x right, y forward, z up) at 100 % -> three.js (x right, y up, -z forward) at k."""
@@ -500,13 +500,19 @@ if "export" in VIEW_NAMES:
         b0, b1 = next(b for b in bays if b[0] <= yc <= b[1])
         for side in (-1, 1):
             n += 1
-            data["places"].append({"n": n, "side": side, "z": three(0, yc, 0)[2],
-                                   "bay": [three(0, b0, 0)[2], three(0, b1, 0)[2]],
-                                   "bayWidth": round((b1 - b0) * k, 3)})
+            place = {"n": n, "side": side, "z": three(0, yc, 0)[2],
+                     "bay": [three(0, b0, 0)[2], three(0, b1, 0)[2]],
+                     "bayWidth": round((b1 - b0) * k, 3), "wallX": round(P.NAVE_HALF_W * k, 4)}
+            if FINISH and n in (1, 2):
+                # Bay 1 (stage 2): the recess's back wall, under the niche (Maria, stage 2 gate).
+                r0, r1, rx = P.BAY1_SIDE_RECESS
+                place.update(z=three(0, P.BAY1_NICHE_YC, 0)[2], bay=[three(0, r0, 0)[2], three(0, r1, 0)[2]],
+                             bayWidth=round((r1 - r0) * k, 3), wallX=round(rx * k, 4))
+            data["places"].append(place)
     # The crossing's closed side walls under the dome, and the far doorway.
     data["dome"] = {"wallX": round(P.CROSS_HALF * k, 4), "z": three(0, (P.CROSS_Y0 + P.CROSS_Y1) / 2, 0)[2],
                     "length": round((P.CROSS_Y1 - P.CROSS_Y0) * k, 3)}
     data["door"] = {"z": three(0, P.ARM2_Y1, 0)[2], "width": round(2 * P.DOOR_HALF * k, 3),
                     "springZ": round((P.DOOR_SPRING) * k, 3)}
     (WEB / "src" / "data" / "hall.json").write_text(json.dumps(data, indent=2))
-    print("exported", WEB / "public" / "models" / "hall.glb")
+    print("exported", WEB / "src" / "data" / "hall.json")
