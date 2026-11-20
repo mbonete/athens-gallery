@@ -155,7 +155,7 @@ def area(ob):
 
 
 def density_scale(ob):
-    return P.BAKE_DENSITY_SCALE.get(ob.name, 1.0)
+    return next((v for k, v in P.BAKE_DENSITY_SCALE.items() if ob.name.startswith(k)), 1.0)
 
 
 # ---------------------------------------------------------------- lightmap UVs per group
@@ -203,6 +203,10 @@ def unwrap_one(ob):
     came out collapsed or overlapping). Returns the share of the unit square its islands cover."""
     split_long(ob, P.BAKE_ISLAND_MAX)
     me = ob.data
+    for uvl in [u for u in me.uv_layers if u.name not in ("detail", "lightmap")]:
+        me.uv_layers.remove(uvl)
+    if "detail" not in me.uv_layers:            # created first: TEXCOORD_0 in the glTF
+        me.uv_layers.new(name="detail")
     uv = me.uv_layers.get("lightmap") or me.uv_layers.new(name="lightmap")
     me.uv_layers.active = uv
     bpy.ops.object.select_all(action="DESELECT")
@@ -282,6 +286,16 @@ def layout(objs):
             ys = [uv[i].uv.y for i in loops]
             lo = Vector((min(xs), min(ys)))
             w, h = (max(xs) - lo.x) * f, (max(ys) - lo.y) * f
+            # Thin islands (a riser, a fillet) get at least MIN_PX texels across: below that,
+            # filtering mixes their light with the neighbours'.
+            MIN_PX = 4.0
+            fx = MIN_PX / w if 0 < w < MIN_PX else 1.0
+            fy = MIN_PX / h if 0 < h < MIN_PX else 1.0
+            if fx != 1.0 or fy != 1.0:
+                for i in loops:
+                    d = uv[i].uv - lo
+                    uv[i].uv = lo + Vector((d.x * fx, d.y * fy))
+                w, h = w * fx, h * fy
             rot = w > h * 1.5                       # lay long islands flat
             if rot:
                 w, h = h, w
@@ -340,27 +354,97 @@ def uv_coverage(objs):
     return tot
 
 
-# ---------------------------------------------------------------- bake each group
-report = {"quality": QUALITY, "config": CFG, "groups": {}}
-targets = {}
-ONLY = os.environ.get("BAKE_ONLY")
-for name, objs in groups.items():
-    if not objs or (ONLY and name != ONLY):
-        continue
-    size, size_h = layout(objs)
-    eff = CFG["density"]
-    log(f"group {name}: {len(objs)} objects, {sum(area(o) for o in objs):.0f} m2, atlas {size} x {size_h}")
-    lo, hi = [9.0, 9.0], [-9.0, -9.0]
-    for ob in objs:
-        for d in ob.data.uv_layers["lightmap"].data:
-            lo = [min(lo[0], d.uv.x), min(lo[1], d.uv.y)]
-            hi = [max(hi[0], d.uv.x), max(hi[1], d.uv.y)]
-    cov = uv_coverage(objs)
-    log(f"  lightmap UV bounds {lo[0]:.3f},{lo[1]:.3f} .. {hi[0]:.3f},{hi[1]:.3f}, atlas used {cov:.0%}")
-    if os.environ.get("BAKE_DRY"):
-        continue
-    img = bpy.data.images.new(f"lightmap_{name}", size, size_h, alpha=True, float_buffer=True)  # alpha 0 = unbaked
-    targets[name] = img
+# ---------------------------------------------------------------- materials split for the web
+# The web draws detail(uv0) x tint x lightmap(uv1). Every face gets a detail key (its material's
+# shared texture; risers split off by normal), a detail UV in world metres / tile, and a per-face
+# factor for what the lightmap must carry beyond the light (Raphael's right-side shade, the buff
+# tint of side walls), since a light-only bake divides the material's colour out.
+def detail_of(mat, normal):
+    if mat is None:
+        return "flat", (0.8, 0.8, 0.8)
+    if mat.get("riser_detail") and abs(normal.z) < 0.5:
+        return mat["riser_detail"], (1.0, 1.0, 1.0)
+    return mat.get("detail", mat.name), tuple(mat.get("tint", (1.0, 1.0, 1.0)))
+
+
+def face_factor(c, n):
+    f = Vector((1.0, 1.0, 1.0))
+    if c.x > 0.5 and n.z < -0.5:
+        f *= P.RIGHT_UNDERSIDE
+    if c.x > 0.5 and n.x < -0.5:
+        f = Vector([a * b for a, b in zip(f, P.RIGHT_WALL)])
+    if abs(n.x) > 0.5:
+        f = Vector([a * b for a, b in zip(f, P.SIDE_TINT)])
+    return f
+
+
+CYL = {"_vault_coffers": ("y", P.NAVE_HALF_W), "_vault_band": ("y", P.NAVE_HALF_W),
+       "_soffit": ("y", P.CROSS_HALF), "drum": ("z", P.CROSS_HALF)}
+
+
+def detail_uvs(ob, tiles):
+    """Detail UVs in metres / tile: planar by the face's dominant axis, cylindrical (arc length)
+    on the vaults, soffits and the drum; floors start their pattern at the material's origin."""
+    me = ob.data
+    uv = me.uv_layers.get("detail") or me.uv_layers.new(name="detail")
+    mw = ob.matrix_world
+    rot = mw.to_3x3()
+    cyl = next((v for k, v in CYL.items() if k in ob.name), None)
+    ycen = (P.CROSS_Y0 + P.CROSS_Y1) / 2
+    for p in me.polygons:
+        mat = me.materials[p.material_index] if p.material_index < len(me.materials) else None
+        n = (rot @ p.normal).normalized()
+        key, _ = detail_of(mat, n)
+        tw, th = tiles.get(key, (1.0, 1.0))
+        ox, oy = (mat.get("origin", (0.0, 0.0)) if mat else (0.0, 0.0)) if key.startswith("floor") else (0.0, 0.0)
+        c = mw @ p.center
+        for li in p.loop_indices:
+            w = mw @ me.vertices[me.loops[li].vertex_index].co
+            if cyl and cyl[0] == "y" and abs(Vector((n.x, 0, n.z)).normalized().dot(Vector((-c.x, 0, P.SPRING_Z - c.z)).normalized())) > 0.6:
+                s = cyl[1] * math.atan2(w.x, w.z - P.SPRING_Z)
+                u, v = s / tw, w.y / th
+            elif cyl and cyl[0] == "z" and abs(n.z) < 0.5:
+                s = cyl[1] * math.atan2(w.x, w.y - ycen)
+                u, v = s / tw, w.z / th
+            elif abs(n.z) >= max(abs(n.x), abs(n.y)):
+                u, v = (w.x - ox) / tw, (w.y - oy) / th
+            elif abs(n.x) >= abs(n.y):
+                u, v = w.y / tw, w.z / th
+            else:
+                u, v = w.x / tw, w.z / th
+            uv.data[li].uv = (u, v)
+
+
+def factor_attribute(ob):
+    me = ob.data
+    attr = me.color_attributes.get("bake_factor") or me.color_attributes.new("bake_factor", "FLOAT_COLOR", "CORNER")
+    mw = ob.matrix_world
+    rot = mw.to_3x3()
+    for p in me.polygons:
+        f = face_factor(mw @ p.center, (rot @ p.normal).normalized())
+        for li in p.loop_indices:
+            attr.data[li].color = (f.x, f.y, f.z, 1.0)
+
+
+factor_mat = bpy.data.materials.new("bake_factor")
+factor_mat.use_nodes = True
+_nt = factor_mat.node_tree
+_nt.nodes.clear()
+_attr, _emit, _out = _nt.nodes.new("ShaderNodeAttribute"), _nt.nodes.new("ShaderNodeEmission"), _nt.nodes.new("ShaderNodeOutputMaterial")
+_attr.attribute_name = "bake_factor"
+_nt.links.new(_attr.outputs["Color"], _emit.inputs["Color"])
+_nt.links.new(_emit.outputs["Emission"], _out.inputs["Surface"])
+_factor_node = _nt.nodes.new("ShaderNodeTexImage")
+
+# Tile sizes per detail key, from the materials (stored by finish.py).
+tiles = {}
+for m in bpy.data.materials:
+    if m.get("tile"):
+        tiles.setdefault(m.get("detail", m.name), tuple(m["tile"]))
+tiles.setdefault("step_riser", tiles.get("step", (1.6, 1.6)))
+
+
+def bake_into(objs, img, kind):
     mats = {m for ob in objs for m in ob.data.materials if m}
     for m in mats:
         nt = m.node_tree
@@ -372,23 +456,133 @@ for name, objs in groups.items():
     for ob in objs:
         ob.select_set(True)
     bpy.context.view_layer.objects.active = objs[0]
+    bpy.ops.object.bake(type=kind)
+
+
+# ---------------------------------------------------------------- bake each group
+report = {"quality": QUALITY, "config": CFG, "light_scale": P.LIGHT_SCALE, "groups": {}}
+ONLY = os.environ.get("BAKE_ONLY")
+import numpy as np  # noqa: E402
+for name, objs in groups.items():
+    if not objs or (ONLY and name != ONLY):
+        continue
+    size, size_h = layout(objs)
+    for ob in objs:
+        detail_uvs(ob, tiles)
+        factor_attribute(ob)
+        ob.data.uv_layers["lightmap"].active = True
+    log(f"group {name}: {len(objs)} objects, {sum(area(o) for o in objs):.0f} m2, atlas {size} x {size_h}, "
+        f"used {uv_coverage(objs):.0%}")
+    if os.environ.get("BAKE_DRY"):
+        continue
     t0 = time.time()
-    bpy.ops.object.bake(type="COMBINED")
+    # 1. Light only: diffuse direct + indirect without the surface colour (every light-linking
+    #    set-up of the scene active). Glossy is left out: the web draws no highlights.
+    bake.use_pass_direct, bake.use_pass_indirect, bake.use_pass_color = True, True, False
+    light = bpy.data.images.new(f"light_{name}", size, size_h, alpha=True, float_buffer=True)
+    scene.cycles.samples = CFG["samples"]
+    bake_into(objs, light, "DIFFUSE")
+    # 2. The per-face factors, as an emission bake of the factor attribute (1 sample is enough).
+    saved = {ob: list(ob.data.materials) for ob in objs}
+    for ob in objs:
+        for i in range(len(ob.data.materials)):
+            ob.data.materials[i] = factor_mat
+        if not ob.data.materials:
+            ob.data.materials.append(factor_mat)
+    fimg = bpy.data.images.new(f"factor_{name}", size, size_h, alpha=True, float_buffer=True)
+    _factor_node.image = fimg
+    _nt.nodes.active = _factor_node
+    scene.cycles.samples = 1
+    bpy.ops.object.select_all(action="DESELECT")
+    for ob in objs:
+        ob.select_set(True)
+    bpy.context.view_layer.objects.active = objs[0]
+    bpy.ops.object.bake(type="EMIT")
+    for ob, ms in saved.items():
+        for i, m in enumerate(ms):
+            ob.data.materials[i] = m
+    # 3. light x factor, stored as (light / LIGHT_SCALE) through the sRGB transfer (16-bit PNG).
+    px = size * size_h
+    L = np.empty(px * 4, np.float32)
+    Fc = np.empty(px * 4, np.float32)
+    light.pixels.foreach_get(L)
+    fimg.pixels.foreach_get(Fc)
+    L, Fc = L.reshape(-1, 4), Fc.reshape(-1, 4)
+    L[:, :3] *= Fc[:, :3]
+    clipped = float((L[L[:, 3] > 0, :3].max(1) > P.LIGHT_SCALE).mean())
+    light.pixels.foreach_set(L.ravel())
+    scene.view_settings.exposure = -math.log2(P.LIGHT_SCALE)
+    scene.render.image_settings.color_depth = "16"
     path = OUT / f"lightmap_{name}.png"
-    img.save_render(str(path), scene=scene)     # view transform (Standard) -> sRGB PNG, like the renders
+    light.save_render(str(path), scene=scene)
+    scene.view_settings.exposure = P.EXPOSURE
     report["groups"][name] = {"objects": len(objs), "area_m2": round(sum(area(o) for o in objs), 1),
-                              "atlas": [size, size_h], "density_px_per_m": round(eff, 1),
-                              "bake_s": round(time.time() - t0, 1)}
-    log(f"baked {name} in {time.time() - t0:.0f}s -> {path.name}")
+                              "atlas": [size, size_h], "density_px_per_m": CFG["density"],
+                              "clipped_fraction": round(clipped, 5), "bake_s": round(time.time() - t0, 1)}
+    log(f"baked {name} in {time.time() - t0:.0f}s -> {path.name} (clipped {clipped:.2%})")
 
 # ---------------------------------------------------------------- export (70 %, one mesh per group)
+# Each group: one mesh, one material per detail key (+ tint), named "<group>|<key>|<tint>"; the
+# material shows a placeholder image "detail_<key>" on UV "detail" (TEXCOORD_0); the lightmap UV
+# is TEXCOORD_1. tools/pack_hall.mjs swaps in the detail textures, attaches the group's lightmap
+# and sets the tint (materials.json).
 for ob in list(bpy.data.objects):
     if ob.type == "MESH" and (is_occluder_only(ob) or ob.get("kind") == "painting"):
         bpy.data.objects.remove(ob)
+placeholder = {}
+
+
+def export_material(group, key, tint):
+    nm = f"{group}|{key}|{','.join(f'{t:.4f}' for t in tint)}"
+    m = bpy.data.materials.get(nm)
+    if m:
+        return m
+    m = bpy.data.materials.new(nm)
+    m.use_nodes = True
+    nt = m.node_tree
+    bsdf = nt.nodes.get("Principled BSDF")
+    if key not in placeholder:
+        im = bpy.data.images.new(f"detail_{key}", 4, 4, alpha=False)
+        im.filepath_raw = str(OUT / f"detail_{key}.png")
+        im.file_format = "PNG"
+        im.save()
+        placeholder[key] = im
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = placeholder[key]
+    uvn = nt.nodes.new("ShaderNodeUVMap")
+    uvn.uv_map = "detail"
+    nt.links.new(uvn.outputs["UV"], tex.inputs["Vector"])
+    nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    return m
+
+
+materials_json = {}
 exported = []
 for name, objs in groups.items():
     if not objs:
         continue
+    for ob in objs:
+        me = ob.data
+        rot = ob.matrix_world.to_3x3()
+        slots = {}
+        new_index = []
+        for p in me.polygons:
+            mat = me.materials[p.material_index] if p.material_index < len(me.materials) else None
+            key, tint = detail_of(mat, (rot @ p.normal).normalized())
+            em = export_material(name, key, tint)
+            materials_json[em.name] = {"group": name, "detail": key, "tint": list(tint)}
+            if em.name not in slots:
+                slots[em.name] = len(slots)
+            new_index.append(slots[em.name])
+        me.materials.clear()
+        for nm in slots:
+            me.materials.append(bpy.data.materials[nm])
+        for p, i in zip(me.polygons, new_index):
+            p.material_index = i
+        if "bake_factor" in me.color_attributes:
+            me.color_attributes.remove(me.color_attributes["bake_factor"])
+        for uvl in [u for u in me.uv_layers if u.name not in ("detail", "lightmap")]:
+            me.uv_layers.remove(uvl)
     bpy.ops.object.select_all(action="DESELECT")
     for ob in objs:
         ob.select_set(True)
@@ -397,19 +591,12 @@ for name, objs in groups.items():
     ob = bpy.context.view_layer.objects.active
     ob.name = ob.data.name = f"hall_{name}"
     me = ob.data
-    for uv in [u for u in me.uv_layers if u.name != "lightmap"]:
-        me.uv_layers.remove(uv)
-    m = bpy.data.materials.new(f"baked_{name}")
-    m.use_nodes = True
-    nt = m.node_tree
-    bsdf = nt.nodes.get("Principled BSDF")
-    tex = nt.nodes.new("ShaderNodeTexImage")
-    tex.image = bpy.data.images.load(str(OUT / f"lightmap_{name}.png"))
-    nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
-    me.materials.clear()
-    me.materials.append(m)
+    # UV order: detail first (TEXCOORD_0), lightmap second (TEXCOORD_1).
+    if me.uv_layers[0].name != "detail":
+        raise RuntimeError(f"{ob.name}: UV layers {[u.name for u in me.uv_layers]}")
+    me.uv_layers["detail"].active_render = True
     exported.append(ob)
-for name in P.BAKE_SKIP:                       # flat colour, unlit in the web
+for name in P.BAKE_SKIP:                       # flat colour, unlit in the web (left as it was)
     ob = bpy.data.objects.get(name)
     if ob:
         m = bpy.data.materials.new(f"flat_{name}")
@@ -430,6 +617,16 @@ bpy.ops.export_scene.gltf(filepath=str(OUT / "hall.gltf"), export_format="GLTF_S
                           export_apply=True, export_cameras=False, export_lights=False, export_extras=False,
                           export_yup=True, export_normals=False, export_tangents=False,
                           export_image_format="AUTO")
+(OUT / "materials.json").write_text(json.dumps(materials_json, indent=1))
+# What make_detail.py needs: per detail key, the scan, ramp, colours (untinted), tile, mottle.
+specs = {}
+for m in bpy.data.materials:
+    key = m.get("detail")
+    if key and key not in specs:
+        specs[key] = {k: (list(m[k]) if not isinstance(m[k], (str, int, float)) else m[k])
+                      for k in ("detail_tex", "lum_range", "tile", "albedo_dark", "albedo_light", "mottle", "origin")
+                      if k in m}
+(OUT / "detail-specs.json").write_text(json.dumps(specs, indent=1))
 report["seconds"] = round(time.time() - t_start, 1)
 (OUT / "bake-report.json").write_text(json.dumps(report, indent=2))
 log("exported", OUT / "hall.gltf")

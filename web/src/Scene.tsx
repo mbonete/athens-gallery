@@ -94,8 +94,11 @@ export function Scene() {
   );
 }
 
-/** The hall, baked in Blender (tools/bake_hall.sh): every surface carries its light in a
- * lightmap atlas (KTX2), so it is drawn unlit. Dimming around a painting tints the colour. */
+/** The hall, baked in Blender (tools/bake_hall.sh). Each surface is a seamless detail tile
+ * (TEXCOORD_0, world-scaled, repeat) times its tint times its lightmap (TEXCOORD_1), drawn
+ * unlit: the lightmap holds Cycles' light (and Raphael's shade conventions) as light /
+ * lightScale. MeshBasicMaterial multiplies the lightmap by lightMapIntensity / PI. Dimming
+ * around a painting scales the tint. */
 const hallMaterials: { mat: THREE.MeshBasicMaterial; base: THREE.Color }[] = [];
 
 function Hall() {
@@ -107,16 +110,31 @@ function Hall() {
   });
   useEffect(() => {
     hallMaterials.length = 0;
+    const aniso = Math.min(8, gl.capabilities.getMaxAnisotropy());
     gltf.scene.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (!mesh.isMesh) return;
       const old = mesh.material as THREE.MeshStandardMaterial;
       const map = old.map ?? null;
+      const light = old.aoMap ?? null;
       if (map) {
         map.colorSpace = THREE.SRGBColorSpace;
-        map.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy());
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        map.anisotropy = aniso;
+        map.needsUpdate = true;
       }
-      const mat = new THREE.MeshBasicMaterial({ map, color: map ? 0xffffff : old.color, toneMapped: false });
+      if (light) {
+        light.colorSpace = THREE.SRGBColorSpace;
+        light.channel = 1;
+        light.needsUpdate = true;
+      }
+      const mat = new THREE.MeshBasicMaterial({
+        map,
+        lightMap: light,
+        lightMapIntensity: (hall.lightScale ?? 1) * Math.PI,
+        color: old.color,
+        toneMapped: false,
+      });
       mesh.material = mat;
       old.dispose();
       hallMaterials.push({ mat, base: mat.color.clone() });
@@ -175,12 +193,7 @@ function HungPainting({ painting, side, z, wallX, room }: {
         <planeGeometry args={[w, h]} />
         <meshBasicMaterial map={tex} toneMapped={false} />
       </mesh>
-      {inDoor && (
-        <mesh position={[0, -h / 2 - BASE / 2, -0.1]} castShadow receiveShadow>
-          <boxGeometry args={[w + 0.3, BASE, 0.6]} />
-          <meshStandardMaterial color="#cfcbc3" roughness={0.85} />
-        </mesh>
-      )}
+      {/* The doorway piece's stone base is part of the baked hall (params.BOSCH_BASE). */}
       {[
         [0, h / 2 + frame / 2, w + 2 * frame, frame],
         [0, -h / 2 - frame / 2, w + 2 * frame, frame],

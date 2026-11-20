@@ -1,7 +1,12 @@
-// Pack the baked hall for the web: KTX2 (Basis UASTC, mipmapped, Zstandard) textures and
-// meshopt-compressed geometry, in one GLB.
-// Usage: node tools/pack_hall.mjs <in.gltf> <out.glb> [uastc|etc1s]
-// Needs `basisu` (Homebrew: basis_universal) and web/node_modules (gltf-transform, meshoptimizer).
+// Pack the baked hall for the web (stage 4: light x detail).
+// Usage: node tools/pack_hall.mjs <bake_dir> <out.glb>
+// <bake_dir> holds hall.gltf from blender/scripts/bake.py, materials.json, lightmap_<group>.png
+// and detail/<key>.png (tools/make_detail.py). For every material "<group>|<key>|<tint>":
+//   baseColorTexture = detail tile <key> (TEXCOORD_0, repeat), baseColorFactor = tint,
+//   occlusionTexture = the group's lightmap (TEXCOORD_1, clamp) -- the web reads it as lightMap.
+// Textures go to KTX2: detail tiles as Basis ETC1S (small download, noisy textures hide its
+// blocks; DETAIL_CODEC=uastc for sharper), lightmaps as UASTC (smooth gradients); all mipmapped.
+// Geometry: meshopt. Needs `basisu` (Homebrew basis_universal) and web/node_modules.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
@@ -9,28 +14,57 @@ import path from "node:path";
 import { createRequire } from "node:module";
 
 const require = createRequire(path.resolve("web/package.json"));
-const { NodeIO } = require("@gltf-transform/core");
+const { NodeIO, TextureInfo } = require("@gltf-transform/core");
 const { ALL_EXTENSIONS, KHRTextureBasisu } = require("@gltf-transform/extensions");
 const { dedup, prune, meshopt } = require("@gltf-transform/functions");
 const { MeshoptEncoder } = require("meshoptimizer");
 
-const [input, output, mode = "uastc"] = process.argv.slice(2);
+const [dir, output] = process.argv.slice(2);
+const detailCodec = process.env.DETAIL_CODEC || "etc1s";
 await MeshoptEncoder.ready;
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ "meshopt.encoder": MeshoptEncoder });
-const doc = await io.read(input);
+const doc = await io.read(path.join(dir, "hall.gltf"));
 doc.createExtension(KHRTextureBasisu).setRequired(true);
+const materials = JSON.parse(fs.readFileSync(path.join(dir, "materials.json"), "utf8"));
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "hall-ktx2-"));
-const args = mode === "etc1s"
-  ? ["-ktx2", "-q", "200", "-comp_level", "2", "-mipmap"]
-  : ["-ktx2", "-uastc", "-uastc_level", "2", "-uastc_rdo_l", "1.0", "-mipmap", "-ktx2_zstandard_level", "18"];
+const ARGS = {
+  etc1s: ["-ktx2", "-q", "255", "-comp_level", "2", "-mipmap"],
+  uastc: ["-ktx2", "-uastc", "-uastc_level", "2", "-uastc_rdo_l", "1.0", "-mipmap", "-ktx2_zstandard_level", "18"],
+};
+function ktx2(png, name, codec) {
+  const src = path.join(tmp, `${name}.png`), dst = path.join(tmp, `${name}.ktx2`);
+  fs.copyFileSync(png, src);
+  execFileSync("basisu", [...ARGS[codec], src, "-output_file", dst], { stdio: "ignore" });
+  const out = fs.readFileSync(dst);
+  console.log(`${name}: ${(fs.statSync(png).size / 1e6).toFixed(2)} MB png -> ${(out.length / 1e6).toFixed(2)} MB ktx2 (${codec})`);
+  return out;
+}
+// Detail tiles: swap the exporter's 4x4 placeholders for the real tiles.
+const detailTex = {};
 for (const tex of doc.getRoot().listTextures()) {
-  const name = path.basename(tex.getURI() || tex.getName() || "tex", ".png");
-  const src = path.join(tmp, `${name}.png`);
-  const dst = path.join(tmp, `${name}.ktx2`);
-  fs.writeFileSync(src, tex.getImage());
-  execFileSync("basisu", [...args, src, "-output_file", dst], { stdio: "ignore" });
-  tex.setImage(fs.readFileSync(dst)).setMimeType("image/ktx2").setURI(`${name}.ktx2`);
-  console.log(`${name}: ${(fs.statSync(src).size / 1e6).toFixed(2)} MB png -> ${(fs.statSync(dst).size / 1e6).toFixed(2)} MB ktx2 (${mode})`);
+  const key = path.basename(tex.getURI() || tex.getName(), ".png").replace(/^detail_/, "");
+  const png = path.join(dir, "detail", `${key}.png`);
+  if (!fs.existsSync(png)) throw new Error(`no detail tile for ${key}`);
+  const codec = key === "flat" ? "uastc" : detailCodec;
+  tex.setImage(ktx2(png, `detail_${key}`, codec)).setMimeType("image/ktx2").setURI(`detail_${key}.ktx2`).setName(`detail_${key}`);
+  detailTex[key] = tex;
+}
+// Lightmaps, one per group, attached as occlusion on TEXCOORD_1.
+const lightTex = {};
+for (const mat of doc.getRoot().listMaterials()) {
+  const info = materials[mat.getName()];
+  if (!info) continue;   // e.g. the flat ground beyond the door
+  const g = info.group;
+  if (!lightTex[g]) {
+    lightTex[g] = doc.createTexture(`lightmap_${g}`).setImage(ktx2(path.join(dir, `lightmap_${g}.png`), `lightmap_${g}`, "uastc"))
+      .setMimeType("image/ktx2").setURI(`lightmap_${g}.ktx2`);
+  }
+  mat.setBaseColorFactor([...info.tint, 1]);
+  mat.setOcclusionTexture(lightTex[g]);
+  mat.getOcclusionTextureInfo().setTexCoord(1)
+    .setWrapS(TextureInfo.WrapMode.CLAMP_TO_EDGE).setWrapT(TextureInfo.WrapMode.CLAMP_TO_EDGE);
+  mat.getBaseColorTextureInfo()?.setWrapS(TextureInfo.WrapMode.REPEAT).setWrapT(TextureInfo.WrapMode.REPEAT);
+  mat.setMetallicFactor(0).setRoughnessFactor(1);
 }
 await doc.transform(dedup(), prune(), meshopt({ encoder: MeshoptEncoder, level: "medium", quantizeTexcoord: 16 }));
 await io.write(output, doc);

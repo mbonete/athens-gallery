@@ -1,10 +1,11 @@
 """Finish baked lightmap atlases in place: fill the unbaked space, then denoise.
 
 Usage: python -I tools/denoise_lightmaps.py <h> <atlas.png> [...]
-- Fill: every pixel Blender didn't bake (alpha 0) takes the colour of the nearest baked islands
-  (push-pull over an image pyramid), so mipmaps and bilinear filtering never pull in black.
-- Denoise: non-local means on the sRGB PNG, strength h (3-6); Cycles bakes come out noisy.
-Writes RGB PNGs.
+- Input: 8- or 16-bit RGBA PNG from bake.py; alpha 0 marks texels Blender didn't bake.
+- Fill: every unbaked texel takes the colour of the nearest baked islands (push-pull over an
+  image pyramid), so mipmaps and bilinear filtering never pull in black.
+- Denoise: non-local means, strength h (stage 4: the atlases hold light only, which is smooth,
+  so h can be strong). Writes 8-bit RGB PNGs.
 """
 import sys
 import time
@@ -35,12 +36,14 @@ h = float(sys.argv[1])
 for path in sys.argv[2:]:
     t0 = time.time()
     img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    scale = 255.0 / 65535.0 if img.dtype == np.uint16 else 1.0
     if img.ndim == 3 and img.shape[2] == 4:
         mask = (img[..., 3] > 0).astype(np.float32)
-        rgb = img[..., :3]
-        filled = np.where(mask[..., None] > 0, rgb, push_pull(rgb, mask)).clip(0, 255).astype(np.uint8)
+        rgb = img[..., :3].astype(np.float32) * scale
+        filled = np.where(mask[..., None] > 0, rgb, push_pull(rgb, mask))
     else:
-        filled = img[..., :3]
+        filled = img[..., :3].astype(np.float32) * scale
+    filled = np.clip(np.round(filled), 0, 255).astype(np.uint8)
     out = cv2.fastNlMeansDenoisingColored(filled, None, h, h, 5, 15) if h > 0 else filled
     cv2.imwrite(path, out, [cv2.IMWRITE_PNG_COMPRESSION, 3])
     print(f"finished {path} {img.shape[1]}x{img.shape[0]} in {time.time() - t0:.1f}s")
