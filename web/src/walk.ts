@@ -6,10 +6,6 @@ import { PAINTINGS, type Painting } from "./paintings";
 export type Pose = { x: number; y: number; z: number; yaw: number; sym: number; pitch?: number };
 
 const EYE0 = hall.eye[1]; // Raphael's eye above the lower floor (1.295 m at 70 %)
-const STAND = hall.standingEye;
-const FLOOR = hall.floor as [number, number][]; // [z, height] from each riser on
-const STAIR_Z1 = FLOOR[FLOOR.length - 1][0];
-const PLATFORM = FLOOR[FLOOR.length - 1][1];
 /** Raphael's vanishing point sits at u = 1933.3 of 3840 px: 13.3 px right of centre. */
 export const SHIFT_X = (1933.3 - 1920) / 1920;
 
@@ -62,20 +58,16 @@ function linkZ(st: Station) {
   return Math.min(0, st.z + 6);
 }
 
-/** The eye stops rising at the first link point along the walk (bay 1, z -8.42), never before
- * the top of the stair. */
-const RISE_END_Z = Math.min(STAIR_Z1, Math.max(...STATIONS.filter((s) => s.side !== 0).map(linkZ)));
-
-/** Eye height at depth z, for everything that moves along the walk (the walk, Back from a
- * painting, the dome). The visitor glides like a ghost (Maria: "less dizzy"): one straight line
- * at a constant rate, no steps and no easing, from Raphael's eye where the walk leaves the hold
- * (z = 0) to standing height above the platform at RISE_END_Z, then level. */
-export function eyeAt(z: number) {
-  return EYE0 + (PLATFORM + STAND - EYE0) * clamp01(z / RISE_END_Z);
+/** Eye height for everything that moves along the walk (the walk, Back from a painting, the
+ * dome). It never changes (Maria: "point of view should be at same height from beginning to
+ * end"): the visitor glides over the stair at Raphael's eye, so the whole walk keeps the fresco's
+ * horizon, which on the platform sits about hip-high on his figures. */
+export function eyeAt() {
+  return EYE0;
 }
 
 function withHeight(p: Omit<Pose, "y">): Pose {
-  return { ...p, y: eyeAt(p.z) };
+  return { ...p, y: eyeAt() };
 }
 
 /** Frustum for a screen: Raphael's vertical extents where the screen allows, widened on
