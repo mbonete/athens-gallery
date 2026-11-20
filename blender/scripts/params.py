@@ -200,6 +200,12 @@ LOWER_FLOOR_X0, LOWER_FLOOR_Y0 = -0.19, 5.475
 TONDO_H = round(0.68 * CROSS_HALF, 3)   # height of the tondo's centre above the springing
 TONDO_R = 0.7
 DOME_COFFER_RINGS, DOME_COFFER_COUNT = 5, 28
+# Round 6: the dome's inside on the Pantheon's model (finish2.dome_coffers, designed).
+DOME_BASE_BAND = 0.035              # rad: plain band at the springing (0.2 m)
+DOME_RIB = 0.2                      # rib width, fraction of a cell
+DOME_STEP_INSETS = (0.08, 0.05, 0.11)   # per step: each side, upper, lower (fractions of the cell)
+DOME_STEP_DEPTH = 0.05              # per step, fraction of the cell's width (5 cm in the first ring)
+OCULUS_RIM_R = 1.3                  # the smooth band ends here; the oculus' ring runs to OCULUS_R
 
 # End wall: the painted Doric entablature (u 1700-2170, v 1250-1330 at Y 55): architrave
 # Z 12.64-13.36, triglyph frieze 13.36-14.28, cornice 14.28-14.57. Triglyphs every 68 px

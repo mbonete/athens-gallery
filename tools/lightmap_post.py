@@ -17,7 +17,7 @@ light x factor / LIGHT_SCALE, the format tools/pack_hall.mjs reads, and stitch-r
    class) and receiving light at all (texels inside another solid are left out). Both sides of a cut then meet at the
    same value; away from cuts G_island = G_plane and nothing changes. The factor is multiplied in
    afterwards, so its deliberate steps (Raphael's right-side shade, the buff side walls) stay sharp.
-3. Fill: Cycles' own margin round each island (bake.margin, "extend": each island's edge
+3. Fill: texels inside other solids (no light at all) count as empty. Cycles' own margin round each island (bake.margin, "extend": each island's edge
    carried outward) stays as baked and denoised, so bilinear filtering at an island's edge reads
    that island; texels beyond it take the nearest baked texel's value, so mipmaps never pull in
    black. (Filling the margin from the nearest covered texel instead hands a texel between two
@@ -71,8 +71,11 @@ for f in sorted(OUT.glob("bake_*.npz")):
     d = np.load(f)
     g = f.stem[len("bake_"):]
     cov = d["covered"]
-    baked = d["light"][..., 3] > 0          # covered texels and Cycles' margin round each island
     light = d["light"][..., :3].astype(np.float32)
+    # Covered texels and Cycles' margin round each island; texels that get no light at all are
+    # inside another solid (a wall under a frame, a pilaster's foot in its base): they are filled
+    # from their lit neighbours like empty ones, so filtering at the junction reads lit texels.
+    baked = (d["light"][..., 3] > 0) & (light.max(-1) > DARK)
     # 1. denoise (on the filled atlas, so the search windows never meet black)
     e8 = np.clip(np.round(enc(fill_nearest(light, baked))), 0, 255).astype(np.uint8)
     den = cv2.fastNlMeansDenoisingColored(e8, None, H_NLM, H_NLM, 5, 15) if H_NLM > 0 else e8

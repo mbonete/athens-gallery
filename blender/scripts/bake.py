@@ -455,6 +455,28 @@ def arch_uvs(ob, uv):
         uv.data[li].uv = (abs(t - math.pi / 2) / period, (r - r0) / (r1 - r0))
 
 
+def dome_uvs(ob, uv, tiles):
+    """The dome's detail UVs in metres on the sphere: along the parallels R cos(phi) theta, up the
+    meridians R phi (theta taken round each face's own centre, so no face spans the seam). The
+    planar mapping stretched the tile on the steep lower rings (dome-tap report)."""
+    me = ob.data
+    mw = ob.matrix_world
+    rot = mw.to_3x3()
+    c0 = Vector((0, (P.CROSS_Y0 + P.CROSS_Y1) / 2, P.DRUM_Z1))
+    R = P.CROSS_HALF
+    for p in me.polygons:
+        mat = me.materials[p.material_index] if p.material_index < len(me.materials) else None
+        key, _ = detail_of(mat, (rot @ p.normal).normalized())
+        tw, th = tiles.get(key, (1.0, 1.0))
+        cc = mw @ p.center - c0
+        tc = math.atan2(cc.y, cc.x)
+        for li in p.loop_indices:
+            w = mw @ me.vertices[me.loops[li].vertex_index].co - c0
+            t = tc + (math.atan2(w.y, w.x) - tc + math.pi) % (2 * math.pi) - math.pi
+            ph = math.atan2(w.z, math.hypot(w.x, w.y))
+            uv.data[li].uv = (R * math.cos(ph) * t / tw, R * ph / th)
+
+
 def detail_uvs(ob, tiles):
     """Detail UVs in metres / tile: planar by the face's dominant axis, cylindrical (arc length)
     on the vaults, soffits and the drum; floors start their pattern at the material's origin."""
@@ -465,6 +487,9 @@ def detail_uvs(ob, tiles):
     cyl = next((v for k, v in CYL.items() if k in ob.name), None)
     if ob.name.startswith("opening_archivolt"):
         arch_uvs(ob, uv)
+        return
+    if ob.name.startswith("dome"):
+        dome_uvs(ob, uv, tiles)
         return
     ycen = (P.CROSS_Y0 + P.CROSS_Y1) / 2
     for p in me.polygons:

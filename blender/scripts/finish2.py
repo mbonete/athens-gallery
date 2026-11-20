@@ -590,50 +590,140 @@ def drum_cornices(M, ycen, R_IN):
 
 
 def dome_coffers(M, ycen, R_IN):
-    """Designed (the fresco doesn't show the dome): a grid of ribs on the inner shell, reading as
-    rings of sunk panels diminishing towards the oculus, as in the Pantheon."""
+    """The dome's inside on the Pantheon's model (designed: the fresco doesn't show it).
+    - 28 columns x 5 rings of sunk coffers from a plain band at the springing; each ring is as
+      tall as its coffers are wide, so they diminish upwards and stay square (the Pantheon's
+      5 x 28 lands at 55 degrees on this dome too).
+    - Every coffer steps back three times (two stepped frames and the panel). Its lower side is
+      cut wider than its upper side, so the sunk panel rides up and the steps read from below.
+    - A plain smooth band from the top ring to a moulded ring round the oculus.
+    - One sheet replaces the shell's inner surface (the shell keeps only its outside): nothing
+      lies behind the coffers (R13), and the ribs are the shell itself, with no slits.
+    The oculus, the springing and the radii are unchanged (web/src/data/dome.ts)."""
     drum_cornices(M, ycen, R_IN)
     zc = P.DRUM_Z1
-    rings, per_ring = P.DOME_COFFER_RINGS, P.DOME_COFFER_COUNT
-    phi_oc = math.acos(P.OCULUS_R / R_IN)
-    phis = np.linspace(0.04, phi_oc - 0.08, rings + 1)
-    dr, w = 0.2, 0.14                                   # rib depth, half-width (radians scaled below)
-
-    def P3(a, ph, r):
-        return Vector((r * math.cos(ph) * math.cos(a), ycen + r * math.cos(ph) * math.sin(a), zc + r * math.sin(ph)))
-    bm = bmesh.new()
-
-    def quad_strip(points_a, points_b):
-        va = [bm.verts.new(p) for p in points_a]
-        vb = [bm.verts.new(p) for p in points_b]
-        for i in range(len(va) - 1):
-            bm.faces.new((va[i], va[i + 1], vb[i + 1], vb[i]))
-    # Parallels: a band at each ring boundary (front face and two flanks).
-    for ph in phis:
-        dph = w / R_IN
-        A = [P3(a, ph - dph, R_IN - 0.01) for a in np.linspace(0, 2 * math.pi, 145)]
-        B = [P3(a, ph - dph, R_IN - dr) for a in np.linspace(0, 2 * math.pi, 145)]
-        C = [P3(a, ph + dph, R_IN - dr) for a in np.linspace(0, 2 * math.pi, 145)]
-        D = [P3(a, ph + dph, R_IN - 0.01) for a in np.linspace(0, 2 * math.pi, 145)]
-        quad_strip(A, B); quad_strip(B, C); quad_strip(C, D)
-    # Meridians between the parallels.
-    for kk in range(per_ring):
-        a = 2 * math.pi * kk / per_ring
-        for i in range(rings):
-            ph = np.linspace(phis[i], phis[i + 1], 8)
-            da = w / (R_IN * math.cos(phis[i + 1]))
-            A = [P3(a - da, p, R_IN - 0.01) for p in ph]
-            B = [P3(a - da, p, R_IN - dr) for p in ph]
-            C = [P3(a + da, p, R_IN - dr) for p in ph]
-            D = [P3(a + da, p, R_IN - 0.01) for p in ph]
-            quad_strip(A, B); quad_strip(B, C); quad_strip(C, D)
-    bm.normal_update()
+    cols, rings = P.DOME_COFFER_COUNT, P.DOME_COFFER_RINGS
+    R = R_IN
     centre = Vector((0, ycen, zc))
-    for f in bm.faces:                       # faces point into the dome's space
-        if f.normal.dot(centre - f.calc_center_median()) < 0:
+
+    def S(th, ph, r=R):
+        return centre + Vector((r * math.cos(ph) * math.cos(th), r * math.cos(ph) * math.sin(th), r * math.sin(ph)))
+    # Ring boundaries: square cells (ring height = column width at the ring's middle).
+    dth = 2 * math.pi / cols
+    phis = [P.DOME_BASE_BAND]
+    for _ in range(rings):
+        a = phis[-1]
+        h = dth * math.cos(a + dth * math.cos(a) / 2)
+        phis.append(a + h)
+    ph_rim = math.acos(P.OCULUS_RIM_R / R)
+    rib = P.DOME_RIB                                   # rib width, fraction of a cell
+    side_s, up_s, low_s = P.DOME_STEP_INSETS           # per step, fractions of the cell
+    sub = 4                                            # segments along each cell edge
+    bm = bmesh.new()
+    kinds = []                                         # material slot per face
+    vcache = {}
+
+    def V(th, ph, r):
+        key = (round(th, 7), round(ph, 7), round(r, 6))
+        v = vcache.get(key)
+        if v is None:
+            v = vcache[key] = bm.verts.new(S(th, ph, r))
+        return v
+
+    def loop(t0, t1, p0, p1, r):
+        """Closed loop round a (theta, phi) rectangle at radius r: sub points per side."""
+        pts = []
+        for i in range(sub):
+            pts.append((t0 + (t1 - t0) * i / sub, p0))
+        for i in range(sub):
+            pts.append((t1, p0 + (p1 - p0) * i / sub))
+        for i in range(sub):
+            pts.append((t1 - (t1 - t0) * i / sub, p1))
+        for i in range(sub):
+            pts.append((t0, p1 - (p1 - p0) * i / sub))
+        return [V(t, p, r) for t, p in pts]
+
+    def strip(la, lb, kind, cc=None):
+        n = len(la)
+        for i in range(n):
+            j = (i + 1) % n
+            bm.faces.new((la[i], la[j], lb[j], lb[i]))
+            kinds.append((kind, cc))
+
+    def grid(t0, t1, p0, p1, r, kind):
+        for i in range(sub):
+            for j in range(sub):
+                ta, tb = t0 + (t1 - t0) * i / sub, t0 + (t1 - t0) * (i + 1) / sub
+                pa, pb = p0 + (p1 - p0) * j / sub, p0 + (p1 - p0) * (j + 1) / sub
+                bm.faces.new((V(ta, pa, r), V(tb, pa, r), V(tb, pb, r), V(ta, pb, r)))
+                kinds.append((kind, None))
+    RIB, RISER, TREAD, PANEL, BAND = range(5)
+    for i in range(rings):
+        p0, p1 = phis[i], phis[i + 1]
+        hp = p1 - p0
+        depth = P.DOME_STEP_DEPTH * (R * math.cos(p0) * dth)    # per step, scaled with the cell
+        for j in range(cols):
+            t0 = j * dth
+            t1 = t0 + dth
+            outer = loop(t0, t1, p0, p1, R)
+            # the cell's opening: half a rib in from each side
+            c = [(t0 + rib * dth / 2, t1 - rib * dth / 2, p0 + rib * hp / 2, p1 - rib * hp / 2)]
+            for k in range(1, 3):
+                a0, a1, b0, b1 = c[-1]
+                c.append((a0 + side_s * dth, a1 - side_s * dth, b0 + low_s * hp, b1 - up_s * hp))
+            strip(outer, loop(*c[0], R), RIB)
+            r_prev = R
+            for k in range(3):
+                r_k = R + depth * (k + 1)
+                a0, a1, b0, b1 = c[k]
+                strip(loop(*c[k], r_prev), loop(*c[k], r_k), RISER, S((a0 + a1) / 2, (b0 + b1) / 2, (r_prev + r_k) / 2))
+                if k < 2:
+                    strip(loop(*c[k], r_k), loop(*c[k + 1], r_k), TREAD)
+                r_prev = r_k
+            grid(*c[2], R + depth * 3, PANEL)
+    # Plain bands: from the springing to the first ring, from the top ring to the oculus' ring.
+    for pa, pb, nseg in ((0.0, phis[0], 1), (phis[-1], ph_rim, 8)):
+        for j in range(cols * sub):
+            ta, tb = j * dth / sub, (j + 1) * dth / sub
+            for q in range(nseg):
+                qa, qb = pa + (pb - pa) * q / nseg, pa + (pb - pa) * (q + 1) / nseg
+                bm.faces.new((V(ta, qa, R), V(tb, qa, R), V(tb, qb, R), V(ta, qb, R)))
+                kinds.append((BAND, None))
+    bm.faces.index_update()
+    bm.normal_update()
+    for f in bm.faces:
+        kind, cc = kinds[f.index]
+        # risers look towards their cell's middle; everything else into the dome
+        target = (cc if kind == RISER else centre) - f.calc_center_median()
+        if f.normal.dot(target) < 0:
             f.normal_flip()
-    _obj("dome_ribs", bm, "vault_fine", [M["vault_rib"]])
-    set_material("dome", M["coffer"])
+        f.material_index = kind
+    ob = _obj("dome_coffers", bm, "vault_fine",
+              [M["vault_rib"], M["coffer_riser"], M["coffer_tread"], M["coffer"], M["stucco_drum"]])
+    # The shell keeps only its outside: its inner surface is the sheet above.
+    dome = bpy.data.objects["dome"]
+    bm = bmesh.new()
+    bm.from_mesh(dome.data)
+    inner = [f for f in bm.faces if (f.calc_center_median() - centre).length < R + 0.3]
+    bmesh.ops.delete(bm, geom=inner, context="FACES")
+    bm.to_mesh(dome.data)
+    bm.free()
+    set_material("dome", M["stucco_drum"])
+    # The oculus' ring: a fascia hanging from the smooth band, a flat soffit and a torus rolling
+    # into the opening; the opening's reveal goes up to the shell's outside.
+    r_oc, r_rim = P.OCULUS_R, P.OCULUS_RIM_R
+    z_rim = zc + math.sqrt(R ** 2 - r_rim ** 2)
+    R_OUT = R + 0.6
+    phi_oc = math.acos(r_oc / R)
+    z_top = zc + R_OUT * math.sin(phi_oc)
+    r_top = R_OUT * math.cos(phi_oc)
+    zb = z_rim - 0.07
+    prof = [(r_rim, z_rim), (r_rim, zb), (r_oc + 0.05, zb)]
+    for t in np.linspace(-math.pi / 2, -math.pi, 7)[1:]:
+        prof.append((r_oc + 0.05 + 0.05 * math.cos(t), zb + 0.05 + 0.05 * math.sin(t)))
+    prof += [(r_oc, z_top), (r_top, z_top)]
+    revolve_profile("dome_oculus_rim", prof + [prof[0]], (0, ycen), "stone", [M["stone"]], segments=cols * sub)
+    return ob
 
 
 # ================================================================ end wall
