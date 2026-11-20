@@ -1,0 +1,54 @@
+[
+ {
+  "tag": "start",
+  "tappedAt": {
+   "x": 640,
+   "y": 180
+  },
+  "modeUp": "dome",
+  "after": {
+   "mode": "walk",
+   "drive": "scroll"
+  },
+  "frames": 23
+ },
+ {
+  "tag": "midnave",
+  "tappedAt": {
+   "x": 448,
+   "y": 20
+  },
+  "modeUp": "dome",
+  "after": {
+   "mode": "walk",
+   "drive": "scroll"
+  },
+  "frames": 23
+ },
+ {
+  "tag": "bay3",
+  "tappedAt": {
+   "x": 373.33333333333337,
+   "y": 6.666666666666667
+  },
+  "modeUp": "dome",
+  "after": {
+   "mode": "walk",
+   "drive": "scroll"
+  },
+  "frames": 24
+ },
+ {
+  "tag": "bay3b",
+  "tappedAt": {
+   "x": 394.6666666666667,
+   "y": 6.666666666666667
+  },
+  "modeUp": "dome",
+  "after": {
+   "mode": "walk",
+   "drive": "scroll"
+  },
+  "frames": 24
+ }
+]

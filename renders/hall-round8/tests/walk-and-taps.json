@@ -1,0 +1,336 @@
+{
+  "loadMs": 1211,
+  "viewport": [
+    1600,
+    1000
+  ],
+  "errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "frames": {
+    "idleStart": {
+      "n": 178,
+      "fps": 60,
+      "meanMs": 16.67,
+      "p95Ms": 18.6,
+      "p99Ms": 18.7,
+      "maxMs": 18.7
+    },
+    "walk": {
+      "n": 506,
+      "fps": 57.7,
+      "meanMs": 17.33,
+      "p95Ms": 18.6,
+      "p99Ms": 18.7,
+      "maxMs": 199.9
+    }
+  },
+  "taps": [
+    {
+      "slug": "mucha-summer",
+      "side": -1,
+      "z": -14.42,
+      "wallX": 4.55,
+      "room": 2.45,
+      "at": {
+        "x": 0,
+        "y": 1.295,
+        "z": -8.42050128944837,
+        "yaw": 0,
+        "progress": 0.3083145479799088,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "screen": {
+        "x": 136.15659845100748,
+        "y": 545.2308361878581,
+        "z": 0.9833815252844273
+      },
+      "modeAfterTap": "detail",
+      "modeAfterBack": "walk",
+      "backAt": {
+        "x": 0,
+        "y": 1.295,
+        "z": -8.42,
+        "yaw": 0,
+        "progress": 0.308300395256917,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "ok": true
+    },
+    {
+      "slug": "klimt-water-serpents-ii",
+      "side": 1,
+      "z": -14.42,
+      "wallX": 4.55,
+      "room": 2.45,
+      "at": {
+        "x": 0,
+        "y": 1.295,
+        "z": -8.42,
+        "yaw": 0,
+        "progress": 0.308300395256917,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "screen": {
+        "x": 1474.8708089370602,
+        "y": 545.2410414355694,
+        "z": 0.9833829179062811
+      },
+      "modeAfterTap": "detail",
+      "modeAfterBack": "walk",
+      "backAt": {
+        "x": 0,
+        "y": 1.295,
+        "z": -8.42,
+        "yaw": 0,
+        "progress": 0.308300395256917,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "ok": true
+    },
+    {
+      "slug": "waterhouse-hylas",
+      "side": -1,
+      "z": -17.57,
+      "wallX": 4.55,
+      "room": 2.38,
+      "at": {
+        "x": 0,
+        "y": 1.295,
+        "z": -11.569419602617884,
+        "yaw": 0,
+        "progress": 0.39721681543246423,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "screen": {
+        "x": 136.27726428078768,
+        "y": 545.252855032195,
+        "z": 0.9833845300055947
+      },
+      "modeAfterTap": "detail",
+      "modeAfterBack": "walk",
+      "backAt": {
+        "x": 0,
+        "y": 1.295,
+        "z": -11.57,
+        "yaw": 0,
+        "progress": 0.39723320158102765,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "ok": true
+    },
+    {
+      "slug": "vangogh-almond-blossom",
+      "side": 1,
+      "z": -17.57,
+      "wallX": 4.55,
+      "room": 2.38,
+      "at": {
+        "x": 0,
+        "y": 1.295,
+        "z": -11.57,
+        "yaw": 0,
+        "progress": 0.39723320158102765,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "screen": {
+        "x": 1474.8708089370602,
+        "y": 545.2410414355694,
+        "z": 0.9833829179062811
+      },
+      "modeAfterTap": "detail",
+      "modeAfterBack": "walk",
+      "backAt": {
+        "x": 0,
+        "y": 1.295,
+        "z": -11.57,
+        "yaw": 0,
+        "progress": 0.39723320158102765,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "ok": true
+    },
+    {
+      "slug": "hokusai-great-wave",
+      "side": -1,
+      "z": -21.14,
+      "wallX": 4.55,
+      "room": 3.36,
+      "at": {
+        "x": 0,
+        "y": 1.295,
+        "z": -15.13927376318421,
+        "yaw": 0,
+        "progress": 0.4980032118346756,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "screen": {
+        "x": 136.29352983558397,
+        "y": 545.255823136088,
+        "z": 0.9833849350370514
+      },
+      "modeAfterTap": "detail",
+      "modeAfterBack": "walk",
+      "backAt": {
+        "x": 0,
+        "y": 1.295,
+        "z": -15.139600714717997,
+        "yaw": 0,
+        "progress": 0.49801244253862215,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "ok": true
+    },
+    {
+      "slug": "hiroshige-asakusa-torinomachi",
+      "side": 1,
+      "z": -21.14,
+      "wallX": 4.55,
+      "room": 3.36,
+      "at": {
+        "x": 0,
+        "y": 1.295,
+        "z": -15.14,
+        "yaw": 0,
+        "progress": 0.4980237154150198,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "screen": {
+        "x": 1474.8708089370602,
+        "y": 545.2410414355694,
+        "z": 0.9833829179062811
+      },
+      "modeAfterTap": "detail",
+      "modeAfterBack": "walk",
+      "backAt": {
+        "x": 0,
+        "y": 1.295,
+        "z": -15.14,
+        "yaw": 0,
+        "progress": 0.4980237154150198,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "ok": true
+    },
+    {
+      "slug": "kandinsky-composition-8",
+      "side": 1,
+      "z": -28.07,
+      "wallX": 4.13,
+      "room": 8.26,
+      "at": {
+        "x": 0,
+        "y": 1.295,
+        "z": -22.069426492868796,
+        "yaw": 0,
+        "progress": 0.6936596977094521,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "screen": {
+        "x": 1412.6184809595945,
+        "y": 545.2527147991966,
+        "z": 0.9833845108692107
+      },
+      "modeAfterTap": "detail",
+      "modeAfterBack": "walk",
+      "backAt": {
+        "x": 0,
+        "y": 1.295,
+        "z": -22.07,
+        "yaw": 0,
+        "progress": 0.6936758893280632,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "ok": true
+    },
+    {
+      "slug": "titian-rape-of-europa",
+      "side": -1,
+      "z": -28.07,
+      "wallX": 4.13,
+      "room": 8.26,
+      "at": {
+        "x": 0,
+        "y": 1.295,
+        "z": -22.07,
+        "yaw": 0,
+        "progress": 0.6936758893280632,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "screen": {
+        "x": 198.4068252267078,
+        "y": 545.2410414355694,
+        "z": 0.9833829179062811
+      },
+      "modeAfterTap": "detail",
+      "modeAfterBack": "walk",
+      "backAt": {
+        "x": 0,
+        "y": 1.295,
+        "z": -22.07,
+        "yaw": 0,
+        "progress": 0.6936758893280632,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "ok": true
+    },
+    {
+      "slug": "bosch-garden-of-earthly-delights",
+      "side": 0,
+      "z": -38.42,
+      "wallX": 0,
+      "room": 5.138,
+      "at": {
+        "x": 0,
+        "y": 1.295,
+        "z": -32.919635153893594,
+        "yaw": 0,
+        "progress": 0.9999896994323431,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "screen": {
+        "x": 805.5416666666666,
+        "y": 485.28782577767083,
+        "z": 0.9818689345643749
+      },
+      "modeAfterTap": "detail",
+      "modeAfterBack": "walk",
+      "backAt": {
+        "x": 0,
+        "y": 1.295,
+        "z": -32.92,
+        "yaw": 0,
+        "progress": 1,
+        "drive": "scroll",
+        "mode": "walk"
+      },
+      "ok": true
+    }
+  ],
+  "endPose": {
+    "x": 0,
+    "y": 1.295,
+    "z": -32.92,
+    "yaw": 0,
+    "progress": 1,
+    "drive": "scroll",
+    "mode": "walk"
+  }
+}

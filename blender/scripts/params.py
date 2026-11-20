@@ -141,9 +141,9 @@ ALBEDO = {   # linear; started from the fresco's lit colours, then calibrated (R
     # Round 8 (Maria): white marble, not the fresco's buff. Warm white, veins (the _dark ends of
     # the Marble014 ramp) a cool grey. Was stucco (0.563, 0.462, 0.426), stone (0.57, 0.468, 0.43),
     # rib (0.58, 0.49, 0.39).
-    "stucco": (0.70, 0.69, 0.665), "stucco_dark": (0.651, 0.642, 0.62),
-    "stone": (0.70, 0.69, 0.665), "stone_dark": (0.651, 0.642, 0.62),
-    "rib": (0.70, 0.69, 0.665), "rib_dark": (0.665, 0.656, 0.632),
+    "stucco": (0.70, 0.69, 0.665), "stucco_dark": (0.668, 0.659, 0.638),
+    "stone": (0.70, 0.69, 0.665), "stone_dark": (0.668, 0.659, 0.638),
+    "rib": (0.70, 0.69, 0.665), "rib_dark": (0.676, 0.667, 0.644),
     "coffer_light": (0.64, 0.56, 0.45), "coffer_dark": (0.38, 0.33, 0.27),     # panels: mottled, ~0.8 x rib
     "riser_light": (0.41, 0.375, 0.34), "riser_dark": (0.25, 0.23, 0.205),      # risers: darker (see REPORT)
     # Stage 4: floors recalibrated against the fresco under the warm light (the web read them salmon).
