@@ -176,9 +176,8 @@ export function hoverDome(x: number, y: number, el: HTMLElement, skip: boolean) 
 let tl: gsap.core.Timeline | gsap.core.Tween | null = null;
 
 /** Walk to the centre of the crossing along the walk and tilt up until looking straight up.
- * The tilt follows the dome while walking (the gaze is aimed at the oculus, more so as it goes),
- * so it stays on screen. The shift lens blends out with the tilt: straight up, the frustum is
- * centred and the dome is round and in the middle. */
+ * The shift lens blends out with the tilt: straight up, the frustum is centred and the dome is
+ * round and in the middle. */
 export function lookUp(opts: { push?: boolean } = {}) {
   if (getState().mode !== "walk" || rig.drive !== "scroll" || !rig.camera) return;
   setState({ mode: "looking-up", started: true });
@@ -192,23 +191,22 @@ export function lookUp(opts: { push?: boolean } = {}) {
   const update = () => {
     const z = z0 + (DOME.z - z0) * go.walk;
     const p = poseAt(progressAt(z));
-    // Elevation of the oculus from here: 90 degrees once under it.
-    const aim = Math.atan2(DOME.crown - p.y, Math.abs(z - DOME.z));
     rig.pose.x = p.x;
     rig.pose.y = p.y;
     rig.pose.z = z;
     rig.pose.yaw = 0;
-    rig.pose.pitch = from.pitch + (aim - from.pitch) * go.gaze;
+    rig.pose.pitch = from.pitch + (Math.PI / 2 - from.pitch) * go.gaze;
     rig.pose.sym = from.sym + (1 - from.sym) * go.gaze;
   };
   const t = gsap.timeline({ onUpdate: update, onComplete: () => {
     update();
     if (getState().mode === "looking-up") setState({ mode: "dome" });
   } });
-  // Same family and pace as the walk-up to a painting (1.3 s, power2.inOut); the gaze starts a
-  // moment later and settles a moment after arriving.
+  // The walk is the painting walk-up's (1.3 s, power2.inOut). The tilt starts a moment later and
+  // settles after arriving; power1 (same family, softer) keeps its fastest turn near 120 deg/s,
+  // where power2 would whip through 200.
   t.to(go, { walk: 1, duration: dur(1.3), ease: "power2.inOut" }, 0);
-  t.to(go, { gaze: 1, duration: dur(1.35), ease: "power2.inOut" }, dur(0.15));
+  t.to(go, { gaze: 1, duration: dur(1.45), ease: "power1.inOut" }, dur(0.15));
   tl = t;
 }
 
