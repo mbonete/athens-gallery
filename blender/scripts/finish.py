@@ -340,16 +340,21 @@ def archivolt():
     return pr.closed(embed=0.0)  # its back is the arch face; embedding it would overlap the soffit
 
 
-def sweep(name, prof, path, outs, ups, kind, mats):
+def sweep(name, prof, path, outs, ups, kind, mats, closed=False):
+    """Sweep a closed profile (p, q) along a path: point = c + out * p + up * q. outs/ups carry the
+    mitre (see plan_path / plane_path). closed=True joins the last ring to the first (a frame
+    round a rectangle); otherwise both ends are capped with the profile."""
     bm = bmesh.new()
     rings = [[bm.verts.new(c + o * p + u * q) for p, q in prof] for c, o, u in zip(path, outs, ups)]
     n = len(prof)
-    for a, b in zip(rings, rings[1:]):
+    pairs = list(zip(rings, rings[1:])) + ([(rings[-1], rings[0])] if closed else [])
+    for a, b in pairs:
         for i in range(n):
             j = (i + 1) % n
             bm.faces.new((a[i], a[j], b[j], b[i]))
-    bm.faces.new(rings[0])
-    bm.faces.new(rings[-1][::-1])
+    if not closed:
+        bm.faces.new(rings[0])
+        bm.faces.new(rings[-1][::-1])
     bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=1e-6)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     return _obj(name, bm, kind, mats, smooth_angle=35)
@@ -366,6 +371,35 @@ def plan_path(pts, side):
         outs.append((n1 + n2) / (1.0 + n1.dot(n2)))
     outs.append(nrm[-1])
     return pts, outs, [Vector((0, 0, 1))] * len(pts)
+
+
+def plane_path(pts2d, origin, U, V, side, closed=False):
+    """Mitred frame along a polyline drawn in a plane (origin + U*u + V*v): the in-plane offset
+    direction ("up" of the profile) is mitred at every corner, as plan_path does for plan runs.
+    side = +1: profile on the right of the direction of travel. closed: the polyline is a loop
+    (no repeated last point); its first and last corners are mitred too."""
+    pts = [Vector(p) for p in pts2d]
+    m = len(pts)
+    segs = [(pts[(i + 1) % m] - pts[i]).normalized() for i in range(m if closed else m - 1)]
+    nrm = [Vector((t.y, -t.x)) * side for t in segs]
+    offs = []
+    for i in range(m):
+        if closed:
+            n1, n2 = nrm[i - 1], nrm[i]
+        elif i == 0:
+            n1 = n2 = nrm[0]
+        elif i == m - 1:
+            n1 = n2 = nrm[-1]
+        else:
+            n1, n2 = nrm[i - 1], nrm[i]
+        offs.append((n1 + n2) / (1.0 + n1.dot(n2)))
+    world = [origin + U * p.x + V * p.y for p in pts]
+    ups = [U * o.x + V * o.y for o in offs]
+    return world, ups
+
+
+def arc_points(cu, cv, r, t0, t1, n):
+    return [(cu + r * math.cos(t0 + (t1 - t0) * i / n), cv + r * math.sin(t0 + (t1 - t0) * i / n)) for i in range(n + 1)]
 
 
 # ================================================================ materials
@@ -419,6 +453,8 @@ def textured(name, tex, lum_range, c_dark, c_light, scale, rough=(0.55, 0.85), b
     L.new(mr.outputs["Result"], bp.inputs["Height"])
     L.new(bp.outputs["Normal"], bsdf.inputs["Normal"])
     m["albedo_dark"], m["albedo_light"] = c_dark, c_light
+    # For the web's detail textures (tools/make_detail.py): the scan, its ramp and its tile size.
+    m["detail_tex"], m["lum_range"], m["tile"] = tex, list(lum_range), [scale, scale]
     return m
 
 
@@ -489,6 +525,8 @@ def floor_material(grey=None):
     L.new(_sock(mul, "Result_Color", True), _sock(sel, "B_Color"))
     L.new(_sock(sel, "Result_Color", True), bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = 0.35
+    m["detail"], m["tile"], m["origin"] = "floor_hall", [w, h], [x0, y0]
+    m["riser_detail"] = "step_riser"           # its vertical faces (the top riser)
     return m
 
 
@@ -531,6 +569,7 @@ def painted(m, scale, contrast, speckle=0.0):
         L.new(th.outputs["Result"], _sock(mul2, "B_Color"))
         out = _sock(mul2, "Result_Color", True)
     L.new(out, bsdf.inputs["Base Color"])
+    m["mottle"] = [scale, contrast, speckle]
     return m
 
 
@@ -595,6 +634,7 @@ def flat(name, rgb, rough=0.8):
     b = m.node_tree.nodes.get("Principled BSDF")
     b.inputs["Base Color"].default_value = (*rgb, 1)
     b.inputs["Roughness"].default_value = rough
+    m["detail"], m["tint"] = "flat", list(rgb)
     return m
 
 
@@ -629,14 +669,29 @@ def materials():
     M["coffer_tread"] = textured("coffer_tread", "white_plaster_02", (0.15, 0.34), scaled(A["rib_dark"], (P.TREAD,) * 3),
                                  scaled(A["rib"], (P.TREAD,) * 3), 1.5, rough=(0.75, 0.95), bump=0.08)
     risers(M["step"])
-    for key in ("stone", "stucco", "stucco_far", "stone_far", "stucco_drum", "stone_facade"):
-        right_shade(M[key])
     # Painted look (Maria, stage 2): the coffers' marble mottling and the ribs' fine speckle.
     painted(M["coffer"], *P.PAINTED["coffer"])
     painted(M["coffer_riser"], *P.PAINTED["coffer"])
     painted(M["vault_rib"], *P.PAINTED["rib"])
-    painted(M["stone"], *P.PAINTED["stone"])
-    painted(M["stucco"], *P.PAINTED["stucco"])
+    for key in ("stone", "stone_far", "stone_facade"):
+        painted(M[key], *P.PAINTED["stone"])
+    for key in ("stucco", "stucco_far", "stucco_drum"):
+        painted(M[key], *P.PAINTED["stucco"])
+    for key in ("stone", "stucco", "stucco_far", "stone_far", "stucco_drum", "stone_facade"):
+        right_shade(M[key])
+    # The web (stage 4) draws detail texture x tint x lightmap: materials that differ from another
+    # only by a colour factor share its detail texture and carry the factor as a tint.
+    detail = {"stucco": ("stucco", None), "stucco_far": ("stucco", P.FAR), "stucco_drum": ("stucco", P.DRUM),
+              "stone": ("stone", None), "stone_far": ("stone", P.FAR), "stone_facade": ("stone", P.FACADE),
+              "vault_rib": ("rib", None), "coffer": ("coffer", None), "coffer_riser": ("coffer_riser", None),
+              "coffer_tread": ("coffer_tread", None), "step": ("step", None)}
+    for name, (key, tint) in detail.items():
+        M[name]["detail"] = key
+        M[name]["tint"] = list(tint) if tint else [1.0, 1.0, 1.0]
+        if tint:                                 # the shared texture uses the untinted colours
+            base = M[key if key in M else name]
+            M[name]["albedo_dark"], M[name]["albedo_light"] = base["albedo_dark"], base["albedo_light"]
+    M["step"]["riser_detail"] = "step_riser"
     return M
 
 
@@ -663,7 +718,7 @@ def vault(tag, y0, y1, field_y0, M):
     _obj(f"{tag}_vault_backing", bm, "stucco", [M["stucco"]])
 
 
-def pilaster(tag, side, yc, M):
+def pilaster(tag, side, yc, M, rings=True):
     NW, PZ, SZ = P.NAVE_HALF_W, P.PLATFORM_Z, P.SPRING_Z
     W, D = P.PILASTER_W, P.PILASTER_D
     wx = side * NW
@@ -676,6 +731,8 @@ def pilaster(tag, side, yc, M):
                        PZ + (v.co.z + 0.5) * (SZ - 0.05 - PZ)))   # fills the ressaut behind the entablature
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     _obj(f"{tag}_pilaster_{side}_{yc}", bm, "stone", [M["stone"]])
+    if not rings:                       # base and capital come from the continuous runs (wall_runs)
+        return
     ring = [(wx + side * 0.03, yc - W / 2), (wx - side * D, yc - W / 2),
             (wx - side * D, yc + W / 2), (wx + side * 0.03, yc + W / 2)]
     for kind, prof in (("base", attic_base(P.PLATFORM_Z)), ("capital", capital(P.ENTABLATURE_Z0))):
@@ -743,49 +800,19 @@ def apply():
             ob.data.materials.clear()
             ob.data.materials.append(M["stucco"])
     for side in (-1, 1):
-        wx, cx = side * NW, side * CH
-        hand = 1 if side < 0 else -1
         for yc in P.PILASTERS_Y:
-            pilaster("nave", side, yc, M)
+            pilaster("nave", side, yc, M, rings=False)
         for yc in P.ARM2_PILASTERS_Y:
-            pilaster("arm2", side, yc, M)
-
-        def ressauts(ys):
-            out = []
-            for yc in ys:
-                out += [(wx, yc - W / 2), (wx - side * D, yc - W / 2), (wx - side * D, yc + W / 2), (wx, yc + W / 2)]
-            return out
-        # Bay 1's recess: the entablature runs into it and round the first pilaster.
-        r0, r1, rx = P.BAY1_SIDE_RECESS
-        yc0 = P.PILASTERS_Y[0]
-        run = [(side * P.FACADE_HALF_W, P.FACADE_Y0), (wx, P.FACADE_Y0), (wx, r0), (side * rx, r0), (side * rx, r1),
-               (wx - side * D, yc0 - W / 2), (wx - side * D, yc0 + W / 2), (wx, yc0 + W / 2)]
-        run += ressauts(P.PILASTERS_Y[1:])
-        run += [(wx, Y1), (cx, Y1), (cx, A0), (wx, A0)] + ressauts(P.ARM2_PILASTERS_Y) + [(wx, A1)]
-        sweep(f"entablature_{side}", entablature(P.ENTABLATURE_Z0), *plan_path(_clean(run), hand), "stone", stone)
-        # String course: bays 2-3 of the nave, the crossing (round its piers), the second arm's bays.
-        # Bay 1 has none: its niche rises through that height (fresco).
-        sc = string_course(*P.STRING_COURSE)
-        segs = []
-        e = [y for yc in P.PILASTERS_Y for y in (yc - W / 2, yc + W / 2)]
-        for a, b in zip(e[1::2], e[2::2] + [None]):
-            segs.append([(wx, a - 0.03)] + ([(wx, b + 0.03)] if b is not None else
-                                            [(wx, Y1), (cx, Y1), (cx, A0), (wx, A0)]))
-        e2 = [A0] + [y for yc in P.ARM2_PILASTERS_Y for y in (yc - W / 2, yc + W / 2)] + [A1]
-        segs[-1] += [(wx, e2[1] + 0.03)]
-        for a, b in zip(e2[2::2], e2[3::2]):
-            segs.append([(wx, a - 0.03), (wx, b)])
-        for i, sgm in enumerate(segs):
-            sweep(f"string_course_{side}_{i}", sc, *plan_path(_clean(sgm), hand), "stone", stone)
-        # Bases along the crossing piers.
-        sweep(f"crossing_base_{side}", attic_base(PZ),
-              *plan_path(_clean([(wx + side * 0.03, Y1), (cx, Y1), (cx, A0), (wx + side * 0.03, A0)]), hand),
-              "stone", stone)
+            pilaster("arm2", side, yc, M, rings=False)
 
     finish2.bay1(M)
+    finish2.recesses(M)
     finish2.facade(M)
+    finish2.wall_runs(M)
     finish2.crossing(M)
     finish2.end_wall(M)
+    finish2.bosch_base(M)
+    finish2.fill_empty_slots(M)
     return M
 
 

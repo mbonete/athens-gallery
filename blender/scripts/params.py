@@ -143,11 +143,12 @@ ALBEDO = {   # linear; started from the fresco's lit colours, then calibrated (R
     "rib": (0.58, 0.49, 0.39), "rib_dark": (0.51, 0.43, 0.343),
     "coffer_light": (0.64, 0.56, 0.45), "coffer_dark": (0.38, 0.33, 0.27),     # panels: mottled, ~0.8 x rib
     "riser_light": (0.41, 0.375, 0.34), "riser_dark": (0.25, 0.23, 0.205),      # risers: darker (see REPORT)
-    "floor_white": (0.68, 0.57, 0.58), "floor_rose": (0.36, 0.21, 0.20), "floor_band": (0.23, 0.15, 0.20),
-    "floor_mauve": (0.12, 0.08, 0.12),                                        # lower floor, darker field (105,91,104)
-    "lower_white": (0.36, 0.34, 0.42),                                        # lower floor, white bands (168,164,194)
+    # Stage 4: floors recalibrated against the fresco under the warm light (the web read them salmon).
+    "floor_white": (0.63, 0.565, 0.75), "floor_rose": (0.47, 0.26, 0.29), "floor_band": (0.23, 0.15, 0.24),
+    "floor_mauve": (0.18, 0.116, 0.22),                                       # lower floor, darker field
+    "lower_white": (0.29, 0.31, 0.55),                                        # lower floor, white bands
     "step": (0.68, 0.60, 0.58), "step_dark": (0.61, 0.54, 0.52),              # treads (nosing 234,219,221)
-    "step_riser": (0.39, 0.34, 0.35),                                         # risers (191,175,162)
+    "step_riser": (0.47, 0.41, 0.47),                                         # risers (191,175,162)
 }
 
 # Light. The fresco's shading: faces turned to +X (left nave wall) are lit (median 215,190,176),
@@ -175,7 +176,7 @@ EXPOSURE = 0.0               # Standard view transform (no tone curve), stops
 BAY1_RECESS_Y0 = 16.2        # front screen 0.7 m (facade niches made 0.5 m deep to fit)
 BAY1_RECESS_Y1 = 18.1        # the frontal back wall
 BAY1_RECESS_X = 7.3          # outer wall; hidden from Raphael's eye (needs > 5.9 * 18.1 / 15.5 = 6.9)
-BAY1_RECESS_TOP = 10.45      # painted band on the frontal face at v 700-770 -> Z 9.9-10.4
+BAY1_RECESS_TOP = 10.5       # painted band at v 700-770 -> Z 9.9-10.4; stage 4: the architrave's soffit (R1)
 # Recess between the short block behind the vestibule and the first pilaster, full height to the
 # springing: the painted cornice in bay 1 recedes along a line through the vanishing point with
 # X / (Z - EYE) = 0.61-0.62 on both sides (u 1180-1265 / 2590-2670, v 580-690), i.e. X ~6.4 at
@@ -206,7 +207,9 @@ DOME_COFFER_RINGS, DOME_COFFER_COUNT = 5, 28
 # triglyph frieze, so that is what is built. Pilasters beside the door at u 1720-1760 / 2110-2150.
 END_DORIC = (12.64, 13.36, 14.28, 14.57)
 END_TRIGLYPH = (1.64, 0.36)
-END_PILASTER_X0, END_PILASTER_W, END_PILASTER_D = 0.5, 0.95, 0.12
+# Stage 4 (joint rules): pilasters 0.45 from the jamb, 0.85 wide, 0.25 deep so the side walls'
+# cornice (0.85 proud) clears them and the door's impost (0.18 proud) dies into their sides.
+END_PILASTER_X0, END_PILASTER_W, END_PILASTER_D = 0.45, 0.8, 0.25
 
 # Painted surfaces (Maria, stage 2): (noise scale per m, contrast, speckle darkness). The
 # fresco's cracks and stains are left out on purpose (its age, not the building).
@@ -234,15 +237,45 @@ HANG_CENTRE_Z = PLATFORM_Z + 1.55 / SCALE  # web: centre 1.55 m above the floor
 # blender/scripts/bake.py. Texel density in pixels per metre at 100 % (the web shows 70 %, so
 # 1 px covers 0.7/density m there). "rough" trades quality for speed only.
 BAKE = {
-    "rough": dict(samples=96, density=22.0, max_size=4096, margin=3, gap=1.5, denoise=True),
-    "final": dict(samples=1024, density=40.0, max_size=4096, margin=4, gap=2, denoise=True),
+    # Stage 4: the atlases hold light only (detail comes from tiled textures), so the density is
+    # chosen for light: 16 px/m rough, 28 final, mouldings denser (BAKE_DENSITY_SCALE).
+    "rough": dict(samples=128, density=16.0, max_size=4096, margin=3, gap=1.5, denoise=True),
+    "final": dict(samples=1024, density=28.0, max_size=4096, margin=4, gap=2, denoise=True),
 }
 BAKE_QUALITY = os.environ.get("BAKE", "rough")
 # Groups baked into one atlas each, by the object's centre along Y (metres, 100 %).
 BAKE_GROUPS = [("front", -999, 15.0), ("facade", 15.0, 19.0), ("nave", 19.0, 33.0),
                ("crossing", 33.0, 46.9), ("arm2", 46.9, 999)]
-BAKE_DENSITY_SCALE = {"floor_lower_sides_l": 0.6, "floor_lower_sides_r": 0.6, "facade": 0.8}
+# Density factors by object name prefix (first match): mouldings change light across a few cm.
+BAKE_DENSITY_SCALE = {"floor_lower_sides": 0.6, "facade": 0.8, "entablature": 1.6, "string_course": 1.6,
+                      "nave_pilaster_capital": 2.0, "arm2_pilaster_capital": 2.0, "nave_pilaster_base": 1.6,
+                      "arm2_pilaster_base": 1.6, "crossing_base": 1.6, "end_entablature": 1.6, "end_door": 1.6,
+                      "end_pilaster_base": 1.6, "arch_front_edge": 1.6, "arch_back_edge": 1.6, "bay1_": 1.4,
+                      "facade_": 1.4, "drum_base_ring": 1.4, "drum_sill": 1.4, "drum_top_cornice": 1.4,
+                      "step_nosing": 2.0, "tondo_frame": 1.4, "crossing_blind_arch": 1.4}
 BAKE_HALL_X = 7.4                         # m: nothing beyond this behind the facade is seen
 BAKE_ISLAND_MAX = 2.5                     # m: longer surfaces are cut into islands this long
 BAKE_SKIP = ("ground_beyond",)            # flat colour in the web, not baked
 BAKE_OCCLUDERS_ONLY = ("_vault_backing",)  # take part in the light, not exported
+
+# ---------------------------------------------------------------- Stage 4: light x detail for the web
+# The Bosch's base in the doorway, as the web drew it (Scene.tsx: Bosch 3.255 m x 1.2, base 0.3 m
+# wider, 0.75 m tall, 0.6 m deep, front 0.2 m before the painting at END_Z): at 100 %.
+BOSCH_BASE = (-3.005, 3.005, 54.6, 55.457, 1.071)   # x0, x1, y0, y1, height
+LIGHT_SCALE = 4.0             # the lightmaps store light / LIGHT_SCALE (sRGB-encoded); the web multiplies back
+# Detail textures (tools/make_detail.py): px per tile side, and the tint for faces turned to +-X
+# (the nave's side walls read buff in the fresco: G-B 27-30, render 17-19).
+DETAIL_PX = 1024
+SIDE_TINT = (1.0, 0.99, 0.88)  # faces turned to +-X: the fresco's receding walls are buff (G-B 27-30)
+FRAME_W = 0.16                # width of niche and panel frames (R6)
+RELIEF_DEPTH = 0.06           # the facade's relief panels: sunk panels, empty (stage 4: was 0.15)
+
+# Stage 4: the recesses Raphael paints in every bay (as built in bay 1), with empty niches: the
+# side walls between the pilasters are set back to RECESS_X the full height; a pier of
+# RECESS_PIER stays before the crossing's arches and the end wall.
+RECESS_X = BAY1_SIDE_RECESS[2]
+RECESS_PIER = 0.8
+_W2 = PILASTER_W / 2
+NAVE_RECESSES = [(PILASTERS_Y[0] + _W2, PILASTERS_Y[1] - _W2), (PILASTERS_Y[1] + _W2, round(NAVE_Y1 - RECESS_PIER, 3))]
+ARM2_RECESSES = [(round(CROSS_Y1 + TRANSVERSE_T + RECESS_PIER, 3), ARM2_PILASTERS_Y[0] - _W2),
+                 (ARM2_PILASTERS_Y[0] + _W2, round(ARM2_Y1 - RECESS_PIER, 3))]

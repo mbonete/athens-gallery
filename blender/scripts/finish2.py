@@ -13,8 +13,8 @@ import numpy as np
 from mathutils import Vector
 
 import params as P
-from finish import (Profile, _obj, _remove, attic_base, capital, coffer_sheet, plan_path, string_course,
-                    sweep)
+from finish import (Profile, _obj, _remove, arc_points, attic_base, capital, coffer_sheet, plan_path,
+                    plane_path, string_course, sweep)
 
 NW, T, PZ, SZ = P.NAVE_HALF_W, P.WALL_T, P.PLATFORM_Z, P.SPRING_Z
 
@@ -107,8 +107,9 @@ def round_niche_cut(x_face, inward, yc, width, z0, z1, depth, n=24):
     return cutter_prism(a, b)
 
 
-def frame_profile(width=0.16, proj=0.06, embed=0.02):
+def frame_profile(width=None, proj=0.06, embed=0.02):
     """A flat moulded frame (fascia and a small cyma), for niches, panels and tondi."""
+    width = width or P.FRAME_W
     pr = Profile(0.0, n=4)
     pr.h(proj * 0.5).v(width * 0.55).cyma_reversa(proj * 0.5, width * 0.35).v(width * 0.1)
     return pr.closed(embed=embed)
@@ -118,34 +119,52 @@ def sweep_curve(name, prof, pts, out_dir, ups, kind, mats):
     return sweep(name, prof, pts, [out_dir] * len(pts) if isinstance(out_dir, Vector) else out_dir, ups, kind, mats)
 
 
-def niche_frame(name, x_face, inward, yc, width, z0, z1, mats, n=48):
-    """Moulded frame round a round-headed niche on the wall x = x_face (profile proud of the face)."""
-    half = width / 2 + 0.08
-    spring = z1 - width / 2
-    pts, ups = [], []
-    for y, z in ((yc - half, z0), (yc - half, spring)):
-        pts.append(Vector((x_face, y, z)))
-        ups.append(Vector((0, 1, 0)))
-    for t in np.linspace(math.pi, 0, n)[1:-1]:
-        pts.append(Vector((x_face, yc + half * math.cos(t), spring + half * math.sin(t))))
-        ups.append(Vector((0, -math.cos(t), -math.sin(t))))   # negated below: radial outward
-    for y, z in ((yc + half, spring), (yc + half, z0)):
-        pts.append(Vector((x_face, y, z)))
-        ups.append(Vector((0, -1, 0)))
-    # profile "up" points away from the opening: flip to point into the frame band
-    ups = [-u for u in ups]
-    out = Vector((-inward, 0, 0))
-    return sweep(name, frame_profile(), pts, [out] * len(pts), ups, "stone", mats)
+def _signed_area(pts):
+    return 0.5 * sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(pts, pts[1:] + pts[:1]))
+
+
+def frame(name, origin, U, V, O, pts2d, mats, closed=False, prof=None):
+    """Joint rule R6: a frame is one moulding swept along the opening's edge in the wall plane,
+    mitred at every corner, its band running outward from the edge (the inner edge of the frame
+    is the edge of the opening: no reveal, no double outline). origin + U*u + V*v spans the wall,
+    O is the wall's normal into the room. An open path (round-headed frames, three-sided panels)
+    ends on the member it stands on or under (sill, ledge)."""
+    side = 1 if _signed_area(list(pts2d)) > 0 else -1
+    world, ups = plane_path(pts2d, origin, U, V, side, closed)
+    return sweep(name, prof or frame_profile(), world, [O] * len(world), ups, "stone", mats, closed=closed)
+
+
+def arched_outline(uc, w, v0, v_top, n=40):
+    """Left jamb up, semicircular head, right jamb down (u centre uc, width w, from v0 to the crown)."""
+    hw = w / 2
+    spring = v_top - hw
+    return [(uc - hw, v0)] + arc_points(uc, spring, hw, math.pi, 0.0, n) + [(uc + hw, v0)]
+
+
+def niche_frame(name, x_face, inward, yc, width, z0, z1, mats, n=40):
+    """Frame round a round-headed niche on the wall x = x_face; it stands on the niche's sill."""
+    return frame(name, Vector((x_face, 0, 0)), Vector((0, 1, 0)), Vector((0, 0, 1)), Vector((-inward, 0, 0)),
+                 arched_outline(yc, width, z0, z1, n), mats)
+
+
+def ledge(z0, z1):
+    """A sill or ledge under a niche: its lowest fillet projects past any frame below (R6/R8)."""
+    pr = Profile(z0, n=4)
+    pr.h(0.09).v(0.04).cyma_reversa(0.04, 0.05).h(0.05).v(max(0.02, z1 - z0 - 0.17)).cyma_recta(0.04, 0.08)
+    pr.v(z1 - pr.q)
+    return pr.closed()
 
 
 # ================================================================ bay 1: recesses and niches
 def bay1(M):
-    """The painted bay 1 (REPORT.md, "Bay 1"), on both sides:
+    """The painted bay 1, on both sides:
     - behind the facade's thin front screen the space opens sideways (a vestibule); its back wall
       faces the visitor: the frontal face Raphael paints where the model had the facade's jamb;
     - after a short block, the wall between it and the first pier is set back the full height,
       cornice and all (the painted cornice in bay 1 recedes along X ~6.5, not 5.9): a recess;
-    - an empty round-headed niche high on the recess's back wall (the painted statue niches)."""
+    - an empty round-headed niche high on the recess's back wall (the painted statue niches).
+    The base, the capital band and the string course of bay 1 are continuous runs built in
+    facade() (joint rule R1: mouldings turn corners with mitres and never end in mid-air)."""
     fac = bpy.data.objects["facade"]
     y0, y1, xo, ztop = P.BAY1_RECESS_Y0, P.BAY1_RECESS_Y1, P.BAY1_RECESS_X, P.BAY1_RECESS_TOP
     r0, r1, rx = P.BAY1_SIDE_RECESS
@@ -155,78 +174,149 @@ def bay1(M):
         boolean(fac, cutter_box(side * (NW - 0.01), side * xo, y0, y1, PZ - 0.1, ztop))
         wall = bpy.data.objects[f"nave_wall_{side}"]
         boolean(wall, cutter_box(side * (NW - 0.01), side * rx, r0, r1, PZ - 0.1, SZ))
-        # Vestibule: impost and base round its three walls; liners on its back and outer walls.
-        ring = [(side * NW, y0), (side * xo, y0), (side * xo, y1), (side * NW, y1)]
-        sweep(f"bay1_vestibule_impost_{side}", capital(ztop), *plan_path(ring, hand), "stone", stone)
-        sweep(f"bay1_vestibule_base_{side}", attic_base(PZ), *plan_path(ring, hand), "stone", stone)
         box(f"bay1_vestibule_back_{side}", side * NW, side * xo, y1 - 0.02, y1 + 0.001, PZ, ztop, "stucco", stucco)
         box(f"bay1_vestibule_side_{side}", side * xo, side * (xo - 0.02), y0, y1, PZ, ztop, "stucco", stucco)
         # Recess ceiling at the springing, between the vault's edge and the recess wall (the hidden
-        # vault backing closed it in Blender renders; the web model has no backing).
-        box(f"bay1_recess_ceiling_{side}", side * (NW - 0.05), side * (rx + 0.05), r0, r1, SZ, SZ + 0.35,
+        # vault backing closed it in Blender renders; the web model has no backing). Flush with the
+        # vault's springing line: nothing projects into the hall (R5).
+        box(f"bay1_recess_ceiling_{side}", side * (NW + 0.005), side * (rx + 0.05), r0, r1, SZ, SZ + 0.35,
             "stucco", stucco)
-        # Recess: base along its walls (the entablature run wraps it, see finish.apply).
-        sweep(f"bay1_recess_base_{side}", attic_base(PZ),
-              *plan_path([(side * (NW + 0.03), r0), (side * rx, r0), (side * rx, r1), (side * (NW + 0.03), r1)], hand),
-              "stone", stone)
-        # The empty niche on the recess's back wall.
+        # The empty niche on the recess's back wall, its frame standing on a ledge (R6).
         yc, w = P.BAY1_NICHE_YC, P.BAY1_NICHE_W
         z0, z1 = P.BAY1_NICHE_Z
         boolean(wall, round_niche_cut(side * rx, side, yc, w, z0, z1, P.BAY1_NICHE_DEPTH))
         niche_frame(f"bay1_niche_frame_{side}", side * rx, side, yc, w, z0, z1, stone)
-        sweep(f"bay1_niche_sill_{side}", string_course(z0 - 0.3, z0),
-              *plan_path([(side * rx, yc - w / 2 - 0.25), (side * rx, yc + w / 2 + 0.25)], hand), "stone", stone)
+        fw = P.FRAME_W
+        ya, yb = yc - w / 2 - fw - 0.12, yc + w / 2 + fw + 0.12
+        sweep(f"bay1_niche_sill_{side}", ledge(z0 - 0.3, z0),               # returned ends (R1)
+              *plan_path([(side * (rx + 0.3), ya), (side * rx, ya), (side * rx, yb), (side * (rx + 0.3), yb)], hand),
+              "stone", stone)
         reorient(wall)
     reorient(fac)
 
 
+# ================================================================ recesses in every bay
+def niche_set(M, side, tag, yc, rx):
+    """An empty round-headed niche on a recess back wall x = side*rx: cut, frame on its ledge."""
+    stone = [M["stone"]]
+    w = P.BAY1_NICHE_W
+    z0, z1 = P.BAY1_NICHE_Z
+    hand = 1 if side < 0 else -1
+    wall = bpy.data.objects[f"{tag.split('_')[0]}_wall_{side}"]
+    boolean(wall, round_niche_cut(side * rx, side, yc, w, z0, z1, P.BAY1_NICHE_DEPTH))
+    niche_frame(f"{tag}_niche_frame_{side}", side * rx, side, yc, w, z0, z1, stone)
+    fw = P.FRAME_W
+    ya, yb = yc - w / 2 - fw - 0.12, yc + w / 2 + fw + 0.12
+    sweep(f"{tag}_niche_sill_{side}", ledge(z0 - 0.3, z0),
+          *plan_path([(side * (rx + 0.3), ya), (side * rx, ya), (side * rx, yb), (side * (rx + 0.3), yb)], hand),
+          "stone", stone)
+
+
+def recesses(M):
+    """Bays 2-3 of the nave and both bays of the second arm, set back as in bay 1 (Raphael paints
+    a recess with a statue niche in every bay; the niches stay empty): the wall between the
+    pilasters (or a pier before the crossing and the end wall) is cut back to RECESS_X the full
+    height, closed at the springing by a ceiling flush with the vault (R5), with a niche."""
+    stucco = [M["stucco"]]
+    rx = P.RECESS_X
+    for side in (-1, 1):
+        for tag, spans in (("nave", P.NAVE_RECESSES), ("arm2", P.ARM2_RECESSES)):
+            wall = bpy.data.objects[f"{tag}_wall_{side}"]
+            for i, (a, b) in enumerate(spans):
+                boolean(wall, cutter_box(side * (NW - 0.01), side * rx, a, b, PZ - 0.1, SZ))
+                box(f"{tag}_recess_ceiling_{side}_{i}", side * (NW + 0.005), side * (rx + 0.05), a, b, SZ, SZ + 0.35,
+                    "stucco", stucco)
+                niche_set(M, side, f"{tag}_r{i}", (a + b) / 2, rx)
+            reorient(wall)
+
+
+def wall_plan(side, around_vestibule=True):
+    """The plan of one side wall's face from the facade's outer edge to the end wall: facade
+    front, the screen's jamb, the vestibule (or straight across its mouth, for the entablature
+    that spans it as a lintel), the block, every recess, every pilaster's front, the piers
+    before the crossing and the end wall, the crossing's side. The continuous runs follow it."""
+    X = lambda v: side * v                                       # noqa: E731
+    y0, y1, xo = P.BAY1_RECESS_Y0, P.BAY1_RECESS_Y1, P.BAY1_RECESS_X
+    r0, r1, rx = P.BAY1_SIDE_RECESS
+    W, D = P.PILASTER_W, P.PILASTER_D
+    pts = [(X(P.FACADE_HALF_W), P.FACADE_Y0), (X(NW), P.FACADE_Y0)]
+    if around_vestibule:
+        pts += [(X(NW), y0), (X(xo), y0), (X(xo), y1), (X(NW), y1)]
+    pts += [(X(NW), r0), (X(rx), r0), (X(rx), r1)]
+    recs = list(P.NAVE_RECESSES)
+    for yc, (a, b) in zip(P.PILASTERS_Y, recs):
+        pts += [(X(NW - D), yc - W / 2), (X(NW - D), yc + W / 2), (X(rx), a), (X(rx), b)]
+    pts += [(X(NW), recs[-1][1]), (X(NW), P.ARM2_RECESSES[0][0])]          # pier, crossing, pier
+    (a0, b0), (a1, b1) = P.ARM2_RECESSES
+    yc = P.ARM2_PILASTERS_Y[0]
+    pts += [(X(rx), a0), (X(rx), b0), (X(NW - D), yc - W / 2), (X(NW - D), yc + W / 2), (X(rx), a1), (X(rx), b1),
+            (X(NW), b1), (X(NW), P.ARM2_Y1)]
+    return pts
+
+
+def wall_runs(M):
+    """The side walls' continuous mouldings (joint rules R1, R2): one mitred run each per side.
+    - base and capital band: along every face of the wall (vestibule, recesses, pilasters, piers);
+      they are the pilasters' bases and capitals;
+    - entablature: the same, but straight across the vestibule's mouth (its lintel), breaking
+      forward over every pilaster;
+    - string course: where no niche rises through its height: the facade front, the jamb, the
+      vestibule and the block (ending against bay 1's recess back wall), the piers and the
+      crossing between the nave's last recess and the second arm's first (each end returned
+      into the recess's end wall and stopped against its back wall), and the last pier."""
+    from finish import _clean, entablature
+    stone = [M["stone"]]
+    rx = P.RECESS_X
+    _remove("string_course_-1", "string_course_1", "entablature_-1", "entablature_1")
+    for side in (-1, 1):
+        hand = 1 if side < 0 else -1
+        X = lambda v: side * v                                       # noqa: E731
+        full = _clean(wall_plan(side))
+        lintel = _clean(wall_plan(side, around_vestibule=False))
+        sweep(f"base_{side}", attic_base(PZ), *plan_path(full, hand), "stone", stone)
+        sweep(f"capital_band_{side}", capital(P.ENTABLATURE_Z0), *plan_path(full, hand), "stone", stone)
+        sweep(f"entablature_{side}", entablature(P.ENTABLATURE_Z0), *plan_path(lintel, hand), "stone", stone)
+        sc = string_course(*P.STRING_COURSE)
+        r0 = P.BAY1_SIDE_RECESS[0]
+        i_front = full.index((X(NW), r0)) if (X(NW), r0) in full else None
+        front = full[:i_front + 1] + [(X(rx), r0)]
+        mid = [(X(rx), P.NAVE_RECESSES[-1][1]), (X(NW), P.NAVE_RECESSES[-1][1]),
+               (X(NW), P.ARM2_RECESSES[0][0]), (X(rx), P.ARM2_RECESSES[0][0])]
+        end = [(X(rx), P.ARM2_RECESSES[-1][1]), (X(NW), P.ARM2_RECESSES[-1][1]), (X(NW), P.ARM2_Y1)]
+        for i, run in enumerate((front, mid, end)):
+            sweep(f"string_course_{side}_{i}", sc, *plan_path(_clean(run), hand), "stone", stone)
+
+
 # ================================================================ facade
 def facade(M):
-    """The facade's front: string course as a moulding, frames on the niches and relief panels
-    (left empty: architecture only), a base along the platform."""
+    """The facade's front: niche frames and relief-panel frames by rule R6; the panel frame is
+    three-sided and ends under the niche's ledge, which is the panel's top member. (Its base,
+    capital band, string course and entablature are the side walls' runs: wall_runs.)"""
     stone = [M["stone_facade"]]
     set_material("facade", M["stone_facade"])
     _remove("string_course_-1", "string_course_1")
     x_out = P.FACADE_HALF_W
     y = P.FACADE_Y0
+    y0, y1, xo = P.BAY1_RECESS_Y0, P.BAY1_RECESS_Y1, P.BAY1_RECESS_X
+    r0, r1, rx = P.BAY1_SIDE_RECESS
+    W, D = P.PILASTER_W, P.PILASTER_D
+    yc0 = P.PILASTERS_Y[0]
     for side in (-1, 1):
-        hand = 1 if side < 0 else -1
-        # String course along the front, returning onto the screen's jamb up to the recess.
-        run = [(side * x_out, y), (side * NW, y), (side * NW, P.BAY1_RECESS_Y0 + 0.03)]
-        sweep(f"facade_string_course_{side}", string_course(*P.STRING_COURSE), *plan_path(run, hand),
-              "stone", stone)
-        sweep(f"facade_base_{side}", attic_base(PZ),
-              *plan_path([(side * x_out, y), (side * NW, y), (side * NW, P.BAY1_RECESS_Y0 + 0.03)], hand),
-              "stone", stone)
-        # Frames on the front niche and the relief panel below it (y = facade front).
+        X = lambda v: side * v                                       # noqa: E731
+        # Frames on the front niche and the relief panel below it (facade plane y = front).
         x0, x1 = P.NICHE_X
-        xc, w = side * (x0 + x1) / 2, x1 - x0
+        xc, w = X((x0 + x1) / 2), x1 - x0
         nz0, nz1 = P.NICHE_Z
-        half = w / 2 + 0.08
-        spring = nz1 - w / 2
-        pts, ups = [], []
-        for xx, zz, u in ((xc - half, nz0, Vector((1, 0, 0))), (xc - half, spring, Vector((1, 0, 0)))):
-            pts.append(Vector((xx, y, zz))); ups.append(-u)
-        for t in np.linspace(math.pi, 0, 40)[1:-1]:
-            pts.append(Vector((xc + half * math.cos(t), y, spring + half * math.sin(t))))
-            ups.append(Vector((math.cos(t), 0, math.sin(t))))
-        for xx, zz in ((xc + half, spring), (xc + half, nz0)):
-            pts.append(Vector((xx, y, zz))); ups.append(Vector((1, 0, 0)))
-        sweep(f"facade_niche_frame_{side}", frame_profile(), pts, [Vector((0, -1, 0))] * len(pts), ups,
-              "stone", stone)
         rz0, rz1 = P.RELIEF_Z
-        rx0, rx1 = xc - w / 2 - 0.08, xc + w / 2 + 0.08
-        rect = [(rx0, rz0 - 0.08), (rx1, rz0 - 0.08), (rx1, rz1 + 0.08), (rx0, rz1 + 0.08), (rx0, rz0 - 0.08)]
-        pts = [Vector((a, y, b)) for a, b in rect]
-        ups = []
-        for i in range(len(pts)):
-            a, b = pts[max(i - 1, 0)], pts[min(i + 1, len(pts) - 1)]
-            t = (b - a).normalized()
-            ups.append(Vector((t.z, 0, -t.x)))      # outward from the panel (path runs anticlockwise)
-        sweep(f"facade_panel_frame_{side}", frame_profile(), pts, [Vector((0, -1, 0))] * len(pts), ups,
-              "stone", stone)
-        sweep(f"facade_niche_sill_{side}", string_course(nz0 - 0.3, nz0),
-              *plan_path([(xc - (w / 2 + 0.3), y), (xc + (w / 2 + 0.3), y)], 1), "stone", stone)
+        org, U, V, O = Vector((0, y, 0)), Vector((1, 0, 0)), Vector((0, 0, 1)), Vector((0, -1, 0))
+        frame(f"facade_niche_frame_{side}", org, U, V, O, arched_outline(xc, w, nz0, nz1), stone)
+        frame(f"facade_panel_frame_{side}", org, U, V, O,
+              [(xc + w / 2, rz1), (xc + w / 2, rz0), (xc - w / 2, rz0), (xc - w / 2, rz1)], stone)
+        fw = P.FRAME_W
+        # The ledge reaches 3 cm past the frame: further would cross the screen's corner (R1).
+        xa, xb = xc - (w / 2 + fw + 0.03), xc + (w / 2 + fw + 0.03)
+        sweep(f"facade_niche_sill_{side}", ledge(rz1, nz0),                  # returned ends (R1)
+              *plan_path([(xa, y + 0.3), (xa, y), (xb, y), (xb, y + 0.3)], 1), "stone", stone)
 
 
 # ================================================================ floors and steps
@@ -265,6 +355,8 @@ def floor_material_lower(M):
     L.new(mp.outputs["Vector"], t.inputs["Vector"])
     L.new(t.outputs["Color"], bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = 0.4
+    m["detail"], m["tile"], m["origin"] = "floor_lower", [px, py], [P.LOWER_FLOOR_X0, P.LOWER_FLOOR_Y0]
+    m["riser_detail"] = "step_riser"
     return m
 
 
@@ -278,16 +370,25 @@ def floors(M, floor_mat):
         if ob:
             ob.data.materials.clear()
             ob.data.materials.append(floor_mat)
-    steps = [n for n in bpy.data.objects.keys() if n.startswith(("step_", "podium_", "pedestal_"))]
+    steps = [n for n in bpy.data.objects.keys() if n.startswith(("step_", "podium_"))]
     for n in steps:
         set_material(n, M["step"])
+    for n in [n for n in bpy.data.objects.keys() if n.startswith("pedestal_")]:   # the blocks beside the steps
+        set_material(n, M["stone"])
     # Nosings: a small round on every tread edge of the central flight (designed).
     stone = [M["step"]]
+    hw = P.STEP_HALF_W
     for i, (y, z) in enumerate(P.STEPS):
         pr = Profile(z - 0.06, n=4)
         pr.h(0.025).torus(0.06)
-        sweep(f"step_nosing_{i + 1}", pr.closed(embed=0.03),
-              *plan_path([(P.STEP_HALF_W, y), (-P.STEP_HALF_W, y)], 1), "stone", stone)
+        if i + 1 < len(P.STEPS):
+            # R1: the step's ends are exposed, so the nosing returns along them to the next riser
+            # (or the podium's face, for the top step).
+            yb = min(P.STEPS[i + 1][0], P.PODIUM_Y0) if i + 2 == len(P.STEPS) else P.STEPS[i + 1][0]
+            run = [(hw, yb), (hw, y), (-hw, y), (-hw, yb)]
+        else:
+            run = [(hw, y), (-hw, y)]
+        sweep(f"step_nosing_{i + 1}", pr.closed(embed=0.03), *plan_path(run, 1), "stone", stone)
 
 
 # ================================================================ crossing
@@ -330,16 +431,17 @@ def crossing(M):
     # Side walls (closed): stucco, a blind-arch moulding along the lunette edge.
     for side in (-1, 1):
         set_material(f"crossing_side_{side}", M["stucco"])
+        # R9: the lunette's blind arch runs inside the arch line (its band from the intrados
+        # inwards), so its crown meets the drum's base ring and its feet stand on the entablature.
         pts = [Vector((side * CH, ycen + CH * math.cos(t), SZ + CH * math.sin(t))) for t in ts]
         sweep(f"crossing_blind_arch_{side}", frame_profile(0.22, 0.07), pts,
-              [Vector((-side, 0, 0))] * len(ts), [Vector((0, math.cos(t), math.sin(t))) for t in ts],
+              [Vector((-side, 0, 0))] * len(ts), [Vector((0, -math.cos(t), -math.sin(t))) for t in ts],
               "stone", stone)
     set_material("pendentives", M["stucco"])
     # Tondo frames on the four pendentives: a moulded ring and a sunk plain disc (empty).
     Rs = CH * math.sqrt(2)
-    h = P.TONDO_H
+    h, rt = tondo_fit(CH, Rs)
     r_h = math.sqrt(Rs ** 2 - h ** 2)
-    rt = P.TONDO_R
     for sx in (-1, 1):
         for sy in (-1, 1):
             d = Vector((sx * r_h / math.sqrt(2), sy * r_h / math.sqrt(2), h))
@@ -385,6 +487,32 @@ def crossing(M):
         _obj(f"drum_pilaster_{kk}", bm, "stone", stone)
     # Dome coffers (designed, Pantheon-like): rings of sunk square-ish panels on the inner shell.
     dome_coffers(M, ycen, R_IN)
+
+
+def tondo_fit(CH, Rs, band=0.22, clear=0.3):
+    """R9: the largest tondo (ring radius + band) that stays inside its pendentive: clear of the
+    lunette arches' mouldings (|x|, |y| <= CH - clear) and below the drum's base ring. Searched
+    over the height of its centre; returns (height above the springing, radius)."""
+    best = (P.TONDO_H, 0.0)
+    for h in np.linspace(0.45 * CH, 0.85 * CH, 41):
+        r_h = math.sqrt(Rs ** 2 - h ** 2)
+        d = Vector((r_h / math.sqrt(2), r_h / math.sqrt(2), h))
+        nrm = -d.normalized()
+        a = Vector((0, 0, 1)).cross(nrm).normalized()
+        b = nrm.cross(a).normalized()
+        lo, hi = 0.1, P.TONDO_R
+        for _ in range(30):
+            rt = (lo + hi) / 2
+            ok = True
+            for t in np.linspace(0, 2 * math.pi, 72, endpoint=False):
+                q = d + (rt + band) * (math.cos(t) * a + math.sin(t) * b)
+                if q.x > CH - clear or q.y > CH - clear or q.z > CH - 0.1 or q.z < 0.5:
+                    ok = False
+                    break
+            lo, hi = (rt, hi) if ok else (lo, rt)
+        if lo > best[1]:
+            best = (h, lo)
+    return best
 
 
 def revolve_profile(name, prof_rz, centre, kind, mats, segments=144):
@@ -471,48 +599,81 @@ def dome_coffers(M, ycen, R_IN):
 
 
 # ================================================================ end wall
+def bosch_base(M):
+    """The low stone base the Bosch stands on in the doorway (the web hung it on a grey box)."""
+    x0, x1, y0, y1, h = P.BOSCH_BASE
+    box("bosch_base", x0, x1, y0, y1, PZ, PZ + h, "stone", [M["stone_far"]])
+
+
+def fill_empty_slots(M):
+    """Faces cut by material-less booleans (the niches) have no material: stucco."""
+    for ob in bpy.data.objects:
+        if ob.type == "MESH" and any(m is None for m in ob.data.materials):
+            for i, m in enumerate(ob.data.materials):
+                if m is None:
+                    ob.data.materials[i] = M["stucco"]
+
+
 def end_wall(M):
     """Doric entablature on the end wall as painted (architrave, triglyph frieze, cornice), the
-    door's archivolt and imposts, pilasters flanking the door."""
+    door's archivolt and imposts, pilasters flanking the door. Joint rules:
+    - R5: the entablature stays under the second arm's vault: it ends where the vault's intrados
+      comes down to its top, with returns into the wall (R1), never passing through the vault;
+    - R2: it breaks forward over the two pilasters, which carry Doric capitals; a triglyph stands
+      over each pilaster's axis and the others are spaced evenly between;
+    - R3: the archivolt's full width lands on the impost, which runs from the jamb to the
+      pilaster's side and dies into it (the pilaster projects further than the impost)."""
     stone = [M["stone_far"]]
     set_material("end_wall", M["stucco_far"])
     _remove("end_entablature")
     y = P.ARM2_Y1
     a0, a1, f1, c1 = P.END_DORIC
+    D, X0, PW = P.END_PILASTER_D, P.END_PILASTER_X0, P.END_PILASTER_W
+    dh, ds = P.DOOR_HALF, P.DOOR_SPRING
+    pi, po = dh + X0, dh + X0 + PW                     # pilaster's inner and outer edges
     pr = Profile(a0, n=5)
     pr.h(0.04).v(a1 - a0 - 0.12).h(0.05).v(0.12)                            # architrave + taenia
     pr.h(-0.05).v(f1 - a1)                                                   # frieze
     pr.h(0.08).v(0.06).h(0.25).v(c1 - f1 - 0.16).cyma_recta(0.06, 0.1)     # cornice
     prof = pr.closed()
-    sweep("end_entablature", prof, *plan_path([(NW, y), (-NW, y)], -1), "stone", stone)
-    # Triglyphs at the painted spacing, centred on the axis.
-    sp, tw = P.END_TRIGLYPH
-    n = int(NW / sp)
+    proj = max(p for p, q in prof)
+    # It spans from one pilaster's outer face to the other's, breaking forward over both and
+    # returning into the wall at its ends; its outer corners must clear the vault's intrados.
+    xv = math.sqrt(NW ** 2 - (c1 - SZ) ** 2)
+    if po + proj > xv - 0.05:
+        raise ValueError(f"end entablature corner {po + proj:.2f} reaches the vault ({xv:.2f})")
+    run = [(po, y + 0.5), (po, y - D), (pi, y - D), (pi, y),
+           (-pi, y), (-pi, y - D), (-po, y - D), (-po, y + 0.5)]
+    sweep("end_entablature", prof, *plan_path(run, -1), "stone", stone)
+    # Triglyphs: one over each pilaster's axis, evenly spaced between (painted spacing ~1.64 m).
+    axis = (pi + po) / 2
+    n = max(1, round(axis / P.END_TRIGLYPH[0]))
+    tw = P.END_TRIGLYPH[1]
     for i in range(-n, n + 1):
-        x = i * sp
-        if abs(x) + tw / 2 > NW - 0.1:
-            continue
-        box(f"triglyph_{i}", x - tw / 2, x + tw / 2, y - 0.07 - 0.04, y - 0.04, a1 + 0.02, f1 - 0.02, "stone", stone)
+        x = i * axis / n
+        face = y - 0.04 - (D if abs(i) == n else 0.0)    # frieze face (forward over the pilasters)
+        box(f"triglyph_{i}", x - tw / 2, x + tw / 2, face - 0.07, face, a1 + 0.02, f1 - 0.02, "stone", stone)
         for g in (-1, 0, 1):   # the three bars' grooves, as thin dark slots
-            box(f"triglyph_groove_{i}_{g}", x + g * tw / 3 - 0.018, x + g * tw / 3 + 0.018, y - 0.115, y - 0.105,
+            box(f"triglyph_groove_{i}_{g}", x + g * tw / 3 - 0.018, x + g * tw / 3 + 0.018, face - 0.075, face - 0.065,
                 a1 + 0.1, f1 - 0.1, "stone", [M["groove"]])
-    # Door: archivolt (two fasciae and a cyma) and imposts; pilasters each side.
-    dh, ds = P.DOOR_HALF, P.DOOR_SPRING
+    # Door: archivolt (two fasciae and a cyma) no wider than the impost, imposts, pilasters.
+    width = X0 - 0.03
+    k = width / 0.42
     ar = Profile(0.0, n=4)
-    ar.h(0.05).v(0.22).h(0.03).v(0.26).cyma_reversa(0.04, 0.08).h(0.015).v(0.04)
+    # Projection no more than the impost's top (0.06 m), so the bands land on it (R3).
+    ar.h(0.02).v(0.15 * k).h(0.012).v(0.17 * k).cyma_reversa(0.015, 0.06 * k).h(0.006).v(0.04 * k)
     ts = np.linspace(0, math.pi, 97)
     sweep("end_door_archivolt", ar.closed(embed=0.0),
           [Vector((dh * math.cos(t), y, ds + dh * math.sin(t))) for t in ts], [Vector((0, -1, 0))] * len(ts),
           [Vector((math.cos(t), 0, math.sin(t))) for t in ts], "stone", stone)
     for side in (-1, 1):
         sweep(f"end_door_impost_{side}", capital(ds), *plan_path(
-            [(side * (dh + P.END_PILASTER_X0), y), (side * dh, y), (side * dh, y + T)], -side), "stone", stone)
-        px0 = side * (dh + P.END_PILASTER_X0)
-        box(f"end_pilaster_{side}", px0, px0 + side * P.END_PILASTER_W, y - P.END_PILASTER_D, y, PZ, a0 - 0.01,
-            "stone", stone)
-        sweep(f"end_pilaster_base_{side}", attic_base(PZ), *plan_path(
-            [(px0, y + 0.03), (px0, y - P.END_PILASTER_D), (px0 + side * P.END_PILASTER_W, y - P.END_PILASTER_D),
-             (px0 + side * P.END_PILASTER_W, y + 0.03)], side), "stone", stone)
+            [(side * pi, y), (side * dh, y), (side * dh, y + T)], -side), "stone", stone)
+        px0 = side * pi
+        box(f"end_pilaster_{side}", px0, side * po, y - D, y, PZ, a0, "stone", stone)
+        ring = [(px0, y + 0.03), (px0, y - D), (side * po, y - D), (side * po, y + 0.03)]
+        sweep(f"end_pilaster_base_{side}", attic_base(PZ), *plan_path(ring, side), "stone", stone)
+        sweep(f"end_pilaster_capital_{side}", capital(a0), *plan_path(ring, side), "stone", stone)
 
 
 # ================================================================ bay 1 hanging options

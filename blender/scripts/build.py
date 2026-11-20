@@ -168,7 +168,7 @@ for side in (-1, 1):
         niche = mirror_x(niche)
     boolean(facade, prism("niche_cut", niche, P.FACADE_Y0 - 0.2, P.FACADE_Y0 + P.NICHE_DEPTH))
     rx0, rx1 = sorted((side * x0, side * x1))
-    boolean(facade, box("relief_cut", rx0, rx1, P.FACADE_Y0 - 0.2, P.FACADE_Y0 + 0.15,
+    boolean(facade, box("relief_cut", rx0, rx1, P.FACADE_Y0 - 0.2, P.FACADE_Y0 + getattr(P, "RELIEF_DEPTH", 0.15),
                         P.RELIEF_Z[0], P.RELIEF_Z[1]))
     sx0, sx1 = sorted((side * NW, side * P.FACADE_HALF_W))
     box(f"string_course_{side}", sx0, sx1, P.FACADE_Y0 - 0.35, P.FACADE_Y0,
@@ -244,6 +244,11 @@ for yc in P.PAINTINGS_Y:
     for side in (-1, 1):
         n = len(PAINTINGS) + 1
         x0, x1 = sorted((side * NW, side * (NW - 0.08)))
+        if FINISH:   # stage 4: every bay is a recess; the placeholders hang on its back wall
+            recs = [P.BAY1_SIDE_RECESS[:2]] + list(P.NAVE_RECESSES) + list(P.ARM2_RECESSES)
+            r0, r1 = recs[(n - 1) // 2]
+            yc = P.BAY1_NICHE_YC if n in (1, 2) else (r0 + r1) / 2
+            x0, x1 = sorted((side * P.RECESS_X, side * (P.RECESS_X - 0.08)))
         z0 = PZ + P.PAINTING_BOTTOM
         box(f"painting_{n:02d}", x0, x1, yc - P.PAINTING_W / 2, yc + P.PAINTING_W / 2,
             z0, z0 + P.PAINTING_H, "painting")
@@ -484,6 +489,8 @@ if "export" in VIEW_NAMES or "json" in VIEW_NAMES:
         "walkEnd": three(0, P.ARM2_Y1 - 1.5, 0)[2],
         "wallX": round(P.NAVE_HALF_W * k, 4),
         "paintingBottom": round(P.PAINTING_BOTTOM * k + P.PLATFORM_Z * k, 4),
+        # The lightmaps store light / lightScale (web: colour = detail x tint x lightmap x lightScale).
+        "lightScale": P.LIGHT_SCALE,
         "places": [],
     }
     n = 0
@@ -503,11 +510,14 @@ if "export" in VIEW_NAMES or "json" in VIEW_NAMES:
             place = {"n": n, "side": side, "z": three(0, yc, 0)[2],
                      "bay": [three(0, b0, 0)[2], three(0, b1, 0)[2]],
                      "bayWidth": round((b1 - b0) * k, 3), "wallX": round(P.NAVE_HALF_W * k, 4)}
-            if FINISH and n in (1, 2):
-                # Bay 1 (stage 2): the recess's back wall, under the niche (Maria, stage 2 gate).
-                r0, r1, rx = P.BAY1_SIDE_RECESS
-                place.update(z=three(0, P.BAY1_NICHE_YC, 0)[2], bay=[three(0, r0, 0)[2], three(0, r1, 0)[2]],
-                             bayWidth=round((r1 - r0) * k, 3), wallX=round(rx * k, 4))
+            if FINISH:
+                # Every bay is a recess (stage 2: bay 1; stage 4: the others): the painting hangs on
+                # the recess's back wall under its niche (Maria, stage 2 and 4 gates).
+                recs = [P.BAY1_SIDE_RECESS[:2]] + list(P.NAVE_RECESSES) + list(P.ARM2_RECESSES)
+                r0, r1 = recs[(n - 1) // 2]
+                yc_r = P.BAY1_NICHE_YC if n in (1, 2) else (r0 + r1) / 2
+                place.update(z=three(0, yc_r, 0)[2], bay=[three(0, r0, 0)[2], three(0, r1, 0)[2]],
+                             bayWidth=round((r1 - r0) * k, 3), wallX=round(P.RECESS_X * k, 4))
             data["places"].append(place)
     # The crossing's closed side walls under the dome, and the far doorway.
     data["dome"] = {"wallX": round(P.CROSS_HALF * k, 4), "z": three(0, (P.CROSS_Y0 + P.CROSS_Y1) / 2, 0)[2],
