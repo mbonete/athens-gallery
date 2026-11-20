@@ -256,6 +256,10 @@ BAKE_DENSITY_SCALE = {"floor_lower_sides": 0.6, "facade": 0.8, "entablature": 1.
 BAKE_HALL_X = 7.4                         # m: nothing beyond this behind the facade is seen
 BAKE_ISLAND_MAX = 2.5                     # m: longer surfaces are cut into islands this long
 BAKE_SKIP = ("ground_beyond",)            # flat colour in the web, not baked
+# Members cut on the lightmap grid even where flat (bake.keeps_flat_whole): their flat faces
+# follow plans with breaks and returns, so whole islands would leave the atlas mostly empty.
+BAKE_CUT_MEMBERS = ("entablature", "string_course", "capital", "base", "frame", "sill", "impost", "archivolt",
+                    "nosing", "edge", "cornice", "ring", "ledge", "triglyph", "blind_arch", "tondo")
 BAKE_OCCLUDERS_ONLY = ("_vault_backing",)  # take part in the light, not exported
 
 # ---------------------------------------------------------------- Stage 4: light x detail for the web

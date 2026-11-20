@@ -8,12 +8,15 @@ Usually through tools/bake_hall.sh, which then denoises the atlases and packs th
 What it does:
 - removes the painting placeholders (the web hangs the real paintings);
 - groups the meshes by where they stand along the hall (params.BAKE_GROUPS); each group gets one
-  shared lightmap UV layout (smart project, then packed together) and one atlas, sized from the
-  group's surface area and the texel density (params.BAKE[quality]["density"], px per metre);
-- bakes Cycles "Combined" (albedo x direct + indirect light, no glossy) into each atlas, with
-  every light-linking set-up of the scene in place (the bake honours it: tools/stage2/);
-- joins each group into one mesh, keeps only the lightmap UV, gives it the atlas as its only
-  texture, scales to the web's 70 % and exports glTF (Y up) + PNG atlases.
+  lightmap UV layout (smart project per object; curved parts cut on a world grid, flat faces left
+  whole; islands packed together) and one atlas, sized from the group's surface area and the
+  texel density (params.BAKE[quality]["density"], px per metre);
+- bakes the light alone (diffuse direct + indirect, every light-linking set-up of the scene in
+  place), the per-face factor, and where each texel is (world position, normal, island, light
+  class); saves them as bake_<group>.npz for tools/lightmap_post.py, which denoises, stitches the
+  light across island cuts, multiplies the factor in and writes the atlases;
+- joins each group into one mesh, keeps the detail and lightmap UVs, one material per detail key,
+  scales to the web's 70 % and exports glTF (Y up).
 """
 import json
 import math
@@ -24,6 +27,7 @@ from pathlib import Path
 
 import bmesh
 import bpy
+import numpy as np
 from mathutils import Matrix, Vector
 
 HERE = Path(__file__).resolve().parent
@@ -71,7 +75,7 @@ for link in list(scene.world.node_tree.links):
         to = link.to_socket
         scene.world.node_tree.links.remove(link)
         to.default_value = 0.0
-scene.cycles.use_denoising = False          # bakes are denoised afterwards (tools/denoise_lightmaps.py)
+scene.cycles.use_denoising = False          # denoised afterwards, with the stitch (tools/lightmap_post.py)
 bake = scene.render.bake
 bake.use_pass_direct = bake.use_pass_indirect = True
 bake.use_pass_diffuse = bake.use_pass_emit = True
@@ -159,14 +163,33 @@ def density_scale(ob):
 
 
 # ---------------------------------------------------------------- lightmap UVs per group
+def is_flat(f, rot):
+    """A face whose normal is on a world axis: walls, floors, ceilings, the flat faces of
+    mouldings. Stage 5: these stay whole in the lightmap (no grid cuts), so a flat wall is one
+    island and its light has no seams to step at."""
+    n = (rot @ f.normal).normalized()
+    return max(abs(n.x), abs(n.y), abs(n.z)) > 0.999
+
+
+def keeps_flat_whole(ob):
+    """Walls, floors, ceilings: their flat faces stay one island each. Mouldings (whose flat
+    faces follow a plan with breaks and returns, so one island's box would be mostly empty) are
+    cut on the grid like curved parts; tools/lightmap_post.py stitches their cuts."""
+    return not any(m in ob.name for m in P.BAKE_CUT_MEMBERS)
+
+
 def split_long(ob, step):
     """Cut the mesh along a world grid (every `step` m in X, Y and Z) and split it there, so no UV
-    island is longer than that: long mouldings, floors and the coffers' rib lattice would
-    otherwise each be one island whose bounding box swallows the atlas."""
+    island is longer than that: the coffers' rib lattice, the vaults and the mouldings would
+    otherwise each be one island whose bounding box swallows the atlas. Walls, floors and
+    ceilings keep their flat faces whole (keeps_flat_whole, is_flat): one island per flat face,
+    so their light has no cut to step at."""
     bm = bmesh.new()
     bm.from_mesh(ob.data)
     mw = ob.matrix_world
     inv = mw.inverted()
+    rot = mw.to_3x3()
+    whole = keeps_flat_whole(ob)
     planes = []
     for axis in range(3):
         lo = min((mw @ v.co)[axis] for v in bm.verts)
@@ -175,19 +198,24 @@ def split_long(ob, step):
             continue
         k = math.floor(lo / step) + 1
         while k * step < hi - 1e-4:
+            curved = [f for f in bm.faces if not (whole and is_flat(f, rot))]
+            if not curved:
+                break
+            geom = list({e for f in curved for e in f.edges}) + curved + list({v for f in curved for v in f.verts})
             no = Vector([1.0 if i == axis else 0.0 for i in range(3)])
             co = Vector([k * step if i == axis else 0.0 for i in range(3)])
-            bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], dist=1e-5,
+            bmesh.ops.bisect_plane(bm, geom=geom, dist=1e-5,
                                    plane_co=inv @ co, plane_no=(inv.to_3x3().transposed() @ no).normalized())
             planes.append((axis, k * step))
             k += 1
-    # Split every edge that lies in one of the cut planes (found after all cuts: later cuts
-    # subdivide the edges of earlier ones).
+    # Split every edge of a curved face that lies in one of the cut planes (found after all
+    # cuts: later cuts subdivide the edges of earlier ones).
     if planes:
         world = {v: mw @ v.co for v in bm.verts}
         cut = [e for e in bm.edges
-               if any(abs(world[e.verts[0]][ax] - val) < 1e-4 and abs(world[e.verts[1]][ax] - val) < 1e-4
-                      for ax, val in planes)]
+               if any(not (whole and is_flat(f, rot)) for f in e.link_faces)
+               and any(abs(world[e.verts[0]][ax] - val) < 1e-4 and abs(world[e.verts[1]][ax] - val) < 1e-4
+                       for ax, val in planes)]
         if cut:
             bmesh.ops.split_edges(bm, edges=cut)
     bmesh.ops.dissolve_degenerate(bm, dist=1e-5, edges=bm.edges[:])
@@ -296,7 +324,7 @@ def layout(objs):
                     d = uv[i].uv - lo
                     uv[i].uv = lo + Vector((d.x * fx, d.y * fy))
                 w, h = w * fx, h * fy
-            rot = w > h * 1.5                       # lay long islands flat
+            rot = h > w * 1.5                       # lay long islands flat (shelves are rows)
             if rot:
                 w, h = h, w
             items.append([h + 2 * m + 1, w + 2 * m + 1, ob, loops, lo, f, rot])
@@ -311,7 +339,8 @@ def layout(objs):
             [round(max(v[k] for v in vs), 2) for k in range(3)], len(it[3]), "loops")
         log(f"  {len(items)} islands, {sum(it[0] * it[1] for it in items) / 1e6:.2f} Mpx")
     total = sum(it[0] * it[1] for it in items)
-    page = max(256, int(math.ceil(math.sqrt(total / 0.8) / 64)) * 64)
+    page = max(256, int(math.ceil(math.sqrt(total / 0.8) / 64)) * 64,
+               int(math.ceil(max(it[1] for it in items) / 64)) * 64)     # the longest island fits a row
     shrink = 1.0
     while True:
         x = y = shelf = 0.0
@@ -341,6 +370,24 @@ def layout(objs):
             uv[i].uv = Vector(((x0 + m * shrink + d.x) / page, (y0 + m * shrink + d.y) / page_h))
     if shrink < 1.0:
         log(f"  atlas capped at {page}: density x{shrink:.2f}")
+    # Each island's index, per corner, for the stitch (tools/lightmap_post.py): integers < 1024
+    # in two channels, exact through the float bake. The third channel is the object's light
+    # class: surfaces lit by different light-linking conventions (the vaults take no sun; bay 1's
+    # vault band takes the bounce card) meet at a deliberate step the stitch must keep.
+    def light_class(ob):
+        cls = 0
+        for bit, cname in ((1, "sun_not_received"), (2, "front_bounce_receivers")):
+            c = bpy.data.collections.get(cname)
+            if c is not None and ob.name in c.objects:
+                cls += bit
+        return float(cls)
+    for idx, it in enumerate(items):
+        ob, loops = it[2], it[3]
+        me = ob.data
+        attr = me.color_attributes.get("bake_island") or me.color_attributes.new("bake_island", "FLOAT_COLOR", "CORNER")
+        cls = light_class(ob)
+        for i in loops:
+            attr.data[i].color = (float(idx % 1024), float(idx // 1024), cls, 1.0)
     return page, page_h
 
 
@@ -442,6 +489,81 @@ _nt.links.new(_attr.outputs["Color"], _emit.inputs["Color"])
 _nt.links.new(_emit.outputs["Emission"], _out.inputs["Surface"])
 _factor_node = _nt.nodes.new("ShaderNodeTexImage")
 
+
+def emit_mat(name, build):
+    """An emission material for a 1-sample EMIT bake of geometry data; `build(nt)` returns the
+    socket to emit. Returns (material, its bake target node)."""
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.clear()
+    emit, out = nt.nodes.new("ShaderNodeEmission"), nt.nodes.new("ShaderNodeOutputMaterial")
+    nt.links.new(build(nt), emit.inputs["Color"])
+    nt.links.new(emit.outputs["Emission"], out.inputs["Surface"])
+    target = nt.nodes.new("ShaderNodeTexImage")
+    nt.nodes.active = target
+    return m, target
+
+
+def _position(nt):                                  # world position + 100 m (kept positive)
+    g = nt.nodes.new("ShaderNodeNewGeometry")
+    v = nt.nodes.new("ShaderNodeVectorMath")
+    v.operation = "ADD"
+    v.inputs[1].default_value = (100.0, 100.0, 100.0)
+    nt.links.new(g.outputs["Position"], v.inputs[0])
+    return v.outputs["Vector"]
+
+
+def _normal(nt):                                    # true normal, as n / 2 + 0.5
+    g = nt.nodes.new("ShaderNodeNewGeometry")
+    v = nt.nodes.new("ShaderNodeVectorMath")
+    v.operation = "MULTIPLY_ADD"
+    v.inputs[1].default_value = (0.5, 0.5, 0.5)
+    v.inputs[2].default_value = (0.5, 0.5, 0.5)
+    nt.links.new(g.outputs["True Normal"], v.inputs[0])
+    return v.outputs["Vector"]
+
+
+def _island(nt):
+    a = nt.nodes.new("ShaderNodeAttribute")
+    a.attribute_name = "bake_island"
+    return a.outputs["Color"]
+
+
+GEOM_MATS = {k: emit_mat(f"bake_{k}", f) for k, f in (("position", _position), ("normal", _normal), ("island", _island))}
+
+
+def bake_emit(objs, mat, node, img, margin):
+    """Bake an emission material over objs (their own materials swapped out, then restored)."""
+    saved = {ob: list(ob.data.materials) for ob in objs}
+    for ob in objs:
+        for i in range(len(ob.data.materials)):
+            ob.data.materials[i] = mat
+        if not ob.data.materials:
+            ob.data.materials.append(mat)
+    node.image = img
+    mat.node_tree.nodes.active = node
+    scene.cycles.samples = 1
+    keep = bake.margin
+    bake.margin = margin
+    bpy.ops.object.select_all(action="DESELECT")
+    for ob in objs:
+        ob.select_set(True)
+    bpy.context.view_layer.objects.active = objs[0]
+    bpy.ops.object.bake(type="EMIT")
+    bake.margin = keep
+    for ob, ms in saved.items():
+        for i, m in enumerate(ms):
+            ob.data.materials[i] = m
+        if not ms:
+            ob.data.materials.clear()
+
+
+def pixels(img):
+    a = np.empty(img.size[0] * img.size[1] * 4, np.float32)
+    img.pixels.foreach_get(a)
+    return a.reshape(img.size[1], img.size[0], 4)
+
 # Tile sizes per detail key, from the materials (stored by finish.py).
 tiles = {}
 for m in bpy.data.materials:
@@ -468,7 +590,6 @@ def bake_into(objs, img, kind):
 # ---------------------------------------------------------------- bake each group
 report = {"quality": QUALITY, "config": CFG, "light_scale": P.LIGHT_SCALE, "groups": {}}
 ONLY = os.environ.get("BAKE_ONLY")
-import numpy as np  # noqa: E402
 for name, objs in groups.items():
     if not objs or (ONLY and name != ONLY):
         continue
@@ -489,43 +610,32 @@ for name, objs in groups.items():
     scene.cycles.samples = CFG["samples"]
     bake_into(objs, light, "DIFFUSE")
     # 2. The per-face factors, as an emission bake of the factor attribute (1 sample is enough).
-    saved = {ob: list(ob.data.materials) for ob in objs}
-    for ob in objs:
-        for i in range(len(ob.data.materials)):
-            ob.data.materials[i] = factor_mat
-        if not ob.data.materials:
-            ob.data.materials.append(factor_mat)
     fimg = bpy.data.images.new(f"factor_{name}", size, size_h, alpha=True, float_buffer=True)
-    _factor_node.image = fimg
-    _nt.nodes.active = _factor_node
-    scene.cycles.samples = 1
-    bpy.ops.object.select_all(action="DESELECT")
-    for ob in objs:
-        ob.select_set(True)
-    bpy.context.view_layer.objects.active = objs[0]
-    bpy.ops.object.bake(type="EMIT")
-    for ob, ms in saved.items():
-        for i, m in enumerate(ms):
-            ob.data.materials[i] = m
-    # 3. light x factor, stored as (light / LIGHT_SCALE) through the sRGB transfer (16-bit PNG).
-    px = size * size_h
-    L = np.empty(px * 4, np.float32)
-    Fc = np.empty(px * 4, np.float32)
-    light.pixels.foreach_get(L)
-    fimg.pixels.foreach_get(Fc)
-    L, Fc = L.reshape(-1, 4), Fc.reshape(-1, 4)
-    L[:, :3] *= Fc[:, :3]
-    clipped = float((L[L[:, 3] > 0, :3].max(1) > P.LIGHT_SCALE).mean())
-    light.pixels.foreach_set(L.ravel())
-    scene.view_settings.exposure = -math.log2(P.LIGHT_SCALE)
-    scene.render.image_settings.color_depth = "16"
-    path = OUT / f"lightmap_{name}.png"
-    light.save_render(str(path), scene=scene)
-    scene.view_settings.exposure = P.EXPOSURE
+    bake_emit(objs, factor_mat, _factor_node, fimg, CFG["margin"])
+    # 3. Where each texel is: world position, true normal and island, without margin (alpha 0
+    #    marks texels no face covers). tools/lightmap_post.py denoises the light, stitches it
+    #    across island cuts in world space, multiplies the factor in and writes the atlas.
+    geo = {}
+    for k, (mat, node) in GEOM_MATS.items():
+        img = bpy.data.images.new(f"{k}_{name}", size, size_h, alpha=True, float_buffer=True)
+        bake_emit(objs, mat, node, img, 0)
+        geo[k] = pixels(img)
+        bpy.data.images.remove(img)
+    L, Fc = pixels(light), pixels(fimg)
+    clipped = float(((L[..., :3] * Fc[..., :3]).max(-1)[L[..., 3] > 0] > P.LIGHT_SCALE).mean())
+    isl = geo["island"]
+    np.savez_compressed(OUT / f"bake_{name}.npz", light=L.astype(np.float16), factor=Fc[..., :3].astype(np.float16),
+                        position=geo["position"][..., :3] - 100.0, normal=(geo["normal"][..., :3] * 2 - 1).astype(np.float16),
+                        island=np.round(isl[..., 0] + 1024 * isl[..., 1]).astype(np.int32),
+                        light_class=np.round(isl[..., 2]).astype(np.int8),
+                        covered=geo["position"][..., 3] > 0.5)
+    path = OUT / f"bake_{name}.npz"
     report["groups"][name] = {"objects": len(objs), "area_m2": round(sum(area(o) for o in objs), 1),
                               "atlas": [size, size_h], "density_px_per_m": CFG["density"],
                               "clipped_fraction": round(clipped, 5), "bake_s": round(time.time() - t0, 1)}
     log(f"baked {name} in {time.time() - t0:.0f}s -> {path.name} (clipped {clipped:.2%})")
+    bpy.data.images.remove(light)
+    bpy.data.images.remove(fimg)
 
 # ---------------------------------------------------------------- export (70 %, one mesh per group)
 # Each group: one mesh, one material per detail key (+ tint), named "<group>|<key>|<tint>"; the
@@ -585,8 +695,9 @@ for name, objs in groups.items():
             me.materials.append(bpy.data.materials[nm])
         for p, i in zip(me.polygons, new_index):
             p.material_index = i
-        if "bake_factor" in me.color_attributes:
-            me.color_attributes.remove(me.color_attributes["bake_factor"])
+        for a in ("bake_factor", "bake_island"):
+            if a in me.color_attributes:
+                me.color_attributes.remove(me.color_attributes[a])
         for uvl in [u for u in me.uv_layers if u.name not in ("detail", "lightmap")]:
             me.uv_layers.remove(uvl)
     bpy.ops.object.select_all(action="DESELECT")
