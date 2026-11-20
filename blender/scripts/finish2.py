@@ -430,7 +430,10 @@ def crossing(M):
     coffer_sheet("arch_back_soffit", CH, SZ, ya, yb, (-fs, fs, ya, yb), pat,
                  [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]])
     # Thin light edge where the coffers meet the crossing (fresco: no archivolt, a light line).
-    edge = Profile(0.0, n=4)
+    # Round 8: its underside 6 mm inside the opening. The pendentives' facets dip up to 2.5 mm
+    # below the arch's line right at its face, and that sliver, baked dark, showed as a black
+    # line looking up at the dome. The edge now covers it.
+    edge = Profile(-0.006, n=4)
     edge.h(0.012).torus(0.07)
     ts = np.linspace(0, math.pi, 97)
     for tag, yy, sgn in (("front", Y0, 1), ("back", Y1, -1)):
@@ -575,16 +578,18 @@ def drum_cornices(M, ycen, R_IN):
     for name, z0, prof_kind in (("drum_base_ring", P.DRUM_Z0, "base"), ("drum_sill", P.DRUM_WIN_Z[0] - 0.45, "sill"),
                                 ("drum_top_cornice", P.DRUM_Z1 - 0.55, "top")):
         if prof_kind == "base":
-            # R13: its underside 3 cm above the arches' crowns (the crowns reach z0), not on them
-            pr = Profile(z0 + 0.03, n=4)
-            pr.h(0.05).v(0.22).cyma_reversa(0.06, 0.08).h(0.18).v(0.16).cyma_recta(0.08, 0.12)
+            # R13: no flat underside lying on the arches' crowns (they reach z0). Round 8: a
+            # chamfered foot from the drum's face, so no slot under the ring shows the drum's
+            # wall in shadow (a dark line looking up).
+            pr = Profile(z0, n=4)
+            pr.to(0.05, z0 + 0.03).v(0.22).cyma_reversa(0.06, 0.08).h(0.18).v(0.16).cyma_recta(0.08, 0.12)
         elif prof_kind == "sill":
             pr = Profile(z0, n=4)
             pr.cavetto(0.1, 0.1).h(0.06).v(0.12).ovolo(0.06, 0.06)     # R13: 4 cm before the pilasters
         else:
             pr = Profile(z0, n=4)
             pr.h(0.09).v(0.12).ovolo(0.08, 0.08).h(0.17).v(0.18).cyma_recta(0.08, 0.15)   # R13: fillet 9 cm proud
-        pts = pr.closed(embed=0.04)
+        pts = pr.closed(embed=0.0 if prof_kind == "base" else 0.04)     # the base: no flat foot (R13)
         prof_rz = [(R_IN - p, q) for p, q in pts] + [(R_IN - pts[0][0], pts[0][1])]
         revolve_profile(name, prof_rz, (0, ycen), "stone", stone)
 

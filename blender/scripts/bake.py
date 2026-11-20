@@ -497,9 +497,18 @@ def detail_of(mat, normal):
     return mat.get("detail", mat.name), tuple(mat.get("tint", (1.0, 1.0, 1.0)))
 
 
-def face_factor(c, n):
+def underside_shade(x):
+    """Raphael's right-side shade on downward faces, blended across the hall (round 8): 1 at the
+    left wall, RIGHT_UNDERSIDE at the right one, smoothstep between. A hard step at x = 0.5 made
+    the crown column of every vault and arch soffit read as a lighter stripe."""
+    b = P.NAVE_HALF_W
+    t = min(1.0, max(0.0, (x + b) / (2 * b)))
+    return 1.0 - (1.0 - P.RIGHT_UNDERSIDE) * t * t * (3 - 2 * t)
+
+
+def face_factor(c, n, ux=None):
     """What the lightmap carries beyond the light, per face:
-    - Raphael's right side: downward faces x RIGHT_UNDERSIDE; faces turned to -X, and every face
+    - Raphael's right side: downward faces x underside_shade(x); faces turned to -X, and every face
       inside a right-hand recess (Raphael paints the right bays' recesses in shade, though the
       convention sun is not blocked there), x RIGHT_WALL;
     - the side walls of the nave and the second arm (walls, pilasters, recesses, their mouldings,
@@ -507,8 +516,8 @@ def face_factor(c, n):
     f = Vector((1.0, 1.0, 1.0))
     if c.z > P.DRUM_Z1 + 0.005:          # the dome: lit all round by the drum's windows (round 6)
         return f
-    if c.x > 0.5 and n.z < -0.5:
-        f *= P.RIGHT_UNDERSIDE
+    if n.z < -0.5:
+        f *= underside_shade(c.x if ux is None else ux)
     if c.x > 0.5 and (n.x < -0.5 or c.x > P.NAVE_HALF_W + 0.05) and c.y > P.FACADE_Y1 and c.z < P.SPRING_Z + 0.5:
         f = Vector([a * b for a, b in zip(f, P.RIGHT_WALL)])
     if (abs(c.x) > P.NAVE_HALF_W - 0.9 and P.BAY1_SIDE_RECESS[0] - 0.05 < c.y < P.ARM2_Y1 and c.z < P.SPRING_Z + 0.5):
@@ -607,8 +616,9 @@ def factor_attribute(ob):
     mw = ob.matrix_world
     rot = mw.to_3x3()
     for p in me.polygons:
-        f = face_factor(mw @ p.center, (rot @ p.normal).normalized())
-        for li in p.loop_indices:
+        c, n = mw @ p.center, (rot @ p.normal).normalized()
+        for li in p.loop_indices:          # per corner: the underside shade varies across a face
+            f = face_factor(c, n, ux=(mw @ me.vertices[me.loops[li].vertex_index].co).x)
             attr.data[li].color = (f.x, f.y, f.z, 1.0)
 
 

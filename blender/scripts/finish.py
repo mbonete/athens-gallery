@@ -669,19 +669,21 @@ def flat(name, rgb, rough=0.8):
 def materials():
     A = P.ALBEDO
     M = {
-        "stucco": textured("stucco", "white_plaster_02", (0.15, 0.34), A["stucco_dark"], A["stucco"], 2.0,
+        # Round 8: white marble, fine grey veining from Marble014 at a subtle strength (its veins
+        # take the _dark end of the ramp).
+        "stucco": textured("stucco", "Marble014", (0.40, 0.62), A["stucco_dark"], A["stucco"], 2.0,
                            rough=(0.75, 0.95), bump=0.10),
-        "stone": textured("stone", "Travertine009", (0.51, 0.74), A["stone_dark"], A["stone"], 1.5,
+        "stone": textured("stone", "Marble014", (0.40, 0.62), A["stone_dark"], A["stone"], 1.5,
                           rough=(0.55, 0.80), bump=0.12),
-        "vault_rib": textured("vault_rib", "white_plaster_02", (0.15, 0.34), A["rib_dark"], A["rib"], 1.5,
+        "vault_rib": textured("vault_rib", "Marble014", (0.40, 0.62), A["rib_dark"], A["rib"], 1.5,
                               rough=(0.75, 0.95), bump=0.08),
         # Round 7 (Maria): the coffers clean and even. The fresco's blotches are 500 years of grime
         # (Marble009 stretched over a wide dark-light range, mottled +-60 %), and its dark risers
         # are shade, which the bake gives them. One tone for ribs, panels, risers and treads, with
         # the walls' fine plaster grain.
-        "coffer": textured("coffer", "white_plaster_02", (0.15, 0.34), A["rib_dark"], A["rib"], 1.5,
+        "coffer": textured("coffer", "Marble014", (0.40, 0.62), A["rib_dark"], A["rib"], 1.5,
                            rough=(0.75, 0.95), bump=0.08),
-        "coffer_riser": textured("coffer_riser", "white_plaster_02", (0.15, 0.34), A["rib_dark"], A["rib"], 1.5,
+        "coffer_riser": textured("coffer_riser", "Marble014", (0.40, 0.62), A["rib_dark"], A["rib"], 1.5,
                                  rough=(0.75, 0.95), bump=0.08),
         "step": textured("step", "Marble014", (0.32, 0.65), A["step_dark"], A["step"], 1.6,
                          rough=(0.35, 0.6), bump=0.05),
@@ -690,15 +692,15 @@ def materials():
     }
     def scaled(c, f):
         return tuple(min(0.9, a * b) for a, b in zip(c, f))
-    M["stucco_far"] = textured("stucco_far", "white_plaster_02", (0.15, 0.34), scaled(A["stucco_dark"], P.FAR),
+    M["stucco_far"] = textured("stucco_far", "Marble014", (0.40, 0.62), scaled(A["stucco_dark"], P.FAR),
                                scaled(A["stucco"], P.FAR), 2.0, rough=(0.75, 0.95), bump=0.10)
-    M["stone_far"] = textured("stone_far", "Travertine009", (0.51, 0.74), scaled(A["stone_dark"], P.FAR),
+    M["stone_far"] = textured("stone_far", "Marble014", (0.40, 0.62), scaled(A["stone_dark"], P.FAR),
                               scaled(A["stone"], P.FAR), 1.5, rough=(0.55, 0.80), bump=0.12)
-    M["stucco_drum"] = textured("stucco_drum", "white_plaster_02", (0.15, 0.34), scaled(A["stucco_dark"], P.DRUM),
+    M["stucco_drum"] = textured("stucco_drum", "Marble014", (0.40, 0.62), scaled(A["stucco_dark"], P.DRUM),
                                 scaled(A["stucco"], P.DRUM), 2.0, rough=(0.75, 0.95), bump=0.10)
-    M["stone_facade"] = textured("stone_facade", "Travertine009", (0.51, 0.74), scaled(A["stone_dark"], P.FACADE),
+    M["stone_facade"] = textured("stone_facade", "Marble014", (0.40, 0.62), scaled(A["stone_dark"], P.FACADE),
                                  scaled(A["stone"], P.FACADE), 1.5, rough=(0.55, 0.80), bump=0.12)
-    M["coffer_tread"] = textured("coffer_tread", "white_plaster_02", (0.15, 0.34), A["rib_dark"], A["rib"], 1.5,
+    M["coffer_tread"] = textured("coffer_tread", "Marble014", (0.40, 0.62), A["rib_dark"], A["rib"], 1.5,
                                  rough=(0.75, 0.95), bump=0.08)
     risers(M["step"])
     # Painted look: since round 7 the coffers and ribs carry only the walls' fine grain.
@@ -910,7 +912,7 @@ def light(sun, world, raphael=True):
     # standing for the sunlit pavement, lighting only that vault.
     card = bpy.data.lights.new("front_bounce", "AREA")
     card.shape, card.size, card.size_y = "RECTANGLE", 2 * P.NAVE_HALF_W, P.COFFER_FIELD_Y0 - P.FACADE_Y0
-    card.energy, card.color = P.FRONT_BOUNCE, (1.0, 0.93, 0.85)
+    card.energy, card.color = P.FRONT_BOUNCE, (1.0, 0.98, 0.95)      # round 8: white marble pavement (was 1.0, 0.93, 0.85)
     cob = bpy.data.objects.new("front_bounce", card)
     cob.location = (0, (P.FACADE_Y0 + P.COFFER_FIELD_Y0) / 2, P.PLATFORM_Z + 0.3)
     cob.rotation_euler = (math.pi, 0, 0)          # pointing up

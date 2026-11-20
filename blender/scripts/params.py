@@ -138,16 +138,19 @@ FRESCO_SRGB = {
     "sky": (175, 175, 245),
 }
 ALBEDO = {   # linear; started from the fresco's lit colours, then calibrated (REPORT.md, "Colour")
-    "stucco": (0.563, 0.462, 0.426), "stucco_dark": (0.507, 0.416, 0.383),
-    "stone": (0.57, 0.468, 0.43), "stone_dark": (0.53, 0.435, 0.40),
-    "rib": (0.58, 0.49, 0.39), "rib_dark": (0.51, 0.43, 0.343),
+    # Round 8 (Maria): white marble, not the fresco's buff. Warm white, veins (the _dark ends of
+    # the Marble014 ramp) a cool grey. Was stucco (0.563, 0.462, 0.426), stone (0.57, 0.468, 0.43),
+    # rib (0.58, 0.49, 0.39).
+    "stucco": (0.70, 0.68, 0.64), "stucco_dark": (0.63, 0.615, 0.59),
+    "stone": (0.70, 0.68, 0.64), "stone_dark": (0.63, 0.615, 0.59),
+    "rib": (0.70, 0.68, 0.64), "rib_dark": (0.66, 0.64, 0.605),
     "coffer_light": (0.64, 0.56, 0.45), "coffer_dark": (0.38, 0.33, 0.27),     # panels: mottled, ~0.8 x rib
     "riser_light": (0.41, 0.375, 0.34), "riser_dark": (0.25, 0.23, 0.205),      # risers: darker (see REPORT)
     # Stage 4: floors recalibrated against the fresco under the warm light (the web read them salmon).
-    "floor_white": (0.63, 0.565, 0.75), "floor_rose": (0.47, 0.26, 0.29), "floor_band": (0.23, 0.15, 0.24),
+    "floor_white": (0.74, 0.72, 0.68), "floor_rose": (0.47, 0.26, 0.29), "floor_band": (0.23, 0.15, 0.24),   # white: was (0.63, 0.565, 0.75)
     "floor_mauve": (0.18, 0.116, 0.22),                                       # lower floor, darker field
-    "lower_white": (0.29, 0.31, 0.55),                                        # lower floor, white bands
-    "step": (0.68, 0.60, 0.58), "step_dark": (0.61, 0.54, 0.52),              # treads (nosing 234,219,221)
+    "lower_white": (0.70, 0.68, 0.645),                                       # lower floor, white bands (was 0.29, 0.31, 0.55)
+    "step": (0.72, 0.70, 0.66), "step_dark": (0.66, 0.64, 0.61),              # treads, white marble (were 0.68, 0.60, 0.58)
     "step_riser": (0.47, 0.41, 0.47),                                         # risers (191,175,162)
 }
 
@@ -161,9 +164,9 @@ SUN_ELEVATION = 35.0         # not measurable precisely: floor shadows ~1-1.5x t
                              # (45-55 deg), but the frieze under the cornice is lit (needs < ~30 deg)
 SUN_ANGLE = 3.0
 SUN_STRENGTH = 4.0
-SUN_COLOR = (1.0, 0.98, 0.9)       # stage 2: lit faces want more blue, shade less (G-B)
+SUN_COLOR = (1.0, 0.985, 0.955)    # round 8: warm-white daylight (was (1.0, 0.98, 0.9))
 SKY = (0.43, 0.43, 0.91)     # fresco sky in the far door, linear
-SKY_LIGHT = (0.95, 0.93, 0.45)  # colour of the sky as light: fresco shade/lit ratio per channel, normalised
+SKY_LIGHT = (0.88, 0.93, 1.0)   # round 8: the sky as light, cool, so shade reads cool-neutral grey (was (0.95, 0.93, 0.45): the fresco's yellow shade)
 SKY_STRENGTH = 0.6
 GREY_DIM = 0.6               # unfinished grey parts are dimmed in the finished renders so they do not clip
 EXPOSURE = 0.0               # Standard view transform (no tone curve), stops
@@ -227,12 +230,12 @@ PAINTED = {"coffer": (1.0, 0.04, 0.0), "rib": (1.0, 0.04, 0.0), "stone": (1.5, 0
 # Raphael's light, beyond one sun (finish.light; REPORT.md "Light"):
 # Maria, stage 2 gate: halve the darkening, f -> 1 - (1 - f) / 2 (was 0.55 and (0.55, 0.5, 0.38)).
 RIGHT_UNDERSIDE = 0.775      # downward faces on the right side painted darker (cornice soffit)
-RIGHT_WALL = (0.775, 0.75, 0.69)  # faces turned to -X on the right: the painted shade is darker and olive
+RIGHT_WALL = (0.74, 0.75, 0.78)  # faces turned to -X on the right: darker, a neutral grey (round 8; was olive (0.775, 0.75, 0.69))
 FRONT_BOUNCE = float(os.environ.get("FRONT_BOUNCE", 4000.0))        # W, area light on bay 1's floor lighting only the vault over it (soffit 191)
 NO_SUN = ()                  # stage 2 tried the facade here (a mis-sampled box); it is lit
-FAR = (1.3, 1.43, 1.56)      # the end wall is painted lighter and cooler than the near walls (229,208,199)
-DRUM = (0.75, 0.74, 0.65)
-FACADE = (0.7, 0.68, 0.72)   # the facade's front is painted a little darker than the hall's lit stone
+FAR = (1.03, 1.03, 1.05)     # the end wall a touch lighter and cooler (round 8, white marble; was (1.3, 1.43, 1.56))
+DRUM = (0.96, 0.96, 0.96)    # round 8: no olive (was (0.75, 0.74, 0.65))
+FACADE = (0.95, 0.95, 0.96)  # the facade's front a little darker than the hall's lit marble (was (0.7, 0.68, 0.72))
 TREAD = 1.5                  # coffer treads painted lighter than the ribs (light lines between the risers)    # the drum is painted darker and more olive than lit stucco (197,172,150)
 
 # Bay 1 hanging options for the Mucha (left) and the Klimt (right), web size / 0.7 (REPORT.md):
@@ -280,7 +283,7 @@ LIGHT_SCALE = 4.0             # the lightmaps store light / LIGHT_SCALE (sRGB-en
 # Detail textures (tools/make_detail.py): px per tile side, and the tint for faces turned to +-X
 # (the nave's side walls read buff in the fresco: G-B 27-30, render 17-19).
 DETAIL_PX = 1024
-SIDE_TINT = (1.0, 0.99, 0.88)  # faces turned to +-X: the fresco's receding walls are buff (G-B 27-30)
+SIDE_TINT = (1.0, 1.0, 1.0)   # round 8: white marble (was (1.0, 0.99, 0.88), the fresco's buff side walls)
 FRAME_W = 0.16                # width of niche and panel frames (R6)
 RELIEF_DEPTH = 0.06           # the facade's relief panels: sunk panels, empty (stage 4: was 0.15)
 
