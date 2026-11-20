@@ -78,7 +78,8 @@ export function Scene() {
     hemi.current.intensity = 0.9 * rig.light;
     sun.current.intensity = 2.8 * rig.light;
     scene.environmentIntensity = 0.35 * rig.light;
-    (scene.background as THREE.Color).copy(SKY_DIM).lerp(SKY, rig.light);
+    // The first frames can run before the effect above sets the background.
+    if (scene.background instanceof THREE.Color) scene.background.copy(SKY_DIM).lerp(SKY, rig.light);
   });
 
   return (
