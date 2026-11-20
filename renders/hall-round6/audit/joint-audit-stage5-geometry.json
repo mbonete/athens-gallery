@@ -1,0 +1,11049 @@
+{
+ "collisions": [],
+ "contacts": 68,
+ "open_ends": [],
+ "skewed": [],
+ "stacked_faces_R13": [
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    5.78,
+    34.17,
+    13.48
+   ],
+   "normal": [
+    -0.98,
+    0.0,
+    -0.19
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": 0.06,
+   "where": [
+    5.81,
+    34.19,
+    13.32
+   ],
+   "normal": [
+    -0.98,
+    0.0,
+    -0.18
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    5.78,
+    46.03,
+    13.48
+   ],
+   "normal": [
+    -0.98,
+    0.0,
+    -0.19
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": 0.06,
+   "where": [
+    5.81,
+    46.01,
+    13.32
+   ],
+   "normal": [
+    -0.98,
+    -0.0,
+    -0.18
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    5.82,
+    34.17,
+    13.28
+   ],
+   "normal": [
+    -0.99,
+    0.0,
+    -0.16
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    5.82,
+    46.03,
+    13.28
+   ],
+   "normal": [
+    -0.99,
+    0.0,
+    -0.16
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 7,
+   "gap_cm": 0.0,
+   "where": [
+    5.83,
+    34.19,
+    13.2
+   ],
+   "normal": [
+    -0.99,
+    0.0,
+    -0.15
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 7,
+   "gap_cm": 0.0,
+   "where": [
+    5.83,
+    46.01,
+    13.2
+   ],
+   "normal": [
+    -0.99,
+    0.0,
+    -0.15
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    5.87,
+    46.27,
+    12.9
+   ],
+   "normal": [
+    -0.99,
+    0.0,
+    -0.11
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 5,
+   "gap_cm": -0.01,
+   "where": [
+    5.87,
+    33.67,
+    12.9
+   ],
+   "normal": [
+    -0.99,
+    0.0,
+    -0.11
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    5.86,
+    46.01,
+    13.01
+   ],
+   "normal": [
+    -0.99,
+    0.0,
+    -0.11
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    5.86,
+    34.19,
+    13.01
+   ],
+   "normal": [
+    -0.99,
+    0.0,
+    -0.11
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    8.07,
+    15.67,
+    7.9
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    -0.05
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    8.07,
+    15.83,
+    6.84
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    8.07,
+    15.51,
+    6.84
+   ],
+   "normal": [
+    -1.0,
+    -0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_panel_frame_1",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    8.07,
+    15.52,
+    4.13
+   ],
+   "normal": [
+    -1.0,
+    -0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "facade_panel_frame_1",
+   "behind": "facade",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    8.07,
+    15.51,
+    4.13
+   ],
+   "normal": [
+    -1.0,
+    -0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "facade",
+   "triangles": 12,
+   "gap_cm": 0.32,
+   "where": [
+    7.3,
+    16.83,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "bay1_vestibule_side_1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": 2.0,
+   "where": [
+    7.28,
+    16.83,
+    7.27
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "bay1_vestibule_side_1",
+   "behind": "capital_band_1",
+   "triangles": 4,
+   "gap_cm": 1.64,
+   "where": [
+    7.28,
+    16.83,
+    7.27
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "string_course_1_0",
+   "behind": "bay1_vestibule_side_1",
+   "triangles": 4,
+   "gap_cm": 0.93,
+   "where": [
+    7.27,
+    16.84,
+    9.05
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "bay1_vestibule_side_1",
+   "triangles": 3,
+   "gap_cm": 1.92,
+   "where": [
+    7.26,
+    16.85,
+    10.29
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "arm2_wall_1",
+   "triangles": 108,
+   "gap_cm": 0.33,
+   "where": [
+    6.5,
+    52.33,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "nave_wall_1",
+   "triangles": 154,
+   "gap_cm": 0.33,
+   "where": [
+    6.5,
+    29.4,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_vault_coffers",
+   "behind": "arm2_recess_ceiling_1_1",
+   "triangles": 8,
+   "gap_cm": 0.5,
+   "where": [
+    5.9,
+    49.53,
+    12.31
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "arm2_vault_coffers",
+   "behind": "arm2_recess_ceiling_1_0",
+   "triangles": 8,
+   "gap_cm": 0.5,
+   "where": [
+    5.9,
+    49.53,
+    12.31
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_vault_coffers",
+   "behind": "nave_recess_ceiling_1_1",
+   "triangles": 8,
+   "gap_cm": 0.5,
+   "where": [
+    5.9,
+    26.07,
+    12.31
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_vault_coffers",
+   "behind": "nave_recess_ceiling_1_0",
+   "triangles": 8,
+   "gap_cm": 0.5,
+   "where": [
+    5.9,
+    26.07,
+    12.31
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_vault_band",
+   "behind": "bay1_recess_ceiling_1",
+   "triangles": 8,
+   "gap_cm": 0.5,
+   "where": [
+    5.9,
+    19.8,
+    12.31
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "crossing_side_1",
+   "triangles": 4,
+   "gap_cm": 0.36,
+   "where": [
+    5.9,
+    37.6,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "arch_back",
+   "triangles": 4,
+   "gap_cm": 0.33,
+   "where": [
+    5.9,
+    37.6,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "arch_front",
+   "triangles": 4,
+   "gap_cm": 0.33,
+   "where": [
+    5.9,
+    37.6,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "bay1_vestibule_back_1",
+   "triangles": 4,
+   "gap_cm": 0.32,
+   "where": [
+    5.9,
+    18.37,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_13",
+   "triangles": 6,
+   "gap_cm": 0.2,
+   "where": [
+    5.78,
+    40.18,
+    20.37
+   ],
+   "normal": [
+    -1.0,
+    -0.02,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "arm2_pilaster_1_50.9",
+   "triangles": 4,
+   "gap_cm": 0.33,
+   "where": [
+    5.55,
+    50.73,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "nave_pilaster_1_27.3",
+   "triangles": 4,
+   "gap_cm": 0.33,
+   "where": [
+    5.55,
+    27.13,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "nave_pilaster_1_22.9",
+   "triangles": 4,
+   "gap_cm": 0.33,
+   "where": [
+    5.55,
+    22.73,
+    10.16
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "end_pilaster_capital_1",
+   "behind": "end_pilaster_1",
+   "triangles": 4,
+   "gap_cm": 0.3,
+   "where": [
+    4.12,
+    54.94,
+    12.3
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "end_door_impost_1",
+   "behind": "end_wall",
+   "triangles": 4,
+   "gap_cm": 0.34,
+   "where": [
+    3.67,
+    55.33,
+    7.22
+   ],
+   "normal": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_14",
+   "triangles": 4,
+   "gap_cm": 0.43,
+   "where": [
+    5.4,
+    42.16,
+    20.37
+   ],
+   "normal": [
+    -0.93,
+    -0.36,
+    0.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.02,
+   "where": [
+    8.01,
+    15.83,
+    8.17
+   ],
+   "normal": [
+    -0.94,
+    0.0,
+    -0.34
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 9,
+   "gap_cm": 0.04,
+   "where": [
+    5.54,
+    34.19,
+    14.32
+   ],
+   "normal": [
+    -0.94,
+    0.0,
+    -0.34
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 1,
+   "gap_cm": 0.02,
+   "where": [
+    5.48,
+    34.1,
+    14.48
+   ],
+   "normal": [
+    -0.93,
+    0.0,
+    -0.37
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": 0.03,
+   "where": [
+    5.53,
+    46.07,
+    14.36
+   ],
+   "normal": [
+    -0.93,
+    0.0,
+    -0.36
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    5.57,
+    46.01,
+    14.26
+   ],
+   "normal": [
+    -0.94,
+    -0.0,
+    -0.34
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    5.61,
+    34.15,
+    14.12
+   ],
+   "normal": [
+    -0.95,
+    -0.0,
+    -0.32
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    5.61,
+    46.07,
+    14.12
+   ],
+   "normal": [
+    -0.95,
+    0.0,
+    -0.32
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": -0.01,
+   "where": [
+    8.04,
+    15.83,
+    8.09
+   ],
+   "normal": [
+    -0.97,
+    0.0,
+    -0.24
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    8.03,
+    15.51,
+    8.11
+   ],
+   "normal": [
+    -0.96,
+    -0.0,
+    -0.27
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    5.73,
+    46.01,
+    13.7
+   ],
+   "normal": [
+    -0.97,
+    -0.0,
+    -0.24
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    5.73,
+    34.19,
+    13.7
+   ],
+   "normal": [
+    -0.97,
+    0.0,
+    -0.24
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 9,
+   "gap_cm": 0.01,
+   "where": [
+    5.68,
+    46.07,
+    13.88
+   ],
+   "normal": [
+    -0.96,
+    0.0,
+    -0.27
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 9,
+   "gap_cm": 0.01,
+   "where": [
+    5.68,
+    34.15,
+    13.88
+   ],
+   "normal": [
+    -0.96,
+    -0.0,
+    -0.27
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_12",
+   "triangles": 2,
+   "gap_cm": 0.56,
+   "where": [
+    5.4,
+    38.04,
+    20.33
+   ],
+   "normal": [
+    -0.93,
+    0.36,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 8,
+   "gap_cm": -0.01,
+   "where": [
+    5.26,
+    46.01,
+    14.97
+   ],
+   "normal": [
+    -0.89,
+    -0.0,
+    -0.46
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 5,
+   "gap_cm": 0.01,
+   "where": [
+    5.24,
+    46.07,
+    15.01
+   ],
+   "normal": [
+    -0.89,
+    0.0,
+    -0.46
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": 0.03,
+   "where": [
+    5.26,
+    34.19,
+    14.97
+   ],
+   "normal": [
+    -0.89,
+    0.0,
+    -0.46
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 9,
+   "gap_cm": 0.08,
+   "where": [
+    5.22,
+    33.77,
+    15.04
+   ],
+   "normal": [
+    -0.88,
+    0.0,
+    -0.47
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    5.37,
+    46.06,
+    14.74
+   ],
+   "normal": [
+    -0.91,
+    0.0,
+    -0.41
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    5.4,
+    46.01,
+    14.68
+   ],
+   "normal": [
+    -0.92,
+    0.0,
+    -0.4
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.04,
+   "where": [
+    5.4,
+    33.99,
+    14.67
+   ],
+   "normal": [
+    -0.92,
+    0.0,
+    -0.39
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    4.93,
+    46.03,
+    15.54
+   ],
+   "normal": [
+    -0.84,
+    0.0,
+    -0.54
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 7,
+   "gap_cm": -0.01,
+   "where": [
+    4.96,
+    34.15,
+    15.5
+   ],
+   "normal": [
+    -0.84,
+    -0.02,
+    -0.55
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    4.98,
+    34.19,
+    15.47
+   ],
+   "normal": [
+    -0.84,
+    0.0,
+    -0.54
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 6,
+   "gap_cm": -0.0,
+   "where": [
+    5.04,
+    46.01,
+    15.36
+   ],
+   "normal": [
+    -0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    5.06,
+    46.03,
+    15.33
+   ],
+   "normal": [
+    -0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.01,
+   "where": [
+    5.1,
+    34.03,
+    15.26
+   ],
+   "normal": [
+    -0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    5.04,
+    34.19,
+    15.36
+   ],
+   "normal": [
+    -0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    7.96,
+    15.67,
+    8.29
+   ],
+   "normal": [
+    -0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    7.97,
+    15.51,
+    8.28
+   ],
+   "normal": [
+    -0.87,
+    0.0,
+    -0.49
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    -6.48,
+    15.67,
+    8.29
+   ],
+   "normal": [
+    -0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    -6.47,
+    15.51,
+    8.28
+   ],
+   "normal": [
+    -0.87,
+    0.0,
+    -0.49
+   ]
+  },
+  {
+   "front": "opening_pilaster_base_-1",
+   "behind": "opening_pilaster_-1",
+   "triangles": 4,
+   "gap_cm": 1.58,
+   "where": [
+    -3.62,
+    4.71,
+    0.03
+   ],
+   "normal": [
+    -0.79,
+    -0.61,
+    -0.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 7,
+   "gap_cm": 0.07,
+   "where": [
+    4.69,
+    34.15,
+    15.88
+   ],
+   "normal": [
+    -0.79,
+    -0.0,
+    -0.61
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 7,
+   "gap_cm": 0.07,
+   "where": [
+    4.69,
+    46.07,
+    15.88
+   ],
+   "normal": [
+    -0.79,
+    0.0,
+    -0.61
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 1,
+   "gap_cm": 0.13,
+   "where": [
+    4.6,
+    34.19,
+    15.99
+   ],
+   "normal": [
+    -0.78,
+    0.0,
+    -0.62
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 1,
+   "gap_cm": 0.13,
+   "where": [
+    4.6,
+    46.01,
+    15.99
+   ],
+   "normal": [
+    -0.78,
+    0.0,
+    -0.62
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    7.89,
+    15.83,
+    8.39
+   ],
+   "normal": [
+    -0.8,
+    0.0,
+    -0.6
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    7.88,
+    15.51,
+    8.4
+   ],
+   "normal": [
+    -0.79,
+    -0.0,
+    -0.62
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -6.55,
+    15.83,
+    8.39
+   ],
+   "normal": [
+    -0.8,
+    0.0,
+    -0.6
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    -6.56,
+    15.51,
+    8.4
+   ],
+   "normal": [
+    -0.79,
+    -0.0,
+    -0.62
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 13,
+   "gap_cm": 0.12,
+   "where": [
+    3.13,
+    4.75,
+    2.52
+   ],
+   "normal": [
+    -0.78,
+    0.56,
+    -0.29
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 20,
+   "gap_cm": -0.0,
+   "where": [
+    3.28,
+    4.89,
+    2.38
+   ],
+   "normal": [
+    -0.79,
+    0.56,
+    -0.25
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 1,
+   "gap_cm": 0.0,
+   "where": [
+    3.16,
+    4.75,
+    2.42
+   ],
+   "normal": [
+    -0.79,
+    0.56,
+    -0.26
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 20,
+   "gap_cm": -0.0,
+   "where": [
+    3.25,
+    4.75,
+    2.13
+   ],
+   "normal": [
+    -0.8,
+    0.56,
+    -0.19
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 1,
+   "gap_cm": 0.0,
+   "where": [
+    3.36,
+    4.89,
+    2.08
+   ],
+   "normal": [
+    -0.81,
+    0.56,
+    -0.18
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 20,
+   "gap_cm": 0.05,
+   "where": [
+    3.29,
+    4.75,
+    1.94
+   ],
+   "normal": [
+    -0.81,
+    0.57,
+    -0.14
+   ]
+  },
+  {
+   "front": "opening_pilaster_1",
+   "behind": "opening_pilaster_base_1",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    3.29,
+    4.72,
+    0.57
+   ],
+   "normal": [
+    -0.82,
+    0.57,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_pilaster_1",
+   "behind": "opening_wall",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    3.29,
+    4.72,
+    0.57
+   ],
+   "normal": [
+    -0.82,
+    0.57,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_pilaster_base_1",
+   "behind": "opening_pilaster_1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    3.29,
+    4.74,
+    0.08
+   ],
+   "normal": [
+    -0.82,
+    0.57,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_pilaster_base_1",
+   "behind": "opening_wall",
+   "triangles": 2,
+   "gap_cm": -0.0,
+   "where": [
+    3.29,
+    4.74,
+    0.08
+   ],
+   "normal": [
+    -0.82,
+    0.57,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_pilaster_1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    3.4,
+    4.89,
+    1.24
+   ],
+   "normal": [
+    -0.82,
+    0.57,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_pilaster_base_1",
+   "triangles": 2,
+   "gap_cm": 0.0,
+   "where": [
+    3.4,
+    4.89,
+    1.24
+   ],
+   "normal": [
+    -0.82,
+    0.57,
+    0.0
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_15",
+   "triangles": 4,
+   "gap_cm": 0.05,
+   "where": [
+    4.37,
+    43.88,
+    20.37
+   ],
+   "normal": [
+    -0.75,
+    -0.66,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    4.52,
+    46.01,
+    16.09
+   ],
+   "normal": [
+    -0.76,
+    -0.0,
+    -0.65
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    4.52,
+    34.19,
+    16.09
+   ],
+   "normal": [
+    -0.76,
+    0.0,
+    -0.65
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    4.48,
+    46.03,
+    16.14
+   ],
+   "normal": [
+    -0.76,
+    0.0,
+    -0.65
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    4.48,
+    34.17,
+    16.14
+   ],
+   "normal": [
+    -0.76,
+    0.0,
+    -0.65
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 5,
+   "gap_cm": -0.01,
+   "where": [
+    3.04,
+    4.89,
+    2.94
+   ],
+   "normal": [
+    -0.74,
+    0.55,
+    -0.39
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 15,
+   "gap_cm": -0.01,
+   "where": [
+    2.92,
+    4.73,
+    2.95
+   ],
+   "normal": [
+    -0.73,
+    0.55,
+    -0.4
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 10,
+   "gap_cm": -0.01,
+   "where": [
+    3.01,
+    4.73,
+    2.77
+   ],
+   "normal": [
+    -0.75,
+    0.55,
+    -0.36
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 13,
+   "gap_cm": -0.0,
+   "where": [
+    3.11,
+    4.89,
+    2.81
+   ],
+   "normal": [
+    -0.75,
+    0.55,
+    -0.36
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 7,
+   "gap_cm": 0.02,
+   "where": [
+    3.19,
+    4.89,
+    2.62
+   ],
+   "normal": [
+    -0.77,
+    0.55,
+    -0.31
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_11",
+   "triangles": 2,
+   "gap_cm": 0.16,
+   "where": [
+    4.37,
+    36.32,
+    20.33
+   ],
+   "normal": [
+    -0.75,
+    0.66,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 7,
+   "gap_cm": -0.0,
+   "where": [
+    4.13,
+    34.19,
+    16.52
+   ],
+   "normal": [
+    -0.7,
+    0.0,
+    -0.72
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 6,
+   "gap_cm": 0.0,
+   "where": [
+    4.09,
+    34.12,
+    16.55
+   ],
+   "normal": [
+    -0.69,
+    0.0,
+    -0.72
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    4.14,
+    46.03,
+    16.51
+   ],
+   "normal": [
+    -0.71,
+    0.0,
+    -0.71
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": 0.06,
+   "where": [
+    4.08,
+    46.01,
+    16.56
+   ],
+   "normal": [
+    -0.7,
+    0.0,
+    -0.72
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 7,
+   "gap_cm": -0.01,
+   "where": [
+    2.68,
+    4.73,
+    3.33
+   ],
+   "normal": [
+    -0.68,
+    0.54,
+    -0.5
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 12,
+   "gap_cm": -0.01,
+   "where": [
+    2.87,
+    5.02,
+    3.39
+   ],
+   "normal": [
+    -0.68,
+    0.54,
+    -0.49
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 17,
+   "gap_cm": 0.11,
+   "where": [
+    2.89,
+    4.89,
+    3.21
+   ],
+   "normal": [
+    -0.7,
+    0.54,
+    -0.46
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 2,
+   "gap_cm": 0.38,
+   "where": [
+    2.97,
+    4.89,
+    3.08
+   ],
+   "normal": [
+    -0.72,
+    0.55,
+    -0.42
+   ]
+  },
+  {
+   "front": "tondo_frame_1_1",
+   "behind": "pendentives",
+   "triangles": 12,
+   "gap_cm": 2.6,
+   "where": [
+    5.43,
+    44.8,
+    16.48
+   ],
+   "normal": [
+    -0.67,
+    -0.56,
+    -0.48
+   ]
+  },
+  {
+   "front": "tondo_frame_1_1",
+   "behind": "pendentives",
+   "triangles": 7,
+   "gap_cm": 2.6,
+   "where": [
+    5.33,
+    44.25,
+    17.15
+   ],
+   "normal": [
+    -0.66,
+    -0.48,
+    -0.58
+   ]
+  },
+  {
+   "front": "tondo_frame_1_1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.43,
+   "where": [
+    5.43,
+    44.34,
+    16.95
+   ],
+   "normal": [
+    -0.67,
+    -0.49,
+    -0.55
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 5,
+   "gap_cm": -0.0,
+   "where": [
+    3.83,
+    33.77,
+    16.79
+   ],
+   "normal": [
+    -0.64,
+    0.0,
+    -0.77
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": 0.0,
+   "where": [
+    3.79,
+    34.19,
+    16.82
+   ],
+   "normal": [
+    -0.65,
+    0.0,
+    -0.76
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 6,
+   "gap_cm": 0.0,
+   "where": [
+    3.84,
+    46.01,
+    16.78
+   ],
+   "normal": [
+    -0.65,
+    -0.0,
+    -0.76
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    3.78,
+    46.09,
+    16.83
+   ],
+   "normal": [
+    -0.64,
+    -0.0,
+    -0.77
+   ]
+  },
+  {
+   "front": "tondo_frame_1_-1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.66,
+   "where": [
+    5.34,
+    35.95,
+    17.13
+   ],
+   "normal": [
+    -0.66,
+    0.48,
+    -0.58
+   ]
+  },
+  {
+   "front": "tondo_frame_1_-1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.59,
+   "where": [
+    5.44,
+    35.84,
+    16.92
+   ],
+   "normal": [
+    -0.67,
+    0.49,
+    -0.55
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 10,
+   "gap_cm": 0.07,
+   "where": [
+    2.61,
+    4.89,
+    3.58
+   ],
+   "normal": [
+    -0.64,
+    0.54,
+    -0.55
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 7,
+   "gap_cm": 0.33,
+   "where": [
+    2.74,
+    4.89,
+    3.42
+   ],
+   "normal": [
+    -0.67,
+    0.54,
+    -0.51
+   ]
+  },
+  {
+   "front": "tondo_frame_1_-1",
+   "behind": "pendentives",
+   "triangles": 16,
+   "gap_cm": 2.49,
+   "where": [
+    5.45,
+    35.44,
+    16.51
+   ],
+   "normal": [
+    -0.67,
+    0.55,
+    -0.49
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": -0.01,
+   "where": [
+    3.55,
+    46.1,
+    17.01
+   ],
+   "normal": [
+    -0.61,
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 9,
+   "gap_cm": 0.01,
+   "where": [
+    3.54,
+    46.01,
+    17.02
+   ],
+   "normal": [
+    -0.6,
+    -0.0,
+    -0.8
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 5,
+   "gap_cm": 0.03,
+   "where": [
+    3.57,
+    33.98,
+    17.0
+   ],
+   "normal": [
+    -0.61,
+    0.0,
+    -0.79
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": 0.09,
+   "where": [
+    3.64,
+    34.19,
+    16.94
+   ],
+   "normal": [
+    -0.62,
+    0.0,
+    -0.78
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    7.74,
+    15.67,
+    8.54
+   ],
+   "normal": [
+    -0.6,
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.02,
+   "where": [
+    7.75,
+    15.51,
+    8.53
+   ],
+   "normal": [
+    -0.62,
+    0.0,
+    -0.79
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    -6.7,
+    15.67,
+    8.54
+   ],
+   "normal": [
+    -0.6,
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.02,
+   "where": [
+    -6.69,
+    15.51,
+    8.53
+   ],
+   "normal": [
+    -0.62,
+    0.0,
+    -0.79
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 10,
+   "gap_cm": 0.11,
+   "where": [
+    2.44,
+    4.89,
+    3.77
+   ],
+   "normal": [
+    -0.6,
+    0.53,
+    -0.6
+   ]
+  },
+  {
+   "front": "tondo_frame_1_1",
+   "behind": "pendentives",
+   "triangles": 16,
+   "gap_cm": 2.67,
+   "where": [
+    4.7,
+    45.53,
+    16.48
+   ],
+   "normal": [
+    -0.56,
+    -0.67,
+    -0.48
+   ]
+  },
+  {
+   "front": "tondo_frame_1_1",
+   "behind": "pendentives",
+   "triangles": 24,
+   "gap_cm": 2.36,
+   "where": [
+    4.6,
+    44.42,
+    17.71
+   ],
+   "normal": [
+    -0.55,
+    -0.5,
+    -0.67
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.05,
+   "where": [
+    3.23,
+    46.07,
+    17.24
+   ],
+   "normal": [
+    -0.54,
+    0.0,
+    -0.84
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 5,
+   "gap_cm": -0.01,
+   "where": [
+    3.2,
+    34.06,
+    17.25
+   ],
+   "normal": [
+    -0.54,
+    0.0,
+    -0.84
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 5,
+   "gap_cm": -0.01,
+   "where": [
+    3.17,
+    34.19,
+    17.28
+   ],
+   "normal": [
+    -0.54,
+    0.0,
+    -0.84
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": 0.01,
+   "where": [
+    3.36,
+    46.03,
+    17.15
+   ],
+   "normal": [
+    -0.57,
+    0.0,
+    -0.82
+   ]
+  },
+  {
+   "front": "tondo_frame_1_-1",
+   "behind": "pendentives",
+   "triangles": 24,
+   "gap_cm": 2.43,
+   "where": [
+    4.62,
+    35.79,
+    17.71
+   ],
+   "normal": [
+    -0.55,
+    0.5,
+    -0.67
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 10,
+   "gap_cm": 0.1,
+   "where": [
+    2.21,
+    4.89,
+    3.98
+   ],
+   "normal": [
+    -0.55,
+    0.53,
+    -0.65
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 2,
+   "gap_cm": 0.44,
+   "where": [
+    2.33,
+    4.89,
+    3.88
+   ],
+   "normal": [
+    -0.57,
+    0.53,
+    -0.62
+   ]
+  },
+  {
+   "front": "tondo_frame_1_-1",
+   "behind": "pendentives",
+   "triangles": 12,
+   "gap_cm": 2.6,
+   "where": [
+    4.7,
+    34.67,
+    16.48
+   ],
+   "normal": [
+    -0.56,
+    0.67,
+    -0.48
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_16",
+   "triangles": 2,
+   "gap_cm": 0.15,
+   "where": [
+    2.96,
+    45.06,
+    20.33
+   ],
+   "normal": [
+    -0.52,
+    -0.85,
+    0.0
+   ]
+  },
+  {
+   "front": "tondo_frame_1_1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.63,
+   "where": [
+    4.14,
+    45.43,
+    17.15
+   ],
+   "normal": [
+    -0.48,
+    -0.66,
+    -0.58
+   ]
+  },
+  {
+   "front": "tondo_frame_1_1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.59,
+   "where": [
+    4.26,
+    45.54,
+    16.92
+   ],
+   "normal": [
+    -0.49,
+    -0.67,
+    -0.55
+   ]
+  },
+  {
+   "front": "tondo_frame_1_1",
+   "behind": "pendentives",
+   "triangles": 23,
+   "gap_cm": 2.44,
+   "where": [
+    4.31,
+    44.72,
+    17.71
+   ],
+   "normal": [
+    -0.5,
+    -0.55,
+    -0.67
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    3.02,
+    46.07,
+    17.37
+   ],
+   "normal": [
+    -0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    3.06,
+    46.01,
+    17.34
+   ],
+   "normal": [
+    -0.51,
+    -0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    3.06,
+    34.19,
+    17.34
+   ],
+   "normal": [
+    -0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    3.02,
+    34.15,
+    17.37
+   ],
+   "normal": [
+    -0.51,
+    -0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    7.64,
+    15.83,
+    8.61
+   ],
+   "normal": [
+    -0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": -0.0,
+   "where": [
+    7.63,
+    15.51,
+    8.62
+   ],
+   "normal": [
+    -0.49,
+    -0.0,
+    -0.87
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    -6.8,
+    15.83,
+    8.61
+   ],
+   "normal": [
+    -0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": -0.0,
+   "where": [
+    -6.81,
+    15.51,
+    8.62
+   ],
+   "normal": [
+    -0.49,
+    -0.0,
+    -0.87
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 8,
+   "gap_cm": 0.04,
+   "where": [
+    1.97,
+    4.89,
+    4.17
+   ],
+   "normal": [
+    -0.49,
+    0.53,
+    -0.7
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 2,
+   "gap_cm": 0.41,
+   "where": [
+    2.09,
+    4.89,
+    4.07
+   ],
+   "normal": [
+    -0.52,
+    0.53,
+    -0.67
+   ]
+  },
+  {
+   "front": "tondo_frame_1_-1",
+   "behind": "pendentives",
+   "triangles": 25,
+   "gap_cm": 2.36,
+   "where": [
+    4.32,
+    35.5,
+    17.71
+   ],
+   "normal": [
+    -0.5,
+    0.55,
+    -0.67
+   ]
+  },
+  {
+   "front": "tondo_frame_1_-1",
+   "behind": "pendentives",
+   "triangles": 7,
+   "gap_cm": 2.3,
+   "where": [
+    4.15,
+    34.77,
+    17.15
+   ],
+   "normal": [
+    -0.48,
+    0.66,
+    -0.58
+   ]
+  },
+  {
+   "front": "tondo_frame_1_-1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.43,
+   "where": [
+    4.24,
+    34.67,
+    16.95
+   ],
+   "normal": [
+    -0.49,
+    0.67,
+    -0.55
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_10",
+   "triangles": 2,
+   "gap_cm": 0.15,
+   "where": [
+    2.96,
+    35.14,
+    20.37
+   ],
+   "normal": [
+    -0.52,
+    0.85,
+    0.0
+   ]
+  },
+  {
+   "front": "drum_pilaster_10",
+   "behind": "drum_sill",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    2.83,
+    35.06,
+    21.44
+   ],
+   "normal": [
+    -0.5,
+    0.87,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    2.55,
+    34.19,
+    17.62
+   ],
+   "normal": [
+    -0.43,
+    0.0,
+    -0.9
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 9,
+   "gap_cm": 0.01,
+   "where": [
+    2.58,
+    34.15,
+    17.61
+   ],
+   "normal": [
+    -0.43,
+    -0.0,
+    -0.9
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 8,
+   "gap_cm": 0.01,
+   "where": [
+    2.58,
+    46.07,
+    17.61
+   ],
+   "normal": [
+    -0.43,
+    0.0,
+    -0.9
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 4,
+   "gap_cm": 0.39,
+   "where": [
+    1.69,
+    4.75,
+    4.24
+   ],
+   "normal": [
+    -0.44,
+    0.52,
+    -0.73
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 2,
+   "gap_cm": -0.0,
+   "where": [
+    1.8,
+    4.89,
+    4.28
+   ],
+   "normal": [
+    -0.45,
+    0.52,
+    -0.72
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 2,
+   "gap_cm": 0.0,
+   "where": [
+    1.73,
+    4.75,
+    4.22
+   ],
+   "normal": [
+    -0.45,
+    0.52,
+    -0.72
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 4,
+   "gap_cm": 0.39,
+   "where": [
+    1.84,
+    4.89,
+    4.25
+   ],
+   "normal": [
+    -0.46,
+    0.53,
+    -0.72
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    2.35,
+    34.15,
+    17.71
+   ],
+   "normal": [
+    -0.39,
+    -0.0,
+    -0.92
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    2.35,
+    46.07,
+    17.71
+   ],
+   "normal": [
+    -0.39,
+    0.0,
+    -0.92
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.04,
+   "where": [
+    1.56,
+    4.75,
+    4.32
+   ],
+   "normal": [
+    -0.4,
+    0.52,
+    -0.75
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 3,
+   "gap_cm": 0.01,
+   "where": [
+    1.94,
+    34.15,
+    17.87
+   ],
+   "normal": [
+    -0.33,
+    -0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 5,
+   "gap_cm": 0.03,
+   "where": [
+    1.96,
+    34.19,
+    17.87
+   ],
+   "normal": [
+    -0.34,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    2.04,
+    46.03,
+    17.83
+   ],
+   "normal": [
+    -0.35,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    1.96,
+    46.01,
+    17.87
+   ],
+   "normal": [
+    -0.34,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    7.52,
+    15.67,
+    8.66
+   ],
+   "normal": [
+    -0.34,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -6.92,
+    15.67,
+    8.66
+   ],
+   "normal": [
+    -0.34,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 6,
+   "gap_cm": 0.02,
+   "where": [
+    1.33,
+    4.75,
+    4.43
+   ],
+   "normal": [
+    -0.35,
+    0.52,
+    -0.78
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    1.39,
+    4.73,
+    4.39
+   ],
+   "normal": [
+    -0.36,
+    0.52,
+    -0.77
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 4,
+   "gap_cm": -0.01,
+   "where": [
+    1.44,
+    4.89,
+    4.47
+   ],
+   "normal": [
+    -0.36,
+    0.52,
+    -0.77
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    1.83,
+    34.07,
+    17.91
+   ],
+   "normal": [
+    -0.31,
+    0.0,
+    -0.95
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    1.77,
+    34.19,
+    17.93
+   ],
+   "normal": [
+    -0.31,
+    0.0,
+    -0.95
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": 0.03,
+   "where": [
+    1.8,
+    46.03,
+    17.92
+   ],
+   "normal": [
+    -0.31,
+    0.0,
+    -0.95
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.06,
+   "where": [
+    1.15,
+    4.75,
+    4.5
+   ],
+   "normal": [
+    -0.3,
+    0.52,
+    -0.8
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 8,
+   "gap_cm": 0.03,
+   "where": [
+    1.46,
+    46.01,
+    18.01
+   ],
+   "normal": [
+    -0.24,
+    -0.0,
+    -0.97
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 6,
+   "gap_cm": 0.02,
+   "where": [
+    1.42,
+    46.1,
+    18.03
+   ],
+   "normal": [
+    -0.24,
+    0.0,
+    -0.97
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 5,
+   "gap_cm": 0.02,
+   "where": [
+    1.56,
+    33.98,
+    17.99
+   ],
+   "normal": [
+    -0.27,
+    0.0,
+    -0.96
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 1,
+   "gap_cm": 0.13,
+   "where": [
+    1.65,
+    34.19,
+    17.96
+   ],
+   "normal": [
+    -0.27,
+    0.0,
+    -0.96
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    7.44,
+    15.67,
+    8.69
+   ],
+   "normal": [
+    -0.24,
+    0.0,
+    -0.97
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    7.46,
+    15.51,
+    8.68
+   ],
+   "normal": [
+    -0.27,
+    0.0,
+    -0.96
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    -7.0,
+    15.67,
+    8.69
+   ],
+   "normal": [
+    -0.24,
+    0.0,
+    -0.97
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    -6.98,
+    15.51,
+    8.68
+   ],
+   "normal": [
+    -0.27,
+    0.0,
+    -0.96
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.02,
+   "where": [
+    0.96,
+    4.75,
+    4.57
+   ],
+   "normal": [
+    -0.25,
+    0.52,
+    -0.82
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.02,
+   "where": [
+    1.16,
+    33.77,
+    18.08
+   ],
+   "normal": [
+    -0.19,
+    0.0,
+    -0.98
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 13,
+   "gap_cm": -0.0,
+   "where": [
+    1.21,
+    46.01,
+    18.07
+   ],
+   "normal": [
+    -0.21,
+    0.0,
+    -0.98
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": 0.0,
+   "where": [
+    1.26,
+    46.15,
+    18.06
+   ],
+   "normal": [
+    -0.22,
+    0.0,
+    -0.98
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 4,
+   "gap_cm": 0.02,
+   "where": [
+    1.28,
+    34.19,
+    18.06
+   ],
+   "normal": [
+    -0.21,
+    0.0,
+    -0.98
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.06,
+   "where": [
+    0.77,
+    4.75,
+    4.62
+   ],
+   "normal": [
+    -0.21,
+    0.52,
+    -0.83
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_17",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    0.92,
+    45.8,
+    20.37
+   ],
+   "normal": [
+    -0.15,
+    -0.99,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    0.91,
+    46.07,
+    18.13
+   ],
+   "normal": [
+    -0.15,
+    0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    0.91,
+    34.04,
+    18.13
+   ],
+   "normal": [
+    -0.15,
+    0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.02,
+   "where": [
+    0.57,
+    4.75,
+    4.66
+   ],
+   "normal": [
+    -0.16,
+    0.52,
+    -0.84
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_9",
+   "triangles": 2,
+   "gap_cm": 0.17,
+   "where": [
+    0.92,
+    34.4,
+    20.33
+   ],
+   "normal": [
+    -0.15,
+    0.99,
+    0.0
+   ]
+  },
+  {
+   "front": "drum_top_cornice",
+   "behind": "drum",
+   "triangles": 2,
+   "gap_cm": 1.48,
+   "where": [
+    0.68,
+    45.92,
+    23.56
+   ],
+   "normal": [
+    -0.11,
+    -0.99,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    0.58,
+    46.03,
+    18.17
+   ],
+   "normal": [
+    -0.11,
+    0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    0.71,
+    46.01,
+    18.16
+   ],
+   "normal": [
+    -0.11,
+    -0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    0.64,
+    34.15,
+    18.16
+   ],
+   "normal": [
+    -0.1,
+    -0.02,
+    -0.99
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 5,
+   "gap_cm": 0.0,
+   "where": [
+    0.71,
+    34.19,
+    18.16
+   ],
+   "normal": [
+    -0.11,
+    0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.17,
+   "where": [
+    0.38,
+    4.75,
+    4.69
+   ],
+   "normal": [
+    -0.11,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "drum_top_cornice",
+   "behind": "drum",
+   "triangles": 4,
+   "gap_cm": 0.73,
+   "where": [
+    0.6,
+    34.27,
+    23.56
+   ],
+   "normal": [
+    -0.11,
+    0.99,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 1,
+   "gap_cm": 0.04,
+   "where": [
+    0.33,
+    46.03,
+    18.19
+   ],
+   "normal": [
+    -0.06,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 1,
+   "gap_cm": 0.04,
+   "where": [
+    0.33,
+    34.17,
+    18.19
+   ],
+   "normal": [
+    -0.06,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 1,
+   "gap_cm": 0.04,
+   "where": [
+    0.26,
+    46.01,
+    18.19
+   ],
+   "normal": [
+    -0.05,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 1,
+   "gap_cm": 0.04,
+   "where": [
+    0.26,
+    34.19,
+    18.19
+   ],
+   "normal": [
+    -0.05,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    7.28,
+    15.67,
+    8.72
+   ],
+   "normal": [
+    -0.05,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.02,
+   "where": [
+    7.24,
+    15.51,
+    8.72
+   ],
+   "normal": [
+    -0.04,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    -7.16,
+    15.67,
+    8.72
+   ],
+   "normal": [
+    -0.05,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.02,
+   "where": [
+    -7.2,
+    15.51,
+    8.72
+   ],
+   "normal": [
+    -0.04,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    0.13,
+    4.89,
+    4.8
+   ],
+   "normal": [
+    -0.04,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 6,
+   "gap_cm": 0.01,
+   "where": [
+    0.18,
+    4.75,
+    4.71
+   ],
+   "normal": [
+    -0.06,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    53.39,
+    9.11
+   ],
+   "normal": [
+    -0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    53.38,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    49.59,
+    9.11
+   ],
+   "normal": [
+    -0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    49.58,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    30.79,
+    9.11
+   ],
+   "normal": [
+    -0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    30.78,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    25.69,
+    9.11
+   ],
+   "normal": [
+    -0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    25.68,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    21.19,
+    9.11
+   ],
+   "normal": [
+    -0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    21.18,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    -0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "end_door_impost_1",
+   "behind": "end_wall",
+   "triangles": 2,
+   "gap_cm": 0.4,
+   "where": [
+    3.97,
+    55.0,
+    7.22
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "end_door_impost_-1",
+   "behind": "end_wall",
+   "triangles": 2,
+   "gap_cm": 0.4,
+   "where": [
+    -3.97,
+    55.0,
+    7.22
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "end_door_archivolt",
+   "behind": "end_wall",
+   "triangles": 437,
+   "gap_cm": 2.0,
+   "where": [
+    0.08,
+    54.98,
+    11.33
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_2_1",
+   "behind": "triglyph_2",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    3.14,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_2_0",
+   "behind": "triglyph_2",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    3.02,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_2_-1",
+   "behind": "triglyph_2",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    2.9,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_1_1",
+   "behind": "triglyph_1",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    1.63,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_1_0",
+   "behind": "triglyph_1",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    1.51,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_1_-1",
+   "behind": "triglyph_1",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    1.39,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_0_1",
+   "behind": "triglyph_0",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    0.13,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_0_0",
+   "behind": "triglyph_0",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    0.01,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_0_-1",
+   "behind": "triglyph_0",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -0.11,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_-1_1",
+   "behind": "triglyph_-1",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -1.38,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_-1_0",
+   "behind": "triglyph_-1",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -1.5,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_-1_-1",
+   "behind": "triglyph_-1",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -1.62,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_-2_1",
+   "behind": "triglyph_-2",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -2.89,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_-2_0",
+   "behind": "triglyph_-2",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -3.01,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_-2_-1",
+   "behind": "triglyph_-2",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -3.13,
+    54.88,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "end_pilaster_capital_1",
+   "behind": "end_pilaster_1",
+   "triangles": 4,
+   "gap_cm": 0.39,
+   "where": [
+    4.39,
+    54.75,
+    12.3
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "end_pilaster_capital_-1",
+   "behind": "end_pilaster_-1",
+   "triangles": 4,
+   "gap_cm": 0.39,
+   "where": [
+    -4.39,
+    54.75,
+    12.3
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_3_1",
+   "behind": "triglyph_3",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    4.65,
+    54.63,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_3_0",
+   "behind": "triglyph_3",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    4.53,
+    54.63,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_3_-1",
+   "behind": "triglyph_3",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    4.41,
+    54.63,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_-3_1",
+   "behind": "triglyph_-3",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -4.39,
+    54.63,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_-3_0",
+   "behind": "triglyph_-3",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -4.51,
+    54.63,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "triglyph_groove_-3_-1",
+   "behind": "triglyph_-3",
+   "triangles": 4,
+   "gap_cm": 0.5,
+   "where": [
+    -4.63,
+    54.63,
+    13.94
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "arm2_wall_1",
+   "triangles": 8,
+   "gap_cm": 0.4,
+   "where": [
+    6.3,
+    54.2,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "arm2_wall_-1",
+   "triangles": 8,
+   "gap_cm": 0.4,
+   "where": [
+    -6.3,
+    54.2,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.19,
+   "where": [
+    6.62,
+    53.4,
+    6.56
+   ],
+   "normal": [
+    -0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.19,
+   "where": [
+    -6.73,
+    53.4,
+    6.56
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "arm2_pilaster_1_50.9",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    6.18,
+    50.4,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "arm2_pilaster_-1_50.9",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    -6.18,
+    50.4,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.19,
+   "where": [
+    6.62,
+    49.6,
+    6.56
+   ],
+   "normal": [
+    -0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.19,
+   "where": [
+    -6.73,
+    49.6,
+    6.56
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "pendentives",
+   "behind": "arch_back",
+   "triangles": 36,
+   "gap_cm": 0.0,
+   "where": [
+    0.0,
+    46.0,
+    18.2
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "nave_wall_1",
+   "triangles": 12,
+   "gap_cm": 0.4,
+   "where": [
+    6.3,
+    32.6,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "nave_wall_-1",
+   "triangles": 12,
+   "gap_cm": 0.4,
+   "where": [
+    -6.3,
+    32.6,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.19,
+   "where": [
+    6.62,
+    30.8,
+    6.56
+   ],
+   "normal": [
+    -0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.19,
+   "where": [
+    -6.73,
+    30.8,
+    6.56
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "nave_pilaster_1_27.3",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    6.18,
+    26.8,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "nave_pilaster_-1_27.3",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    -6.18,
+    26.8,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.19,
+   "where": [
+    6.62,
+    25.7,
+    6.56
+   ],
+   "normal": [
+    -0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.19,
+   "where": [
+    -6.73,
+    25.7,
+    6.56
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "nave_pilaster_1_22.9",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    6.18,
+    22.4,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "nave_pilaster_-1_22.9",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    -6.18,
+    22.4,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.19,
+   "where": [
+    6.62,
+    21.2,
+    6.56
+   ],
+   "normal": [
+    -0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.19,
+   "where": [
+    -6.73,
+    21.2,
+    6.56
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "facade",
+   "triangles": 82,
+   "gap_cm": 0.4,
+   "where": [
+    6.83,
+    18.1,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "facade",
+   "triangles": 80,
+   "gap_cm": 0.4,
+   "where": [
+    -6.83,
+    18.1,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "bay1_vestibule_back_1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": 2.0,
+   "where": [
+    6.83,
+    18.08,
+    7.27
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "bay1_vestibule_back_1",
+   "behind": "capital_band_1",
+   "triangles": 4,
+   "gap_cm": 1.6,
+   "where": [
+    6.83,
+    18.08,
+    7.27
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "bay1_vestibule_back_-1",
+   "behind": "facade",
+   "triangles": 4,
+   "gap_cm": 2.0,
+   "where": [
+    -6.37,
+    18.08,
+    7.27
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "bay1_vestibule_back_-1",
+   "behind": "capital_band_-1",
+   "triangles": 4,
+   "gap_cm": 1.6,
+   "where": [
+    -6.37,
+    18.08,
+    7.27
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "string_course_1_0",
+   "behind": "bay1_vestibule_back_1",
+   "triangles": 4,
+   "gap_cm": 1.0,
+   "where": [
+    6.8,
+    18.07,
+    9.05
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "string_course_-1_0",
+   "behind": "bay1_vestibule_back_-1",
+   "triangles": 4,
+   "gap_cm": 1.0,
+   "where": [
+    -6.8,
+    18.07,
+    9.05
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "bay1_vestibule_back_1",
+   "triangles": 4,
+   "gap_cm": 1.99,
+   "where": [
+    6.79,
+    18.06,
+    10.29
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "bay1_vestibule_back_-1",
+   "triangles": 2,
+   "gap_cm": 2.0,
+   "where": [
+    -6.79,
+    18.06,
+    10.29
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_archivolt_bands",
+   "behind": "opening_wall",
+   "triangles": 2320,
+   "gap_cm": 1.0,
+   "where": [
+    0.0,
+    4.74,
+    5.22
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_impost_1",
+   "behind": "opening_pilaster_1",
+   "triangles": 2,
+   "gap_cm": 1.2,
+   "where": [
+    3.78,
+    4.69,
+    1.76
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_impost_-1",
+   "behind": "opening_pilaster_-1",
+   "triangles": 2,
+   "gap_cm": 1.2,
+   "where": [
+    -3.56,
+    4.69,
+    1.76
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_pilaster_base_1",
+   "behind": "opening_pilaster_1",
+   "triangles": 3,
+   "gap_cm": 2.0,
+   "where": [
+    3.44,
+    4.68,
+    0.1
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_pilaster_base_-1",
+   "behind": "opening_pilaster_-1",
+   "triangles": 3,
+   "gap_cm": 2.0,
+   "where": [
+    -3.42,
+    4.68,
+    0.1
+   ],
+   "normal": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    53.36,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    6.62,
+    53.37,
+    9.19
+   ],
+   "normal": [
+    -0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    49.56,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    6.62,
+    49.57,
+    9.19
+   ],
+   "normal": [
+    -0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    30.76,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    6.62,
+    30.77,
+    9.19
+   ],
+   "normal": [
+    -0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    25.66,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    6.62,
+    25.67,
+    9.19
+   ],
+   "normal": [
+    -0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    21.16,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    6.62,
+    21.17,
+    9.19
+   ],
+   "normal": [
+    -0.0,
+    -0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    6.62,
+    53.25,
+    9.4
+   ],
+   "normal": [
+    -0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    53.23,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    6.62,
+    49.45,
+    9.4
+   ],
+   "normal": [
+    -0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    49.43,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    6.62,
+    30.65,
+    9.4
+   ],
+   "normal": [
+    -0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    30.63,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    6.62,
+    25.55,
+    9.4
+   ],
+   "normal": [
+    -0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    25.53,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    6.62,
+    21.05,
+    9.4
+   ],
+   "normal": [
+    -0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    21.03,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    -0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    53.1,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    53.1,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    49.3,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    49.3,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    30.5,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    30.5,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    25.4,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    25.4,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    20.9,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    20.9,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    -0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    6.62,
+    53.05,
+    9.54
+   ],
+   "normal": [
+    -0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    53.03,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    6.62,
+    49.25,
+    9.54
+   ],
+   "normal": [
+    -0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    49.23,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    6.62,
+    30.45,
+    9.54
+   ],
+   "normal": [
+    -0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    30.43,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    6.62,
+    25.35,
+    9.54
+   ],
+   "normal": [
+    -0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    25.33,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    6.62,
+    20.85,
+    9.54
+   ],
+   "normal": [
+    -0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    20.83,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    -0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    52.95,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    52.97,
+    9.57
+   ],
+   "normal": [
+    -0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    49.15,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    49.17,
+    9.57
+   ],
+   "normal": [
+    -0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    30.35,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    30.37,
+    9.57
+   ],
+   "normal": [
+    -0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    25.25,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    25.27,
+    9.57
+   ],
+   "normal": [
+    -0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    20.75,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    20.77,
+    9.57
+   ],
+   "normal": [
+    -0.0,
+    -0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "drum",
+   "behind": "drum_base_ring",
+   "triangles": 864,
+   "gap_cm": -0.0,
+   "where": [
+    0.14,
+    33.8,
+    18.2
+   ],
+   "normal": [
+    0.0,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "drum_base_ring",
+   "behind": "drum",
+   "triangles": 864,
+   "gap_cm": 0.0,
+   "where": [
+    -0.09,
+    34.18,
+    18.2
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "drum",
+   "triangles": 8,
+   "gap_cm": 0.11,
+   "where": [
+    0.06,
+    34.19,
+    18.2
+   ],
+   "normal": [
+    -0.02,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "drum_base_ring",
+   "triangles": 17,
+   "gap_cm": 0.11,
+   "where": [
+    0.06,
+    34.19,
+    18.2
+   ],
+   "normal": [
+    -0.02,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "drum_base_ring",
+   "triangles": 14,
+   "gap_cm": 0.11,
+   "where": [
+    -0.06,
+    45.99,
+    18.2
+   ],
+   "normal": [
+    0.02,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "drum",
+   "triangles": 9,
+   "gap_cm": 0.11,
+   "where": [
+    0.06,
+    46.0,
+    18.2
+   ],
+   "normal": [
+    -0.02,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "drum",
+   "triangles": 12,
+   "gap_cm": 0.18,
+   "where": [
+    0.08,
+    34.05,
+    18.2
+   ],
+   "normal": [
+    -0.02,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "drum_base_ring",
+   "triangles": 6,
+   "gap_cm": 0.18,
+   "where": [
+    -0.08,
+    34.15,
+    18.2
+   ],
+   "normal": [
+    0.02,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.07,
+   "where": [
+    -0.08,
+    34.15,
+    18.2
+   ],
+   "normal": [
+    0.02,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "drum_base_ring",
+   "triangles": 8,
+   "gap_cm": 0.18,
+   "where": [
+    0.08,
+    46.03,
+    18.2
+   ],
+   "normal": [
+    -0.02,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "drum",
+   "triangles": 5,
+   "gap_cm": 0.18,
+   "where": [
+    0.08,
+    46.03,
+    18.2
+   ],
+   "normal": [
+    -0.02,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.07,
+   "where": [
+    0.08,
+    46.03,
+    18.2
+   ],
+   "normal": [
+    -0.02,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -0.13,
+    34.19,
+    18.2
+   ],
+   "normal": [
+    0.02,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    0.13,
+    46.01,
+    18.2
+   ],
+   "normal": [
+    -0.02,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "entablature_-1",
+   "behind": "facade",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    -5.91,
+    16.64,
+    10.5
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "entablature_1",
+   "behind": "facade",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    5.91,
+    16.64,
+    10.5
+   ],
+   "normal": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "entablature_-1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    -6.37,
+    16.83,
+    10.5
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "entablature_1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    6.37,
+    16.83,
+    10.5
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade_niche_sill_-1",
+   "behind": "facade",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    -7.56,
+    15.51,
+    4.6
+   ],
+   "normal": [
+    0.0,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade_niche_sill_1",
+   "behind": "facade",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    6.88,
+    15.51,
+    4.6
+   ],
+   "normal": [
+    0.0,
+    -0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_sill_-1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    -7.5,
+    15.52,
+    4.6
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_sill_1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    6.94,
+    15.52,
+    4.6
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "step_nosing_1",
+   "behind": "step_1",
+   "triangles": 7,
+   "gap_cm": -0.0,
+   "where": [
+    1.49,
+    6.86,
+    0.27
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "front": "step_1",
+   "behind": "step_nosing_1",
+   "triangles": 7,
+   "gap_cm": 0.0,
+   "where": [
+    1.5,
+    7.03,
+    0.27
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "front": "step_nosing_2",
+   "behind": "step_2",
+   "triangles": 9,
+   "gap_cm": -0.0,
+   "where": [
+    1.49,
+    7.4,
+    0.46
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "front": "step_2",
+   "behind": "step_nosing_2",
+   "triangles": 9,
+   "gap_cm": 0.0,
+   "where": [
+    1.5,
+    7.68,
+    0.46
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "front": "step_nosing_3",
+   "behind": "step_3",
+   "triangles": 7,
+   "gap_cm": -0.0,
+   "where": [
+    1.49,
+    8.26,
+    0.64
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "front": "step_3",
+   "behind": "step_nosing_3",
+   "triangles": 7,
+   "gap_cm": 0.0,
+   "where": [
+    1.5,
+    8.48,
+    0.64
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "front": "platform",
+   "behind": "step_nosing_4",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    5.33,
+    24.62,
+    0.81
+   ],
+   "normal": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    20.45,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    20.43,
+    9.57
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    24.95,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    24.93,
+    9.57
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    30.05,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    30.03,
+    9.57
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    48.85,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    48.83,
+    9.57
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    52.65,
+    9.58
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -6.62,
+    52.63,
+    9.57
+   ],
+   "normal": [
+    0.0,
+    0.27,
+    -0.96
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    -6.62,
+    20.35,
+    9.54
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    20.37,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    -6.62,
+    24.85,
+    9.54
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    24.87,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    -6.62,
+    29.95,
+    9.54
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    29.97,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    -6.62,
+    48.75,
+    9.54
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    48.77,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    -6.62,
+    52.55,
+    9.54
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    52.57,
+    9.55
+   ],
+   "normal": [
+    0.0,
+    0.4,
+    -0.92
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.26,
+   "where": [
+    -0.02,
+    4.75,
+    4.72
+   ],
+   "normal": [
+    -0.01,
+    0.52,
+    -0.86
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.05,
+   "where": [
+    -6.73,
+    20.3,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    20.3,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.05,
+   "where": [
+    -6.73,
+    24.8,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    24.8,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.05,
+   "where": [
+    -6.73,
+    29.9,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    29.9,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.05,
+   "where": [
+    -6.73,
+    48.7,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    48.7,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.05,
+   "where": [
+    -6.73,
+    52.5,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    6.62,
+    52.5,
+    9.52
+   ],
+   "normal": [
+    0.0,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    20.15,
+    9.4
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    20.17,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    24.65,
+    9.4
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    24.67,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    29.75,
+    9.4
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    29.77,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    48.55,
+    9.4
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    48.57,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.09,
+   "where": [
+    -6.62,
+    52.35,
+    9.4
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    52.37,
+    9.42
+   ],
+   "normal": [
+    0.0,
+    0.73,
+    -0.68
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    20.04,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    -6.62,
+    20.03,
+    9.19
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    24.54,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    -6.62,
+    24.53,
+    9.19
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    29.64,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    -6.62,
+    29.63,
+    9.19
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    48.44,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    -6.62,
+    48.43,
+    9.19
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    6.62,
+    52.24,
+    9.21
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.12,
+   "where": [
+    -6.62,
+    52.23,
+    9.19
+   ],
+   "normal": [
+    0.0,
+    0.94,
+    -0.33
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    20.01,
+    9.11
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    20.02,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    24.51,
+    9.11
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    24.52,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    29.61,
+    9.11
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    29.62,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    48.41,
+    9.11
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    48.42,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.08,
+   "where": [
+    -6.62,
+    52.21,
+    9.11
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    6.62,
+    52.22,
+    9.14
+   ],
+   "normal": [
+    0.0,
+    0.98,
+    -0.2
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    20.0,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    20.0,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    24.5,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    24.5,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    29.6,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    29.6,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    48.4,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    48.4,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.06,
+   "where": [
+    -6.62,
+    52.2,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.06,
+   "where": [
+    6.73,
+    52.2,
+    9.03
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.07
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "facade",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    -6.83,
+    16.2,
+    10.11
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "facade",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    6.36,
+    16.2,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "nave_wall_-1",
+   "triangles": 12,
+   "gap_cm": 0.4,
+   "where": [
+    -6.3,
+    18.9,
+    10.11
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "nave_wall_1",
+   "triangles": 12,
+   "gap_cm": 0.4,
+   "where": [
+    6.1,
+    18.9,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "bay1_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -6.73,
+    20.0,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "bay1_niche_frame_-1",
+   "behind": "nave_wall_-1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    -6.51,
+    20.0,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "bay1_niche_frame_1",
+   "behind": "nave_wall_1",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    6.51,
+    20.0,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "bay1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    6.62,
+    20.0,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "nave_pilaster_-1_22.9",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    -6.18,
+    23.4,
+    10.11
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "nave_pilaster_1_22.9",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    5.86,
+    23.4,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r0_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -6.73,
+    24.5,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_r0_niche_frame_-1",
+   "behind": "nave_wall_-1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    -6.51,
+    24.5,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_r0_niche_frame_1",
+   "behind": "nave_wall_1",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    6.51,
+    24.5,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r0_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    6.62,
+    24.5,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "nave_pilaster_-1_27.3",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    -6.18,
+    27.8,
+    10.11
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "nave_pilaster_1_27.3",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    5.86,
+    27.8,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_wall_-1",
+   "behind": "nave_r1_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -6.73,
+    29.6,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_r1_niche_frame_-1",
+   "behind": "nave_wall_-1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    -6.51,
+    29.6,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_r1_niche_frame_1",
+   "behind": "nave_wall_1",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    6.51,
+    29.6,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_wall_1",
+   "behind": "nave_r1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    6.62,
+    29.6,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "arm2_wall_-1",
+   "triangles": 17,
+   "gap_cm": -0.0,
+   "where": [
+    -6.3,
+    47.6,
+    10.11
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "arm2_wall_1",
+   "triangles": 16,
+   "gap_cm": -0.0,
+   "where": [
+    6.1,
+    47.6,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r0_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -6.73,
+    48.4,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_r0_niche_frame_-1",
+   "behind": "arm2_wall_-1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    -6.51,
+    48.4,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_r0_niche_frame_1",
+   "behind": "arm2_wall_1",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    6.51,
+    48.4,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r0_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    6.62,
+    48.4,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "arm2_pilaster_-1_50.9",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    -6.18,
+    51.4,
+    10.11
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_1",
+   "behind": "arm2_pilaster_1_50.9",
+   "triangles": 4,
+   "gap_cm": 0.4,
+   "where": [
+    5.86,
+    51.4,
+    10.16
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_wall_-1",
+   "behind": "arm2_r1_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -6.73,
+    52.2,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_r1_niche_frame_-1",
+   "behind": "arm2_wall_-1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    -6.51,
+    52.2,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arm2_r1_niche_frame_1",
+   "behind": "arm2_wall_1",
+   "triangles": 4,
+   "gap_cm": -0.0,
+   "where": [
+    6.51,
+    52.2,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "arm2_wall_1",
+   "behind": "arm2_r1_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    6.62,
+    52.2,
+    7.77
+   ],
+   "normal": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.04,
+   "where": [
+    -0.33,
+    34.15,
+    18.19
+   ],
+   "normal": [
+    0.06,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": 0.04,
+   "where": [
+    -0.33,
+    46.07,
+    18.19
+   ],
+   "normal": [
+    0.06,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    -0.26,
+    34.19,
+    18.19
+   ],
+   "normal": [
+    0.05,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    -0.26,
+    46.01,
+    18.19
+   ],
+   "normal": [
+    0.05,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    -7.25,
+    15.67,
+    8.72
+   ],
+   "normal": [
+    0.05,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    7.19,
+    15.67,
+    8.72
+   ],
+   "normal": [
+    0.05,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    -0.28,
+    4.89,
+    4.79
+   ],
+   "normal": [
+    0.06,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 7,
+   "gap_cm": 0.01,
+   "where": [
+    -0.22,
+    4.75,
+    4.71
+   ],
+   "normal": [
+    0.04,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "drum_top_cornice",
+   "behind": "drum",
+   "triangles": 4,
+   "gap_cm": 1.38,
+   "where": [
+    -0.6,
+    45.93,
+    23.56
+   ],
+   "normal": [
+    0.11,
+    -0.99,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    -0.72,
+    34.12,
+    18.16
+   ],
+   "normal": [
+    0.12,
+    0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 6,
+   "gap_cm": 0.04,
+   "where": [
+    -0.71,
+    34.19,
+    18.16
+   ],
+   "normal": [
+    0.11,
+    0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 5,
+   "gap_cm": -0.0,
+   "where": [
+    -0.71,
+    46.01,
+    18.16
+   ],
+   "normal": [
+    0.11,
+    0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": 0.0,
+   "where": [
+    -0.67,
+    46.03,
+    18.16
+   ],
+   "normal": [
+    0.11,
+    0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.19,
+   "where": [
+    -0.42,
+    4.75,
+    4.7
+   ],
+   "normal": [
+    0.09,
+    0.52,
+    -0.85
+   ]
+  },
+  {
+   "front": "drum_top_cornice",
+   "behind": "drum",
+   "triangles": 2,
+   "gap_cm": 0.77,
+   "where": [
+    -0.68,
+    34.28,
+    23.56
+   ],
+   "normal": [
+    0.11,
+    0.99,
+    -0.0
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_0",
+   "triangles": 2,
+   "gap_cm": 0.65,
+   "where": [
+    -0.92,
+    45.8,
+    20.33
+   ],
+   "normal": [
+    0.15,
+    -0.99,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    -0.91,
+    34.04,
+    18.13
+   ],
+   "normal": [
+    0.15,
+    0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    -0.91,
+    46.03,
+    18.13
+   ],
+   "normal": [
+    0.15,
+    -0.0,
+    -0.99
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.03,
+   "where": [
+    -0.62,
+    4.75,
+    4.67
+   ],
+   "normal": [
+    0.14,
+    0.52,
+    -0.84
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_8",
+   "triangles": 4,
+   "gap_cm": 0.04,
+   "where": [
+    -0.92,
+    34.4,
+    20.37
+   ],
+   "normal": [
+    0.15,
+    0.99,
+    -0.0
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": -0.0,
+   "where": [
+    -1.26,
+    46.15,
+    18.06
+   ],
+   "normal": [
+    0.22,
+    0.0,
+    -0.98
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 9,
+   "gap_cm": 0.0,
+   "where": [
+    -1.21,
+    46.01,
+    18.07
+   ],
+   "normal": [
+    0.21,
+    0.0,
+    -0.98
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 5,
+   "gap_cm": 0.01,
+   "where": [
+    -1.21,
+    34.19,
+    18.07
+   ],
+   "normal": [
+    0.21,
+    0.0,
+    -0.98
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    -1.16,
+    33.77,
+    18.08
+   ],
+   "normal": [
+    0.19,
+    -0.0,
+    -0.98
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.08,
+   "where": [
+    -0.81,
+    4.75,
+    4.63
+   ],
+   "normal": [
+    0.19,
+    0.52,
+    -0.83
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 5,
+   "gap_cm": 0.03,
+   "where": [
+    -1.46,
+    46.01,
+    18.01
+   ],
+   "normal": [
+    0.24,
+    0.0,
+    -0.97
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    -1.4,
+    34.19,
+    18.03
+   ],
+   "normal": [
+    0.24,
+    0.0,
+    -0.97
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 5,
+   "gap_cm": 0.01,
+   "where": [
+    -1.56,
+    33.98,
+    17.99
+   ],
+   "normal": [
+    0.27,
+    0.0,
+    -0.96
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 7,
+   "gap_cm": 0.03,
+   "where": [
+    -1.42,
+    46.1,
+    18.03
+   ],
+   "normal": [
+    0.24,
+    0.0,
+    -0.97
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 4,
+   "gap_cm": -0.01,
+   "where": [
+    -7.44,
+    15.83,
+    8.69
+   ],
+   "normal": [
+    0.24,
+    0.0,
+    -0.97
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    -7.46,
+    15.51,
+    8.68
+   ],
+   "normal": [
+    0.27,
+    0.0,
+    -0.96
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": -0.01,
+   "where": [
+    7.0,
+    15.83,
+    8.69
+   ],
+   "normal": [
+    0.24,
+    0.0,
+    -0.97
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    6.98,
+    15.51,
+    8.68
+   ],
+   "normal": [
+    0.27,
+    0.0,
+    -0.96
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 8,
+   "gap_cm": 0.02,
+   "where": [
+    -1.03,
+    4.73,
+    4.56
+   ],
+   "normal": [
+    0.25,
+    0.52,
+    -0.81
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -1.83,
+    34.07,
+    17.91
+   ],
+   "normal": [
+    0.31,
+    0.0,
+    -0.95
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    -1.77,
+    34.19,
+    17.93
+   ],
+   "normal": [
+    0.31,
+    0.0,
+    -0.95
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    -1.8,
+    46.07,
+    17.92
+   ],
+   "normal": [
+    0.31,
+    0.0,
+    -0.95
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 10,
+   "gap_cm": 0.05,
+   "where": [
+    -1.24,
+    4.75,
+    4.5
+   ],
+   "normal": [
+    0.3,
+    0.52,
+    -0.8
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    -2.04,
+    46.07,
+    17.83
+   ],
+   "normal": [
+    0.35,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -1.96,
+    46.01,
+    17.87
+   ],
+   "normal": [
+    0.34,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.02,
+   "where": [
+    -2.04,
+    34.15,
+    17.83
+   ],
+   "normal": [
+    0.35,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -1.96,
+    34.19,
+    17.87
+   ],
+   "normal": [
+    0.34,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    -7.52,
+    15.83,
+    8.66
+   ],
+   "normal": [
+    0.34,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    6.92,
+    15.83,
+    8.66
+   ],
+   "normal": [
+    0.34,
+    0.0,
+    -0.94
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 4,
+   "gap_cm": 0.07,
+   "where": [
+    -1.42,
+    4.75,
+    4.42
+   ],
+   "normal": [
+    0.35,
+    0.52,
+    -0.78
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 4,
+   "gap_cm": 0.48,
+   "where": [
+    -1.5,
+    4.89,
+    4.48
+   ],
+   "normal": [
+    0.36,
+    0.53,
+    -0.77
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -2.35,
+    34.17,
+    17.71
+   ],
+   "normal": [
+    0.39,
+    0.0,
+    -0.92
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -2.35,
+    46.03,
+    17.71
+   ],
+   "normal": [
+    0.39,
+    0.0,
+    -0.92
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 10,
+   "gap_cm": 0.15,
+   "where": [
+    -1.68,
+    4.89,
+    4.39
+   ],
+   "normal": [
+    0.4,
+    0.53,
+    -0.75
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    -2.55,
+    34.19,
+    17.62
+   ],
+   "normal": [
+    0.43,
+    0.0,
+    -0.9
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    -2.55,
+    46.01,
+    17.62
+   ],
+   "normal": [
+    0.43,
+    0.0,
+    -0.9
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 9,
+   "gap_cm": 0.01,
+   "where": [
+    -2.58,
+    34.17,
+    17.61
+   ],
+   "normal": [
+    0.43,
+    0.0,
+    -0.9
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 9,
+   "gap_cm": 0.01,
+   "where": [
+    -2.58,
+    46.03,
+    17.61
+   ],
+   "normal": [
+    0.43,
+    0.0,
+    -0.9
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    -1.81,
+    4.89,
+    4.31
+   ],
+   "normal": [
+    0.44,
+    0.53,
+    -0.73
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 6,
+   "gap_cm": 0.29,
+   "where": [
+    -1.9,
+    4.89,
+    4.26
+   ],
+   "normal": [
+    0.46,
+    0.53,
+    -0.71
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_1",
+   "triangles": 2,
+   "gap_cm": 0.15,
+   "where": [
+    -2.96,
+    45.06,
+    20.37
+   ],
+   "normal": [
+    0.52,
+    -0.85,
+    0.0
+   ]
+  },
+  {
+   "front": "drum_pilaster_1",
+   "behind": "drum_sill",
+   "triangles": 2,
+   "gap_cm": 0.1,
+   "where": [
+    -2.83,
+    45.14,
+    21.44
+   ],
+   "normal": [
+    0.5,
+    -0.87,
+    0.0
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_1",
+   "behind": "pendentives",
+   "triangles": 7,
+   "gap_cm": 2.29,
+   "where": [
+    -4.15,
+    45.43,
+    17.15
+   ],
+   "normal": [
+    0.48,
+    -0.66,
+    -0.58
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.43,
+   "where": [
+    -4.24,
+    45.53,
+    16.95
+   ],
+   "normal": [
+    0.49,
+    -0.67,
+    -0.55
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_1",
+   "behind": "pendentives",
+   "triangles": 24,
+   "gap_cm": 2.38,
+   "where": [
+    -4.3,
+    44.72,
+    17.71
+   ],
+   "normal": [
+    0.5,
+    -0.55,
+    -0.67
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 5,
+   "gap_cm": -0.0,
+   "where": [
+    -3.06,
+    34.19,
+    17.34
+   ],
+   "normal": [
+    0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.0,
+   "where": [
+    -3.02,
+    34.17,
+    17.37
+   ],
+   "normal": [
+    0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 5,
+   "gap_cm": -0.0,
+   "where": [
+    -3.06,
+    46.01,
+    17.34
+   ],
+   "normal": [
+    0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": 0.0,
+   "where": [
+    -3.02,
+    46.03,
+    17.37
+   ],
+   "normal": [
+    0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    -7.64,
+    15.67,
+    8.61
+   ],
+   "normal": [
+    0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    -7.63,
+    15.51,
+    8.62
+   ],
+   "normal": [
+    0.49,
+    0.0,
+    -0.87
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    6.8,
+    15.67,
+    8.61
+   ],
+   "normal": [
+    0.51,
+    0.0,
+    -0.86
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    6.81,
+    15.51,
+    8.62
+   ],
+   "normal": [
+    0.49,
+    0.0,
+    -0.87
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 10,
+   "gap_cm": -0.01,
+   "where": [
+    -1.99,
+    4.75,
+    4.1
+   ],
+   "normal": [
+    0.49,
+    0.53,
+    -0.69
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 10,
+   "gap_cm": 0.0,
+   "where": [
+    -2.07,
+    4.89,
+    4.15
+   ],
+   "normal": [
+    0.5,
+    0.53,
+    -0.69
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 3,
+   "gap_cm": 0.32,
+   "where": [
+    -2.15,
+    4.89,
+    4.08
+   ],
+   "normal": [
+    0.52,
+    0.53,
+    -0.67
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_-1",
+   "behind": "pendentives",
+   "triangles": 26,
+   "gap_cm": 2.43,
+   "where": [
+    -4.31,
+    35.48,
+    17.71
+   ],
+   "normal": [
+    0.5,
+    0.55,
+    -0.67
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_-1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.63,
+   "where": [
+    -4.14,
+    34.77,
+    17.15
+   ],
+   "normal": [
+    0.48,
+    0.66,
+    -0.58
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_-1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.59,
+   "where": [
+    -4.26,
+    34.66,
+    16.92
+   ],
+   "normal": [
+    0.49,
+    0.67,
+    -0.55
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_7",
+   "triangles": 2,
+   "gap_cm": 0.15,
+   "where": [
+    -2.96,
+    35.14,
+    20.33
+   ],
+   "normal": [
+    0.52,
+    0.85,
+    0.0
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_1",
+   "behind": "pendentives",
+   "triangles": 12,
+   "gap_cm": 2.61,
+   "where": [
+    -4.7,
+    45.53,
+    16.48
+   ],
+   "normal": [
+    0.56,
+    -0.67,
+    -0.48
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_1",
+   "behind": "pendentives",
+   "triangles": 22,
+   "gap_cm": 2.45,
+   "where": [
+    -4.62,
+    44.41,
+    17.71
+   ],
+   "normal": [
+    0.55,
+    -0.5,
+    -0.67
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 6,
+   "gap_cm": -0.01,
+   "where": [
+    -3.17,
+    34.19,
+    17.28
+   ],
+   "normal": [
+    0.54,
+    0.0,
+    -0.84
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.0,
+   "where": [
+    -3.26,
+    34.09,
+    17.22
+   ],
+   "normal": [
+    0.55,
+    0.0,
+    -0.84
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.05,
+   "where": [
+    -3.23,
+    46.03,
+    17.24
+   ],
+   "normal": [
+    0.54,
+    0.0,
+    -0.84
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    -3.38,
+    46.01,
+    17.13
+   ],
+   "normal": [
+    0.57,
+    0.0,
+    -0.82
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": 0.01,
+   "where": [
+    -3.41,
+    46.03,
+    17.12
+   ],
+   "normal": [
+    0.57,
+    0.01,
+    -0.82
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_-1",
+   "behind": "pendentives",
+   "triangles": 24,
+   "gap_cm": 2.4,
+   "where": [
+    -4.62,
+    35.8,
+    17.71
+   ],
+   "normal": [
+    0.55,
+    0.5,
+    -0.67
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 15,
+   "gap_cm": 0.08,
+   "where": [
+    -2.27,
+    4.89,
+    3.99
+   ],
+   "normal": [
+    0.54,
+    0.54,
+    -0.65
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 3,
+   "gap_cm": 0.35,
+   "where": [
+    -2.39,
+    4.89,
+    3.89
+   ],
+   "normal": [
+    0.57,
+    0.54,
+    -0.62
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_-1",
+   "behind": "pendentives",
+   "triangles": 16,
+   "gap_cm": 2.67,
+   "where": [
+    -4.7,
+    34.67,
+    16.48
+   ],
+   "normal": [
+    0.56,
+    0.67,
+    -0.48
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": -0.01,
+   "where": [
+    -3.55,
+    46.1,
+    17.01
+   ],
+   "normal": [
+    0.61,
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 11,
+   "gap_cm": 0.01,
+   "where": [
+    -3.54,
+    46.01,
+    17.02
+   ],
+   "normal": [
+    0.6,
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 7,
+   "gap_cm": 0.03,
+   "where": [
+    -3.57,
+    33.71,
+    17.0
+   ],
+   "normal": [
+    0.61,
+    0.0,
+    -0.79
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 1,
+   "gap_cm": 0.15,
+   "where": [
+    -3.69,
+    34.19,
+    16.9
+   ],
+   "normal": [
+    0.62,
+    0.0,
+    -0.78
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -7.74,
+    15.83,
+    8.54
+   ],
+   "normal": [
+    0.6,
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": 0.01,
+   "where": [
+    -7.75,
+    15.51,
+    8.53
+   ],
+   "normal": [
+    0.62,
+    0.0,
+    -0.79
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    6.7,
+    15.83,
+    8.54
+   ],
+   "normal": [
+    0.6,
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": 0.01,
+   "where": [
+    6.69,
+    15.51,
+    8.53
+   ],
+   "normal": [
+    0.62,
+    0.0,
+    -0.79
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 12,
+   "gap_cm": 0.11,
+   "where": [
+    -2.5,
+    4.89,
+    3.78
+   ],
+   "normal": [
+    0.6,
+    0.54,
+    -0.59
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 6,
+   "gap_cm": 0.29,
+   "where": [
+    -2.61,
+    4.89,
+    3.67
+   ],
+   "normal": [
+    0.62,
+    0.54,
+    -0.57
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_1",
+   "behind": "pendentives",
+   "triangles": 16,
+   "gap_cm": 2.67,
+   "where": [
+    -5.43,
+    44.8,
+    16.48
+   ],
+   "normal": [
+    0.67,
+    -0.56,
+    -0.48
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.66,
+   "where": [
+    -5.34,
+    44.25,
+    17.13
+   ],
+   "normal": [
+    0.66,
+    -0.48,
+    -0.58
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.59,
+   "where": [
+    -5.44,
+    44.36,
+    16.92
+   ],
+   "normal": [
+    0.67,
+    -0.49,
+    -0.55
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 8,
+   "gap_cm": 0.01,
+   "where": [
+    -3.84,
+    46.01,
+    16.78
+   ],
+   "normal": [
+    0.65,
+    0.0,
+    -0.76
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.1,
+   "where": [
+    -3.74,
+    46.15,
+    16.87
+   ],
+   "normal": [
+    0.64,
+    0.0,
+    -0.77
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.04,
+   "where": [
+    -3.83,
+    33.77,
+    16.79
+   ],
+   "normal": [
+    0.64,
+    0.0,
+    -0.77
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": 0.05,
+   "where": [
+    -3.94,
+    34.19,
+    16.69
+   ],
+   "normal": [
+    0.67,
+    0.0,
+    -0.74
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_-1",
+   "behind": "pendentives",
+   "triangles": 7,
+   "gap_cm": 2.6,
+   "where": [
+    -5.33,
+    35.95,
+    17.15
+   ],
+   "normal": [
+    0.66,
+    0.48,
+    -0.58
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_-1",
+   "behind": "pendentives",
+   "triangles": 4,
+   "gap_cm": 2.43,
+   "where": [
+    -5.43,
+    35.86,
+    16.95
+   ],
+   "normal": [
+    0.67,
+    0.49,
+    -0.55
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 12,
+   "gap_cm": 0.02,
+   "where": [
+    -2.71,
+    4.89,
+    3.55
+   ],
+   "normal": [
+    0.65,
+    0.54,
+    -0.54
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 11,
+   "gap_cm": 0.19,
+   "where": [
+    -2.8,
+    4.89,
+    3.43
+   ],
+   "normal": [
+    0.67,
+    0.55,
+    -0.51
+   ]
+  },
+  {
+   "front": "tondo_frame_-1_-1",
+   "behind": "pendentives",
+   "triangles": 12,
+   "gap_cm": 2.56,
+   "where": [
+    -5.45,
+    35.47,
+    16.53
+   ],
+   "normal": [
+    0.67,
+    0.55,
+    -0.49
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    -4.14,
+    46.07,
+    16.51
+   ],
+   "normal": [
+    0.71,
+    0.0,
+    -0.71
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": 0.06,
+   "where": [
+    -4.08,
+    46.01,
+    16.56
+   ],
+   "normal": [
+    0.7,
+    0.0,
+    -0.72
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 12,
+   "gap_cm": -0.01,
+   "where": [
+    -4.13,
+    34.19,
+    16.52
+   ],
+   "normal": [
+    0.7,
+    0.0,
+    -0.72
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    -4.15,
+    34.17,
+    16.49
+   ],
+   "normal": [
+    0.71,
+    -0.01,
+    -0.71
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 4,
+   "gap_cm": 0.07,
+   "where": [
+    -2.79,
+    4.75,
+    3.29
+   ],
+   "normal": [
+    0.68,
+    0.55,
+    -0.49
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 16,
+   "gap_cm": -0.01,
+   "where": [
+    -2.88,
+    4.75,
+    3.17
+   ],
+   "normal": [
+    0.7,
+    0.55,
+    -0.45
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    -3.01,
+    4.89,
+    3.14
+   ],
+   "normal": [
+    0.71,
+    0.55,
+    -0.43
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 7,
+   "gap_cm": 0.14,
+   "where": [
+    -3.06,
+    4.89,
+    3.05
+   ],
+   "normal": [
+    0.72,
+    0.55,
+    -0.41
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_2",
+   "triangles": 2,
+   "gap_cm": 0.17,
+   "where": [
+    -4.37,
+    43.88,
+    20.33
+   ],
+   "normal": [
+    0.75,
+    -0.66,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 5,
+   "gap_cm": -0.01,
+   "where": [
+    -4.52,
+    46.01,
+    16.09
+   ],
+   "normal": [
+    0.76,
+    0.0,
+    -0.65
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 5,
+   "gap_cm": -0.01,
+   "where": [
+    -4.52,
+    34.19,
+    16.09
+   ],
+   "normal": [
+    0.76,
+    0.0,
+    -0.65
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    -4.48,
+    46.07,
+    16.14
+   ],
+   "normal": [
+    0.76,
+    0.0,
+    -0.65
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    -4.48,
+    34.15,
+    16.14
+   ],
+   "normal": [
+    0.76,
+    0.0,
+    -0.65
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 11,
+   "gap_cm": 0.04,
+   "where": [
+    -3.01,
+    4.73,
+    2.92
+   ],
+   "normal": [
+    0.74,
+    0.56,
+    -0.39
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 15,
+   "gap_cm": 0.0,
+   "where": [
+    -3.1,
+    4.75,
+    2.78
+   ],
+   "normal": [
+    0.75,
+    0.56,
+    -0.35
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 2,
+   "gap_cm": -0.0,
+   "where": [
+    -3.22,
+    4.89,
+    2.73
+   ],
+   "normal": [
+    0.76,
+    0.56,
+    -0.33
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_archivolt",
+   "triangles": 5,
+   "gap_cm": -0.01,
+   "where": [
+    -3.26,
+    4.89,
+    2.63
+   ],
+   "normal": [
+    0.77,
+    0.56,
+    -0.31
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 10,
+   "gap_cm": 0.01,
+   "where": [
+    -3.17,
+    4.75,
+    2.59
+   ],
+   "normal": [
+    0.77,
+    0.56,
+    -0.31
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_6",
+   "triangles": 4,
+   "gap_cm": 0.02,
+   "where": [
+    -4.37,
+    36.32,
+    20.37
+   ],
+   "normal": [
+    0.75,
+    0.66,
+    -0.0
+   ]
+  },
+  {
+   "front": "opening_pilaster_base_1",
+   "behind": "opening_pilaster_1",
+   "triangles": 4,
+   "gap_cm": 1.6,
+   "where": [
+    3.57,
+    4.74,
+    0.08
+   ],
+   "normal": [
+    0.8,
+    -0.6,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 7,
+   "gap_cm": 0.07,
+   "where": [
+    -4.69,
+    34.17,
+    15.88
+   ],
+   "normal": [
+    0.79,
+    0.0,
+    -0.61
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 7,
+   "gap_cm": 0.07,
+   "where": [
+    -4.69,
+    46.03,
+    15.88
+   ],
+   "normal": [
+    0.79,
+    0.0,
+    -0.61
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": 0.09,
+   "where": [
+    -4.64,
+    34.19,
+    15.94
+   ],
+   "normal": [
+    0.78,
+    0.0,
+    -0.62
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": 0.09,
+   "where": [
+    -4.64,
+    46.01,
+    15.94
+   ],
+   "normal": [
+    0.78,
+    0.0,
+    -0.62
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    -7.89,
+    15.67,
+    8.39
+   ],
+   "normal": [
+    0.8,
+    0.0,
+    -0.6
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    -7.88,
+    15.51,
+    8.4
+   ],
+   "normal": [
+    0.79,
+    0.0,
+    -0.62
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    6.55,
+    15.67,
+    8.39
+   ],
+   "normal": [
+    0.8,
+    0.0,
+    -0.6
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    6.56,
+    15.51,
+    8.4
+   ],
+   "normal": [
+    0.79,
+    0.0,
+    -0.62
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 19,
+   "gap_cm": 0.01,
+   "where": [
+    -3.26,
+    4.75,
+    2.36
+   ],
+   "normal": [
+    0.79,
+    0.57,
+    -0.25
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 15,
+   "gap_cm": 0.09,
+   "where": [
+    -3.31,
+    4.75,
+    2.17
+   ],
+   "normal": [
+    0.8,
+    0.57,
+    -0.2
+   ]
+  },
+  {
+   "front": "opening_archivolt",
+   "behind": "opening_wall",
+   "triangles": 15,
+   "gap_cm": 0.09,
+   "where": [
+    -3.37,
+    4.75,
+    1.92
+   ],
+   "normal": [
+    0.81,
+    0.57,
+    -0.14
+   ]
+  },
+  {
+   "front": "opening_pilaster_-1",
+   "behind": "opening_pilaster_base_-1",
+   "triangles": 2,
+   "gap_cm": 0.07,
+   "where": [
+    -3.36,
+    4.72,
+    0.57
+   ],
+   "normal": [
+    0.81,
+    0.58,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_pilaster_base_-1",
+   "behind": "opening_pilaster_-1",
+   "triangles": 1,
+   "gap_cm": 0.03,
+   "where": [
+    -3.37,
+    4.74,
+    0.08
+   ],
+   "normal": [
+    0.81,
+    0.58,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_pilaster_-1",
+   "triangles": 2,
+   "gap_cm": 0.52,
+   "where": [
+    -3.48,
+    4.89,
+    0.62
+   ],
+   "normal": [
+    0.81,
+    0.58,
+    0.0
+   ]
+  },
+  {
+   "front": "opening_wall",
+   "behind": "opening_pilaster_base_-1",
+   "triangles": 1,
+   "gap_cm": 0.59,
+   "where": [
+    -3.48,
+    4.89,
+    0.62
+   ],
+   "normal": [
+    0.81,
+    0.58,
+    0.0
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -4.96,
+    34.17,
+    15.5
+   ],
+   "normal": [
+    0.84,
+    -0.01,
+    -0.55
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": 0.0,
+   "where": [
+    -4.98,
+    34.19,
+    15.47
+   ],
+   "normal": [
+    0.84,
+    0.0,
+    -0.54
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.03,
+   "where": [
+    -4.93,
+    46.07,
+    15.54
+   ],
+   "normal": [
+    0.84,
+    0.0,
+    -0.54
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    -5.1,
+    34.03,
+    15.26
+   ],
+   "normal": [
+    0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    -5.04,
+    34.19,
+    15.36
+   ],
+   "normal": [
+    0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    -5.1,
+    46.03,
+    15.26
+   ],
+   "normal": [
+    0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 6,
+   "gap_cm": -0.0,
+   "where": [
+    -5.04,
+    46.01,
+    15.36
+   ],
+   "normal": [
+    0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": -0.01,
+   "where": [
+    -7.97,
+    15.51,
+    8.28
+   ],
+   "normal": [
+    0.87,
+    0.0,
+    -0.49
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    -7.96,
+    15.83,
+    8.29
+   ],
+   "normal": [
+    0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "facade_niche_frame_1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": -0.01,
+   "where": [
+    6.47,
+    15.51,
+    8.28
+   ],
+   "normal": [
+    0.87,
+    0.0,
+    -0.49
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_1",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    6.48,
+    15.83,
+    8.29
+   ],
+   "normal": [
+    0.86,
+    0.0,
+    -0.51
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 8,
+   "gap_cm": -0.01,
+   "where": [
+    -5.26,
+    46.01,
+    14.97
+   ],
+   "normal": [
+    0.89,
+    0.0,
+    -0.46
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": 0.01,
+   "where": [
+    -5.24,
+    46.07,
+    15.01
+   ],
+   "normal": [
+    0.89,
+    0.0,
+    -0.46
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": 0.03,
+   "where": [
+    -5.26,
+    34.19,
+    14.97
+   ],
+   "normal": [
+    0.89,
+    0.0,
+    -0.46
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 9,
+   "gap_cm": 0.07,
+   "where": [
+    -5.3,
+    33.72,
+    14.89
+   ],
+   "normal": [
+    0.9,
+    0.0,
+    -0.43
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -5.4,
+    33.99,
+    14.67
+   ],
+   "normal": [
+    0.92,
+    0.0,
+    -0.39
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    -5.4,
+    46.01,
+    14.68
+   ],
+   "normal": [
+    0.92,
+    0.0,
+    -0.4
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.01,
+   "where": [
+    -5.41,
+    46.07,
+    14.64
+   ],
+   "normal": [
+    0.92,
+    0.01,
+    -0.39
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_3",
+   "triangles": 2,
+   "gap_cm": 0.47,
+   "where": [
+    -5.4,
+    42.16,
+    20.33
+   ],
+   "normal": [
+    0.93,
+    -0.36,
+    0.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": 0.02,
+   "where": [
+    -8.01,
+    15.67,
+    8.17
+   ],
+   "normal": [
+    0.94,
+    0.0,
+    -0.34
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -5.53,
+    46.03,
+    14.36
+   ],
+   "normal": [
+    0.93,
+    0.0,
+    -0.36
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    -5.5,
+    46.01,
+    14.44
+   ],
+   "normal": [
+    0.93,
+    0.0,
+    -0.37
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 11,
+   "gap_cm": 0.04,
+   "where": [
+    -5.54,
+    34.19,
+    14.32
+   ],
+   "normal": [
+    0.94,
+    0.0,
+    -0.34
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 1,
+   "gap_cm": 0.02,
+   "where": [
+    -5.48,
+    34.1,
+    14.48
+   ],
+   "normal": [
+    0.93,
+    0.0,
+    -0.37
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -5.61,
+    46.03,
+    14.12
+   ],
+   "normal": [
+    0.95,
+    0.0,
+    -0.32
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": 0.03,
+   "where": [
+    -5.61,
+    34.17,
+    14.12
+   ],
+   "normal": [
+    0.95,
+    0.0,
+    -0.32
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    -8.04,
+    15.67,
+    8.09
+   ],
+   "normal": [
+    0.97,
+    0.0,
+    -0.24
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 1,
+   "gap_cm": 0.01,
+   "where": [
+    -8.03,
+    15.51,
+    8.11
+   ],
+   "normal": [
+    0.96,
+    0.0,
+    -0.27
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    -5.73,
+    46.01,
+    13.7
+   ],
+   "normal": [
+    0.97,
+    0.0,
+    -0.24
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 2,
+   "gap_cm": -0.01,
+   "where": [
+    -5.73,
+    34.19,
+    13.7
+   ],
+   "normal": [
+    0.97,
+    0.0,
+    -0.24
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 9,
+   "gap_cm": 0.01,
+   "where": [
+    -5.68,
+    46.03,
+    13.88
+   ],
+   "normal": [
+    0.96,
+    0.0,
+    -0.27
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 9,
+   "gap_cm": 0.01,
+   "where": [
+    -5.68,
+    34.17,
+    13.88
+   ],
+   "normal": [
+    0.96,
+    0.0,
+    -0.27
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_5",
+   "triangles": 4,
+   "gap_cm": 0.52,
+   "where": [
+    -5.4,
+    38.04,
+    20.37
+   ],
+   "normal": [
+    0.93,
+    0.36,
+    -0.0
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 3,
+   "gap_cm": 0.01,
+   "where": [
+    -5.78,
+    46.07,
+    13.48
+   ],
+   "normal": [
+    0.98,
+    0.0,
+    -0.19
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": 0.06,
+   "where": [
+    -5.81,
+    46.01,
+    13.32
+   ],
+   "normal": [
+    0.98,
+    0.0,
+    -0.18
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 3,
+   "gap_cm": 0.02,
+   "where": [
+    -5.78,
+    34.15,
+    13.48
+   ],
+   "normal": [
+    0.98,
+    0.0,
+    -0.19
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": 0.06,
+   "where": [
+    -5.81,
+    34.19,
+    13.32
+   ],
+   "normal": [
+    0.98,
+    0.0,
+    -0.18
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": -0.01,
+   "where": [
+    -5.82,
+    46.03,
+    13.28
+   ],
+   "normal": [
+    0.99,
+    0.0,
+    -0.16
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 5,
+   "gap_cm": 0.0,
+   "where": [
+    -5.83,
+    34.19,
+    13.2
+   ],
+   "normal": [
+    0.99,
+    0.0,
+    -0.15
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 9,
+   "gap_cm": 0.0,
+   "where": [
+    -5.83,
+    46.01,
+    13.2
+   ],
+   "normal": [
+    0.99,
+    0.0,
+    -0.15
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 2,
+   "gap_cm": -0.0,
+   "where": [
+    -5.84,
+    33.93,
+    13.12
+   ],
+   "normal": [
+    0.99,
+    0.0,
+    -0.14
+   ]
+  },
+  {
+   "front": "arch_back_soffit",
+   "behind": "arch_back_edge",
+   "triangles": 4,
+   "gap_cm": 0.0,
+   "where": [
+    -5.87,
+    46.27,
+    12.9
+   ],
+   "normal": [
+    0.99,
+    0.0,
+    -0.11
+   ]
+  },
+  {
+   "front": "arch_front_soffit",
+   "behind": "arch_front_edge",
+   "triangles": 5,
+   "gap_cm": -0.01,
+   "where": [
+    -5.87,
+    33.67,
+    12.9
+   ],
+   "normal": [
+    0.99,
+    0.0,
+    -0.11
+   ]
+  },
+  {
+   "front": "arch_back_edge",
+   "behind": "arch_back_soffit",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -5.86,
+    46.01,
+    13.01
+   ],
+   "normal": [
+    0.99,
+    0.0,
+    -0.11
+   ]
+  },
+  {
+   "front": "arch_front_edge",
+   "behind": "arch_front_soffit",
+   "triangles": 3,
+   "gap_cm": -0.0,
+   "where": [
+    -5.86,
+    34.19,
+    13.01
+   ],
+   "normal": [
+    0.99,
+    0.0,
+    -0.11
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 4,
+   "gap_cm": 0.02,
+   "where": [
+    -8.07,
+    15.83,
+    7.9
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.05
+   ]
+  },
+  {
+   "front": "facade_niche_frame_-1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": -0.0,
+   "where": [
+    -8.07,
+    15.51,
+    6.84
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_niche_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    -8.07,
+    15.83,
+    6.84
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "facade_panel_frame_-1",
+   "behind": "facade",
+   "triangles": 3,
+   "gap_cm": -0.01,
+   "where": [
+    -8.07,
+    15.51,
+    4.13
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "facade",
+   "behind": "facade_panel_frame_-1",
+   "triangles": 3,
+   "gap_cm": 0.0,
+   "where": [
+    -8.07,
+    15.54,
+    4.13
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "facade",
+   "triangles": 12,
+   "gap_cm": 0.32,
+   "where": [
+    -7.3,
+    16.83,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "bay1_vestibule_side_-1",
+   "behind": "facade",
+   "triangles": 2,
+   "gap_cm": 2.0,
+   "where": [
+    -7.28,
+    17.47,
+    7.27
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "bay1_vestibule_side_-1",
+   "behind": "capital_band_-1",
+   "triangles": 4,
+   "gap_cm": 1.64,
+   "where": [
+    -7.28,
+    17.47,
+    7.27
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "string_course_-1_0",
+   "behind": "bay1_vestibule_side_-1",
+   "triangles": 4,
+   "gap_cm": 0.93,
+   "where": [
+    -7.27,
+    16.84,
+    9.05
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "bay1_vestibule_side_-1",
+   "triangles": 4,
+   "gap_cm": 1.92,
+   "where": [
+    -7.26,
+    16.85,
+    10.29
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "nave_wall_-1",
+   "triangles": 154,
+   "gap_cm": 0.33,
+   "where": [
+    -6.5,
+    20.07,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "arm2_wall_-1",
+   "triangles": 108,
+   "gap_cm": 0.33,
+   "where": [
+    -6.5,
+    48.53,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "nave_vault_band",
+   "behind": "bay1_recess_ceiling_-1",
+   "triangles": 7,
+   "gap_cm": 0.5,
+   "where": [
+    -5.9,
+    19.8,
+    12.31
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_vault_coffers",
+   "behind": "nave_recess_ceiling_-1_0",
+   "triangles": 8,
+   "gap_cm": 0.5,
+   "where": [
+    -5.9,
+    26.07,
+    12.31
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "nave_vault_coffers",
+   "behind": "nave_recess_ceiling_-1_1",
+   "triangles": 7,
+   "gap_cm": 0.5,
+   "where": [
+    -5.9,
+    26.07,
+    12.31
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "arm2_vault_coffers",
+   "behind": "arm2_recess_ceiling_-1_0",
+   "triangles": 8,
+   "gap_cm": 0.5,
+   "where": [
+    -5.9,
+    49.53,
+    12.31
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "arm2_vault_coffers",
+   "behind": "arm2_recess_ceiling_-1_1",
+   "triangles": 7,
+   "gap_cm": 0.5,
+   "where": [
+    -5.9,
+    49.53,
+    12.31
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "bay1_vestibule_back_-1",
+   "triangles": 2,
+   "gap_cm": 0.36,
+   "where": [
+    -5.9,
+    18.37,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "crossing_side_-1",
+   "triangles": 4,
+   "gap_cm": 0.36,
+   "where": [
+    -5.9,
+    37.6,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "arch_front",
+   "triangles": 4,
+   "gap_cm": 0.33,
+   "where": [
+    -5.9,
+    37.6,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "arch_back",
+   "triangles": 4,
+   "gap_cm": 0.33,
+   "where": [
+    -5.9,
+    37.6,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "drum_sill",
+   "behind": "drum_pilaster_4",
+   "triangles": 6,
+   "gap_cm": 0.2,
+   "where": [
+    -5.78,
+    40.02,
+    20.37
+   ],
+   "normal": [
+    1.0,
+    0.02,
+    -0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "nave_pilaster_-1_22.9",
+   "triangles": 4,
+   "gap_cm": 0.32,
+   "where": [
+    -5.55,
+    22.73,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "nave_pilaster_-1_27.3",
+   "triangles": 4,
+   "gap_cm": 0.32,
+   "where": [
+    -5.55,
+    27.13,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "capital_band_-1",
+   "behind": "arm2_pilaster_-1_50.9",
+   "triangles": 4,
+   "gap_cm": 0.32,
+   "where": [
+    -5.55,
+    50.73,
+    10.16
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "front": "end_pilaster_capital_-1",
+   "behind": "end_pilaster_-1",
+   "triangles": 4,
+   "gap_cm": 0.3,
+   "where": [
+    -4.12,
+    54.94,
+    12.3
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "front": "end_door_impost_-1",
+   "behind": "end_wall",
+   "triangles": 4,
+   "gap_cm": 0.34,
+   "where": [
+    -3.67,
+    55.33,
+    7.22
+   ],
+   "normal": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "stacked_faces_R13_hidden": 249
+}

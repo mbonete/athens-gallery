@@ -1,0 +1,58 @@
+{
+ "end-approach-0.7-near-0.002.png": {
+  "before": 1343,
+  "after": 1176
+ },
+ "end-approach-0.7-near-normal.png": {
+  "before": 1243,
+  "after": 1174
+ },
+ "end-approach-0.75-near-0.002.png": {
+  "before": 938,
+  "after": 756
+ },
+ "end-approach-0.75-near-normal.png": {
+  "before": 865,
+  "after": 757
+ },
+ "end-approach-0.85-near-0.002.png": {
+  "before": 953,
+  "after": 264
+ },
+ "end-approach-0.85-near-normal.png": {
+  "before": 270,
+  "after": 260
+ },
+ "end-approach-0.9-near-0.002.png": {
+  "before": 1018,
+  "after": 110
+ },
+ "end-approach-0.9-near-normal.png": {
+  "before": 69,
+  "after": 107
+ },
+ "end-approach-near-0.002.png": {
+  "before": 1117,
+  "after": 453
+ },
+ "end-approach-near-normal.png": {
+  "before": 624,
+  "after": 450
+ },
+ "nave-near-0.002.png": {
+  "before": 1073,
+  "after": 755
+ },
+ "nave-near-normal.png": {
+  "before": 640,
+  "after": 682
+ },
+ "panel-frame-near-0.002.png": {
+  "before": 594,
+  "after": 94
+ },
+ "panel-frame-near-normal.png": {
+  "before": 533,
+  "after": 93
+ }
+}
