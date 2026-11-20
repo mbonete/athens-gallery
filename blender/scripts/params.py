@@ -239,8 +239,10 @@ HANG_CENTRE_Z = PLATFORM_Z + 1.55 / SCALE  # web: centre 1.55 m above the floor
 BAKE = {
     # Stage 4: the atlases hold light only (detail comes from tiled textures), so the density is
     # chosen for light: 16 px/m rough, 28 final, mouldings denser (BAKE_DENSITY_SCALE).
-    "rough": dict(samples=128, density=16.0, max_size=4096, margin=3, gap=1.5, denoise=True),
-    "final": dict(samples=1024, density=28.0, max_size=4096, margin=4, gap=2, denoise=True),
+    # Stage 6: margin <= gap, so two islands' margins never meet; a thin island's edge texels
+    # were taken by its neighbour's margin (dark lines on the facade panel frame).
+    "rough": dict(samples=128, density=16.0, max_size=4096, margin=2, gap=2.0, denoise=True),
+    "final": dict(samples=1024, density=28.0, max_size=4096, margin=3, gap=3.0, denoise=True),
 }
 BAKE_QUALITY = os.environ.get("BAKE", "rough")
 # Groups baked into one atlas each, by the object's centre along Y (metres, 100 %).
@@ -295,8 +297,8 @@ ARCH_C = (1915.5, 2021.0)       # circle centre: below the horizon (v 1776), so 
 ARCH_SPRING_V = 1771.0          # impost top (painted at v 1765-1775)
 ARCH_R = dict(inner=1619.0, meander=(1631.0, 1717.0), pattern=(1638.0, 1711.0), fillet=1733.0,
               beads=(1765.0, 1797.0), egg=(1826.0, 1868.0), outer=1925.0)
-ARCH_PROJ = 0.03                # the archivolt (inner band, meander, fillet) stands proud of the wall
-ARCH_BAND_PROJ = 0.01           # the outer bands (grey with beads, egg-and-dart, red)
+ARCH_PROJ = 0.05                # the archivolt (inner band, meander, fillet) stands proud of the wall
+ARCH_BAND_PROJ = 0.03           # the outer bands (grey with beads, egg-and-dart, red); R13: >= 2 cm (web)
 ARCH_DEPTH = 0.40               # front wall thickness (designed)
 ARCH_PILASTER_W = 0.255         # painted pilasters: u 165-300 and 3510-3620 (0.28 and 0.23 m), mean
 ARCH_PILASTER_D = 0.05

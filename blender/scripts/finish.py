@@ -276,8 +276,11 @@ class Profile:
         r = dq / 2
         return self._arc(self.p, self.q + r, depth, r, -math.pi / 2, -3 * math.pi / 2)
 
-    def closed(self, embed=0.03):
-        """Back to the base plane at the top, then down behind it (embedded in the wall)."""
+    def closed(self, embed=0.0):
+        """Back to the base plane at the top, then down behind it (embed > 0: that far inside the
+        wall). R13: a back strip embedded in the wall lies on the plane of any opening's reveal or
+        cut ceiling it crosses, coplanar with it: so no embedding unless the profile itself goes
+        behind the base plane (capital)."""
         pts = list(self.pts)
         top = pts[-1][1]
         pts += [(0.0, top), (-embed, top), (-embed, pts[0][1])]
@@ -306,10 +309,14 @@ def capital(z_top):
     The fresco shows banded Doric capitals on the piers (u 2480-2600, v 680-850); profile designed."""
     pr = Profile(z_top - 0.50)   # top 3 mm under z_top: no face coplanar with the architrave soffit
     z_top -= 0.003
-    pr.torus(0.05).h(0.004).v(0.17).h(0.011)     # necking 4 mm proud: not coplanar with the shaft.v(0.02).h(0.01).v(0.02).ovolo(0.07, 0.09)
-    pr.h(0.025).v(0.11).cyma_reversa(0.02, 0.03)
+    # R13: the necking is the shaft (or wall) itself: the profile runs 3 cm inside it there, so no
+    # skin of moulding sits a few mm in front of the shaft's face (stage 5: 4 mm, it flickered).
+    # Every face in front of the shaft stands at least 3 cm proud: astragal 3 cm, abacus 4 cm.
+    pr.torus(0.06)
+    pr.to(-0.03, pr.q).v(0.16).to(0.04, pr.q)
+    pr.v(0.11).cyma_reversa(0.02, 0.03)
     pr.v(z_top - pr.q)
-    return pr.closed()
+    return pr.closed(embed=0.04)
 
 
 def attic_base(z0):

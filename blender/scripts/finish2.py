@@ -107,7 +107,7 @@ def round_niche_cut(x_face, inward, yc, width, z0, z1, depth, n=24):
     return cutter_prism(a, b)
 
 
-def frame_profile(width=None, proj=0.06, embed=0.02):
+def frame_profile(width=None, proj=0.06, embed=0.0):
     """A flat moulded frame (fascia and a small cyma), for niches, panels and tondi."""
     width = width or P.FRAME_W
     pr = Profile(0.0, n=4)
@@ -174,12 +174,20 @@ def bay1(M):
         boolean(fac, cutter_box(side * (NW - 0.01), side * xo, y0, y1, PZ - 0.1, ztop))
         wall = bpy.data.objects[f"nave_wall_{side}"]
         boolean(wall, cutter_box(side * (NW - 0.01), side * rx, r0, r1, PZ - 0.1, SZ))
-        box(f"bay1_vestibule_back_{side}", side * NW, side * xo, y1 - 0.02, y1 + 0.001, PZ, ztop, "stucco", stucco)
-        box(f"bay1_vestibule_side_{side}", side * xo, side * (xo - 0.02), y0, y1, PZ, ztop, "stucco", stucco)
+        # The vestibule's walls are the facade's own cut faces, in stucco (stage 5 had 2 cm stucco
+        # liners in front of them: R13).
+        if M["stucco"].name not in fac.data.materials:
+            fac.data.materials.append(M["stucco"])
+        mi = list(fac.data.materials).index(M["stucco"])
+        for poly in fac.data.polygons:
+            c = fac.matrix_world @ poly.center
+            if (NW - 0.02 < side * c.x < xo + 0.001 and y0 - 0.001 < c.y < y1 + 0.001 and c.z < ztop - 0.001
+                    and abs(poly.normal.z) < 0.5 and not (abs(c.y - y0) < 0.002 and poly.normal.y < -0.5)):
+                poly.material_index = mi
         # Recess ceiling at the springing, between the vault's edge and the recess wall (the hidden
         # vault backing closed it in Blender renders; the web model has no backing). Flush with the
         # vault's springing line: nothing projects into the hall (R5).
-        box(f"bay1_recess_ceiling_{side}", side * (NW + 0.005), side * (rx + 0.05), r0, r1, SZ, SZ + 0.35,
+        box(f"bay1_recess_ceiling_{side}", side * (NW + 0.03), side * (rx + 0.05), r0, r1, SZ, SZ + 0.35,
             "stucco", stucco)
         # The empty niche on the recess's back wall, its frame standing on a ledge (R6).
         yc, w = P.BAY1_NICHE_YC, P.BAY1_NICHE_W
@@ -224,7 +232,7 @@ def recesses(M):
             wall = bpy.data.objects[f"{tag}_wall_{side}"]
             for i, (a, b) in enumerate(spans):
                 boolean(wall, cutter_box(side * (NW - 0.01), side * rx, a, b, PZ - 0.1, SZ))
-                box(f"{tag}_recess_ceiling_{side}_{i}", side * (NW + 0.005), side * (rx + 0.05), a, b, SZ, SZ + 0.35,
+                box(f"{tag}_recess_ceiling_{side}_{i}", side * (NW + 0.03), side * (rx + 0.05), a, b, SZ, SZ + 0.35,
                     "stucco", stucco)
                 niche_set(M, side, f"{tag}_r{i}", (a + b) / 2, rx)
             reorient(wall)
@@ -388,7 +396,9 @@ def floors(M, floor_mat):
             run = [(hw, yb), (hw, y), (-hw, y), (-hw, yb)]
         else:
             run = [(hw, y), (-hw, y)]
-        sweep(f"step_nosing_{i + 1}", pr.closed(embed=0.03), *plan_path(run, 1), "stone", stone)
+        # Profile on the left of the run: forward over the riser below, outward at the returns.
+        # (Stage 4 had it on the right: the nosings lay inside the steps, their backs on the risers.)
+        sweep(f"step_nosing_{i + 1}", pr.closed(), *plan_path(run, -1), "stone", stone)
 
 
 # ================================================================ crossing
@@ -425,7 +435,7 @@ def crossing(M):
     ts = np.linspace(0, math.pi, 97)
     for tag, yy, sgn in (("front", Y0, 1), ("back", Y1, -1)):
         # On the arch's face towards the crossing (out = +-y), sitting just outside the intrados.
-        sweep(f"arch_{tag}_edge", edge.closed(embed=0.02),
+        sweep(f"arch_{tag}_edge", edge.closed(),
               [Vector((CH * math.cos(t), yy, SZ + CH * math.sin(t))) for t in ts],
               [Vector((0, sgn, 0))] * len(ts), [Vector((math.cos(t), 0, math.sin(t))) for t in ts], "stone", stone)
     # Side walls (closed): stucco, a blind-arch moulding along the lunette edge.
@@ -438,6 +448,20 @@ def crossing(M):
               [Vector((-side, 0, 0))] * len(ts), [Vector((0, -math.cos(t), -math.sin(t))) for t in ts],
               "stone", stone)
     set_material("pendentives", M["stucco"])
+    # R13: where the pendentives' mesh lies on the arches' faces (the planes y = Y0, Y1), the arch
+    # face is the surface; the pendentives' coplanar faces there go.
+    pen = bpy.data.objects["pendentives"]
+    bm = bmesh.new()
+    bm.from_mesh(pen.data)
+    mw = pen.matrix_world
+    on = [f for f in bm.faces if abs((mw.to_3x3() @ f.normal).y) > 0.999
+          and min(abs((mw @ f.calc_center_median()).y - yy) for yy in (Y0, Y1)) < 0.002]
+    # ... and their top, under the drum (its triangulation leaves slivers on the arches' faces).
+    on += [f for f in bm.faces if (mw.to_3x3() @ f.normal).z > 0.99
+           and abs((mw @ f.calc_center_median()).z - P.DRUM_Z0) < 0.02]
+    bmesh.ops.delete(bm, geom=on, context="FACES")
+    bm.to_mesh(pen.data)
+    bm.free()
     # Tondo frames on the four pendentives: a moulded ring and a sunk plain disc (empty).
     Rs = CH * math.sqrt(2)
     h, rt = tondo_fit(CH, Rs)
@@ -449,10 +473,11 @@ def crossing(M):
             nrm = -d.normalized()                          # into the crossing
             a = Vector((0, 0, 1)).cross(nrm).normalized()  # horizontal tangent
             bvec = nrm.cross(a).normalized()
-            ring = [c + rt * (math.cos(t) * a + math.sin(t) * bvec) for t in np.linspace(0, 2 * math.pi, 65)]
-            ups = [(math.cos(t) * a + math.sin(t) * bvec) for t in np.linspace(0, 2 * math.pi, 65)]
-            sweep(f"tondo_frame_{sx}_{sy}", frame_profile(0.22, 0.10, embed=0.1), ring, [nrm] * len(ring), ups,
-                  "stone", stone)
+            ts64 = np.linspace(0, 2 * math.pi, 64, endpoint=False)
+            ring = [c + rt * (math.cos(t) * a + math.sin(t) * bvec) for t in ts64]
+            ups = [(math.cos(t) * a + math.sin(t) * bvec) for t in ts64]
+            sweep(f"tondo_frame_{sx}_{sy}", frame_profile(0.22, 0.14, embed=0.1), ring, [nrm] * len(ring), ups,
+                  "stone", stone, closed=True)
             # Plain disc slightly sunk behind the ring (the painted reliefs left out).
             bm = bmesh.new()
             disc = [bm.verts.new(c - nrm * 0.02 + (rt + 0.02) * (math.cos(t) * a + math.sin(t) * bvec))
@@ -468,7 +493,9 @@ def crossing(M):
     R_IN = CH
     nwin = P.DRUM_WINDOWS
     pil_w = 2 * math.pi * R_IN / nwin - P.DRUM_WINDOW_W
-    zp0, zp1 = P.DRUM_WIN_Z[0] - 0.4, P.DRUM_Z1 - 0.2
+    # R13: the pilasters stand on the sill cornice and stop under the top cornice (stage 5: they
+    # ran through both, their faces a centimetre or two behind the cornices' faces).
+    zp0, zp1 = P.DRUM_WIN_Z[0] - 0.45 + 0.28, P.DRUM_Z1 - 0.55
     for kk in range(nwin):
         a = math.pi / 2 + 2 * math.pi * (kk + 0.5) / nwin
         cx, cy = R_IN * math.cos(a), ycen + R_IN * math.sin(a)
@@ -485,6 +512,16 @@ def crossing(M):
             bm.faces.new((vb[i], vb[j], vt[j], vt[i]))
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
         _obj(f"drum_pilaster_{kk}", bm, "stone", stone)
+    # R13: the drum's underside lies on the arches' crowns and the pendentives' tops, a few mm
+    # above their faces: hidden, it would flicker through them. Removed.
+    drum = bpy.data.objects["drum"]
+    bm = bmesh.new()
+    bm.from_mesh(drum.data)
+    mw = drum.matrix_world
+    low = [f for f in bm.faces if (mw.to_3x3() @ f.normal).z < -0.99 and abs((mw @ f.calc_center_median()).z - P.DRUM_Z0) < 0.02]
+    bmesh.ops.delete(bm, geom=low, context="FACES")
+    bm.to_mesh(drum.data)
+    bm.free()
     # Dome coffers (designed, Pantheon-like): rings of sunk square-ish panels on the inner shell.
     dome_coffers(M, ycen, R_IN)
 
@@ -538,14 +575,15 @@ def drum_cornices(M, ycen, R_IN):
     for name, z0, prof_kind in (("drum_base_ring", P.DRUM_Z0, "base"), ("drum_sill", P.DRUM_WIN_Z[0] - 0.45, "sill"),
                                 ("drum_top_cornice", P.DRUM_Z1 - 0.55, "top")):
         if prof_kind == "base":
-            pr = Profile(z0, n=4)
-            pr.h(0.05).v(0.25).cyma_reversa(0.06, 0.08).h(0.18).v(0.16).cyma_recta(0.08, 0.12)
+            # R13: its underside 3 cm above the arches' crowns (the crowns reach z0), not on them
+            pr = Profile(z0 + 0.03, n=4)
+            pr.h(0.05).v(0.22).cyma_reversa(0.06, 0.08).h(0.18).v(0.16).cyma_recta(0.08, 0.12)
         elif prof_kind == "sill":
             pr = Profile(z0, n=4)
-            pr.cavetto(0.1, 0.1).h(0.02).v(0.12).ovolo(0.06, 0.06)
+            pr.cavetto(0.1, 0.1).h(0.06).v(0.12).ovolo(0.06, 0.06)     # R13: 4 cm before the pilasters
         else:
             pr = Profile(z0, n=4)
-            pr.h(0.04).v(0.12).ovolo(0.08, 0.08).h(0.22).v(0.18).cyma_recta(0.08, 0.15)
+            pr.h(0.09).v(0.12).ovolo(0.08, 0.08).h(0.17).v(0.18).cyma_recta(0.08, 0.15)   # R13: fillet 9 cm proud
         pts = pr.closed(embed=0.04)
         prof_rz = [(R_IN - p, q) for p, q in pts] + [(R_IN - pts[0][0], pts[0][1])]
         revolve_profile(name, prof_rz, (0, ycen), "stone", stone)
@@ -652,16 +690,18 @@ def end_wall(M):
     for i in range(-n, n + 1):
         x = i * axis / n
         face = y - 0.04 - (D if abs(i) == n else 0.0)    # frieze face (forward over the pilasters)
-        box(f"triglyph_{i}", x - tw / 2, x + tw / 2, face - 0.07, face, a1 + 0.02, f1 - 0.02, "stone", stone)
-        for g in (-1, 0, 1):   # the three bars' grooves, as thin dark slots
-            box(f"triglyph_groove_{i}_{g}", x + g * tw / 3 - 0.018, x + g * tw / 3 + 0.018, face - 0.075, face - 0.065,
-                a1 + 0.1, f1 - 0.1, "stone", [M["groove"]])
+        tg = box(f"triglyph_{i}", x - tw / 2, x + tw / 2, face - 0.07, face, a1 + 0.02, f1 - 0.02, "stone", stone)
+        tg.data.materials.append(M["groove"])
+        for g in (-1, 0, 1):   # the three bars' grooves: slots 1 cm deep cut into it (R13), dark faces
+            cut = cutter_box(x + g * tw / 3 - 0.018, x + g * tw / 3 + 0.018, face - 0.08, face - 0.06, a1 + 0.1, f1 - 0.1)
+            cut.data.materials.append(M["groove"])
+            boolean(tg, cut)
     # Door: archivolt (two fasciae and a cyma) no wider than the impost, imposts, pilasters.
     width = X0 - 0.03
     k = width / 0.42
     ar = Profile(0.0, n=4)
     # Projection no more than the impost's top (0.06 m), so the bands land on it (R3).
-    ar.h(0.02).v(0.15 * k).h(0.012).v(0.17 * k).cyma_reversa(0.015, 0.06 * k).h(0.006).v(0.04 * k)
+    ar.h(0.03).v(0.15 * k).h(0.008).v(0.17 * k).cyma_reversa(0.012, 0.06 * k).h(0.004).v(0.04 * k)
     ts = np.linspace(0, math.pi, 97)
     sweep("end_door_archivolt", ar.closed(embed=0.0),
           [Vector((dh * math.cos(t), y, ds + dh * math.sin(t))) for t in ts], [Vector((0, -1, 0))] * len(ts),
@@ -809,10 +849,12 @@ def opening_arch(M):
     objs = []
     # Archivolt and outer bands: their ends go 1.5 px (3 mm) below the springing into the impost.
     ve = vs + 1.5
+    # Their backs lie on the wall's face, not inside it: an embedded strip would lie on the
+    # soffit's plane, coplanar with it (R13).
     objs.append(_eye_strip("opening_archivolt", _arc_px(R["fillet"], ve, n), _arc_px(R["inner"], ve, n),
-                           Y - P.ARCH_PROJ, Y + 0.005, "stone", band))
+                           Y - P.ARCH_PROJ, Y, "stone", band))
     objs.append(_eye_strip("opening_archivolt_bands", _arc_px(R["outer"], ve, n), _arc_px(R["fillet"], ve, n),
-                           Y - P.ARCH_BAND_PROJ, Y + 0.005, "stone", band))
+                           Y - P.ARCH_BAND_PROJ, Y, "stone", band))
     # The front wall, with the opening cut along the sight lines (arch above, jambs below).
     W, H = P.ARCH_WALL
     wall = box("opening_wall", -W, W, Y, Y + D, 0.0, H, "stone", stone)
@@ -827,7 +869,7 @@ def opening_arch(M):
     k = Y / P.F_PX
     pw_px = P.ARCH_PILASTER_W / k
     zi = zs - P.ARCH_IMPOST_H
-    v_imp = P.CY - (zi + 0.003 - P.EYE_Z) * P.F_PX / (Y - P.ARCH_PILASTER_D)
+    v_imp = P.CY - (zi - P.EYE_Z) * P.F_PX / (Y - P.ARCH_PILASTER_D)       # shaft ends under the impost
     imp = Profile(zi, n=4)
     imp.h(P.ARCH_PILASTER_D + 0.012).v(0.05).cyma_reversa(0.025, 0.035).h(0.012)
     imp.v(zs - imp.q)
@@ -835,13 +877,14 @@ def opening_arch(M):
     for side in (-1, 1):
         uj = arc[0][0] if side < 0 else arc[-1][0]                  # jamb, px
         uo = uj + side * pw_px
-        yf, yb = Y - P.ARCH_PILASTER_D, Y + 0.01
-        v_floor = P.CY + P.EYE_Z * P.F_PX / yf
+        yf, yb = Y - P.ARCH_PILASTER_D, Y
         a, b = sorted((uo, uj))
-        objs.append(_eye_strip(f"opening_pilaster_{side}", [(a, v_imp), (a, v_floor)], [(b, v_imp), (b, v_floor)],
+        # R13: the shaft runs from the plinth's top to the impost's underside, not through them.
+        v_plinth = P.CY - (0.15 - P.EYE_Z) * P.F_PX / yf
+        objs.append(_eye_strip(f"opening_pilaster_{side}", [(a, v_imp), (a, v_plinth)], [(b, v_imp), (b, v_plinth)],
                                yf, yb, "stone", stone))
-        # plinth: 2 cm proud of the pilaster, 0.15 m high, sunk 1 cm into the floor
-        yp = yf - 0.02
+        # plinth: 3 cm proud of the pilaster, 0.15 m high, sunk 1 cm into the floor
+        yp = yf - 0.03
         vp_top = P.CY - (0.15 - P.EYE_Z) * P.F_PX / yp
         vp_bot = P.CY + (P.EYE_Z + 0.01) * P.F_PX / yp
         pa, pb = (a - 0.02 / k, b) if side < 0 else (a, b + 0.02 / k)

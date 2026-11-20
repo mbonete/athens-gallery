@@ -8,6 +8,8 @@ Checks every piece against the joint rules (renders/hall-stage4/REPORT.md, "Join
 2. Open ends: a swept moulding's end cap that is neither against another surface (within 5 mm
    along its normal) nor hidden from the walk: a cornice cut off in mid-air.
 3. Skewed frames: a frame or moulding whose straight runs are not level / plumb.
+4. R13 stacked faces: a visible face less than 2 cm (web units) in front of a same-facing face
+   of another piece that it covers (coplanar included): it z-fights at a distance.
 Prints a table and writes JSON with every finding (object pair, where, how much).
 """
 import json
@@ -174,6 +176,144 @@ for ob in meshes:
         worst = max(worst, a)
     if worst > 0.5:
         findings["skewed"].append({"object": ob.name, "worst_deg": round(worst, 2)})
+
+# R13 stacked faces: a visible face less than 2 cm (web; 2 / 0.7 cm in the model) in front of a
+# face of another piece that faces the same way and that it covers. Depth precision cannot keep
+# them apart at a distance: the hidden face (baked dark) flickers through. Coplanar overlaps count.
+import numpy as np  # noqa: E402
+
+R13_GAP = 0.02 / 0.7
+P_EYE0, P_EYE1 = 1.85, 0.814 + 1.6 / 0.7          # eye on the lower floor / on the platform (web 1.6 m)
+tri_obj, tri_pts = [], []
+for oi, ob in enumerate(meshes):
+    me = ob.data
+    me.calc_loop_triangles()
+    mw = np.array(ob.matrix_world)
+    co = np.array([v.co for v in me.vertices], dtype=np.float64)
+    co = co @ mw[:3, :3].T + mw[:3, 3]
+    tris = np.array([t.vertices[:] for t in me.loop_triangles], dtype=np.int64).reshape(-1, 3)
+    if len(tris):
+        tri_pts.append(co[tris])
+        tri_obj.append(np.full(len(tris), oi))
+P3 = np.concatenate(tri_pts)
+OBJ = np.concatenate(tri_obj)
+N = np.cross(P3[:, 1] - P3[:, 0], P3[:, 2] - P3[:, 0])
+A2 = np.linalg.norm(N, axis=1)
+keep = A2 > 2e-6
+P3, OBJ, N, A2 = P3[keep], OBJ[keep], N[keep], A2[keep]
+N /= A2[:, None]
+C = P3.mean(1)
+key = np.round(N * 20).astype(np.int64)
+order = np.lexsort((key[:, 2], key[:, 1], key[:, 0]))
+bins = {}
+for i in order:
+    bins.setdefault(tuple(key[i]), []).append(i)
+
+
+def basis(n):
+    a = np.array([1.0, 0, 0]) if abs(n[0]) < 0.9 else np.array([0, 1.0, 0])
+    u = np.cross(n, a)
+    u /= np.linalg.norm(u)
+    return u, np.cross(n, u)
+
+
+def tri_overlap(ta, tb, eps=0.002):
+    """2D triangles (k, 3, 2): separating-axis test, overlapping by more than eps."""
+    hit = np.ones(len(ta), bool)
+    for T in (ta, tb):
+        for e in range(3):
+            d = T[:, (e + 1) % 3] - T[:, e]
+            ax = np.stack([-d[:, 1], d[:, 0]], 1)
+            ax /= np.linalg.norm(ax, axis=1, keepdims=True) + 1e-12
+            pa = np.einsum("kvc,kc->kv", ta, ax)
+            pb = np.einsum("kvc,kc->kv", tb, ax)
+            sep = (pa.max(1) < pb.min(1) + eps) | (pb.max(1) < pa.min(1) + eps)
+            hit &= ~sep
+    return hit
+
+
+def hidden(pt, skip):
+    for oname, (t, _bm) in trees.items():
+        if oname == skip:
+            continue
+        lo, hi = boxes[oname]
+        if all(lo[k] <= pt[k] <= hi[k] for k in range(3)) and closed(oname) and inside(t, Vector(pt)):
+            return True
+    return False
+
+
+r13 = {}
+for k, idx in bins.items():
+    idx = np.array(idx)
+    if len(np.unique(OBJ[idx])) < 2:
+        continue
+    n = N[idx].mean(0)
+    n /= np.linalg.norm(n)
+    u, v = basis(n)
+    d = C[idx] @ n
+    srt = np.argsort(d)
+    idx, d = idx[srt], d[srt]
+    P2 = np.stack([P3[idx] @ u, P3[idx] @ v], -1)                       # (m, 3, 2)
+    lo2, hi2 = P2.min(1), P2.max(1)
+    j0 = 0
+    for a in range(len(idx)):
+        # faces behind a (or coplanar), within the gap
+        lo_d = d[a] - R13_GAP
+        while d[j0] < lo_d:
+            j0 += 1
+        cand = np.arange(j0, a)
+        if a + 1 < len(idx):
+            same = np.arange(a + 1, np.searchsorted(d, d[a] + 1e-4, side="right"))
+            cand = np.concatenate([cand, same])                        # coplanar ones after a
+        if not len(cand):
+            continue
+        cand = cand[OBJ[idx[cand]] != OBJ[idx[a]]]
+        cand = cand[np.all(lo2[cand] < hi2[a] - 0.002, 1) & np.all(hi2[cand] > lo2[a] + 0.002, 1)]
+        cand = cand[np.abs(N[idx[cand]] @ N[idx[a]]) > 0.999]
+        if not len(cand):
+            continue
+        ok = tri_overlap(np.repeat(P2[a][None], len(cand), 0), P2[cand])
+        for b in cand[ok]:
+            fa, fb = meshes[OBJ[idx[a]]].name, meshes[OBJ[idx[b]]].name
+            pair = (fa, fb, k)                    # one finding per piece pair and facing
+            rec = r13.setdefault(pair, {"front": fa, "behind": fb, "triangles": 0, "gap_cm": 99.0, "where": None})
+            rec["triangles"] += 1
+            rec["gap_cm"] = min(rec["gap_cm"], round(float(d[a] - d[b]) * 100, 2))
+            if rec["where"] is None:
+                rec["where"] = [round(float(x), 2) for x in C[idx[a]]]
+                rec["normal"] = [round(float(x), 2) for x in N[idx[a]]]
+                rec["_samples"] = []
+            if len(rec["_samples"]) < 16:
+                rec["_samples"].append(C[idx[a]].tolist())
+# Not visible: the front face turns its back on every place the eye can be (walk line and
+# walk-ups: |x| <= 5.5, 0 <= y <= 55, eye 1.8-3.2 m), is inside another solid, or is below the
+# lower floor.
+EYE_BOX = np.array([[x, y, z] for x in (-5.5, 5.5) for y in (0.0, 55.0) for z in (1.8, 3.2)])
+# Eye positions: the walk line, and either side of it where walk-ups stand.
+EYES = [Vector((x, y, (P_EYE0 if y < 8.6 else P_EYE1))) for y in np.arange(0.0, 55.1, 1.5) for x in (-4.0, 0.0, 4.0)]
+
+
+def seen(pt, n):
+    """Is pt (on a face with normal n) in plain sight of any eye position?"""
+    o = Vector(pt) + Vector(n) * 0.004
+    for e in EYES:
+        d = e - o
+        if d.dot(Vector(n)) <= 0:
+            continue
+        hit, loc, *_ = scene.ray_cast(dg, o, d.normalized(), distance=d.length)
+        if not hit:
+            return True
+    return False
+
+
+for pair, rec in list(r13.items()):
+    c, n = np.array(rec["where"]), np.array(rec["normal"])
+    w = c + n * 0.003
+    if ((EYE_BOX - c) @ n).max() <= 0 or w[2] < -0.005 or not any(seen(sp, n) for sp in rec["_samples"]):
+        rec["hidden"] = True
+    del rec["_samples"]
+findings["stacked_faces_R13"] = [r for r in r13.values() if not r.get("hidden")]
+findings["stacked_faces_R13_hidden"] = len([r for r in r13.values() if r.get("hidden")])
 
 for k, v in findings.items():
     if isinstance(v, int):

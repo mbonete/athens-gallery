@@ -316,7 +316,7 @@ def layout(objs):
             w, h = (max(xs) - lo.x) * f, (max(ys) - lo.y) * f
             # Thin islands (a riser, a fillet) get at least MIN_PX texels across: below that,
             # filtering mixes their light with the neighbours'.
-            MIN_PX = 4.0
+            MIN_PX = 6.0
             fx = MIN_PX / w if 0 < w < MIN_PX else 1.0
             fy = MIN_PX / h if 0 < h < MIN_PX else 1.0
             if fx != 1.0 or fy != 1.0:
