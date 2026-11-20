@@ -229,3 +229,20 @@ TREAD = 1.5                  # coffer treads painted lighter than the ribs (ligh
 MUCHA_100 = (0.65 / SCALE, 1.25 / SCALE)    # w, h at 100 %
 KLIMT_100 = (1.74 / SCALE, 0.96 / SCALE)
 HANG_CENTRE_Z = PLATFORM_Z + 1.55 / SCALE  # web: centre 1.55 m above the floor
+
+# ---------------------------------------------------------------- Stage 3: bake for the web
+# blender/scripts/bake.py. Texel density in pixels per metre at 100 % (the web shows 70 %, so
+# 1 px covers 0.7/density m there). "rough" trades quality for speed only.
+BAKE = {
+    "rough": dict(samples=96, density=22.0, max_size=4096, margin=3, gap=1.5, denoise=True),
+    "final": dict(samples=1024, density=40.0, max_size=4096, margin=4, gap=2, denoise=True),
+}
+BAKE_QUALITY = os.environ.get("BAKE", "rough")
+# Groups baked into one atlas each, by the object's centre along Y (metres, 100 %).
+BAKE_GROUPS = [("front", -999, 15.0), ("facade", 15.0, 19.0), ("nave", 19.0, 33.0),
+               ("crossing", 33.0, 46.9), ("arm2", 46.9, 999)]
+BAKE_DENSITY_SCALE = {"platform": 0.5, "floor_lower": 0.6, "floor_lower_sides_l": 0.4, "floor_lower_sides_r": 0.4,
+                      "facade": 0.8}
+BAKE_ISLAND_MAX = 2.5                     # m: longer surfaces are cut into islands this long
+BAKE_SKIP = ("ground_beyond",)            # flat colour in the web, not baked
+BAKE_OCCLUDERS_ONLY = ("_vault_backing",)  # take part in the light, not exported

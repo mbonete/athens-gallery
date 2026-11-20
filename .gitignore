@@ -9,7 +9,7 @@ reference/paintings/processed/
 web/dist/
 *.tsbuildinfo
 # Generated from the originals by tools/prepare_collection.py (132 MB)
-web/public/paintings/
+web/public/paintings
 # Measurement crops and render intermediates (regenerable); gate images stay
 renders/measure/
 renders/**/*.png
@@ -26,3 +26,5 @@ __pycache__/
 # Stage 1 finish: CC0 scans fetched by tools/fetch_textures.py, and the finished .blend (packed floor image)
 blender/textures/
 blender/athens-hall.blend
+# Bake pipeline intermediates (tools/bake_hall.sh)
+blender/build/
