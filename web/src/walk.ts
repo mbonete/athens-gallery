@@ -8,19 +8,12 @@ export type Pose = { x: number; y: number; z: number; yaw: number; sym: number; 
 const EYE0 = hall.eye[1]; // Raphael's eye above the lower floor (1.295 m at 70 %)
 const STAND = hall.standingEye;
 const FLOOR = hall.floor as [number, number][]; // [z, height] from each riser on
-const STAIR_Z0 = FLOOR[1][0];
 const STAIR_Z1 = FLOOR[FLOOR.length - 1][0];
 const PLATFORM = FLOOR[FLOOR.length - 1][1];
 /** Raphael's vanishing point sits at u = 1933.3 of 3840 px: 13.3 px right of centre. */
 export const SHIFT_X = (1933.3 - 1920) / 1920;
 
-const smooth = (t: number) => t * t * (3 - 2 * t);
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
-
-/** Floor height under the walk: the stair is climbed as one smooth rise. */
-export function floorAt(z: number) {
-  return PLATFORM * smooth(clamp01((z - STAIR_Z0) / (STAIR_Z1 - STAIR_Z0)));
-}
 
 /** room: free wall length around the piece (its bay, the dome wall, or the doorway's width). */
 export type Station = { painting: Painting; side: number; z: number; wallX: number; room: number };
@@ -61,15 +54,28 @@ export function progressAt(z: number) {
  * side (used to open a link to a painting). */
 export function progressNear(st: Station) {
   if (st.side === 0) return 1;
-  const z = Math.min(0, st.z + 6);
-  return (HOLD - z) / TOTAL;
+  return (HOLD - linkZ(st)) / TOTAL;
+}
+
+/** Where a link to a wall painting starts the walk: 6 m before it. */
+function linkZ(st: Station) {
+  return Math.min(0, st.z + 6);
+}
+
+/** The eye stops rising at the first link point along the walk (bay 1, z -8.42), never before
+ * the top of the stair. */
+const RISE_END_Z = Math.min(STAIR_Z1, Math.max(...STATIONS.filter((s) => s.side !== 0).map(linkZ)));
+
+/** Eye height at depth z, for everything that moves along the walk (the walk, Back from a
+ * painting, the dome). The visitor glides like a ghost (Maria: "less dizzy"): one straight line
+ * at a constant rate, no steps and no easing, from Raphael's eye where the walk leaves the hold
+ * (z = 0) to standing height above the platform at RISE_END_Z, then level. */
+export function eyeAt(z: number) {
+  return EYE0 + (PLATFORM + STAND - EYE0) * clamp01(z / RISE_END_Z);
 }
 
 function withHeight(p: Omit<Pose, "y">): Pose {
-  // Rise from Raphael's eye to standing height over the first two metres.
-  const rise = smooth(clamp01(-p.z / 2));
-  const y = floorAt(p.z) + EYE0 + (STAND - EYE0) * rise;
-  return { ...p, y };
+  return { ...p, y: eyeAt(p.z) };
 }
 
 /** Frustum for a screen: Raphael's vertical extents where the screen allows, widened on
