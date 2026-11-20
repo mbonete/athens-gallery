@@ -29,3 +29,7 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 .fact .dot, .hotspot { width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px #a8452c; flex: none; }
 .hotspot { border: 0; padding: 0; cursor: pointer; width: 18px; height: 18px; }
 .stage.fresco-frame { inset: auto; top: 0; left: 0; height: 100vh; width: calc(100vh * 3840 / 2661); }
+.dome-back { position: fixed; z-index: 6; top: calc(14px + env(safe-area-inset-top)); left: calc(14px + env(safe-area-inset-left));
+  padding: 6px 16px; border-radius: 999px; background: rgb(244 241 234 / 0.9); color: var(--ink);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.dome-back.show { opacity: 1; pointer-events: auto; }

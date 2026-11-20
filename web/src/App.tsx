@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { Detail } from "./Detail";
+import { DomeBack } from "./DomeControls";
 import { PAINTINGS } from "./paintings";
 import { rig } from "./rig";
 import { Scene } from "./Scene";
@@ -67,6 +68,7 @@ export function App() {
         {TOUCH ? "Spread two fingers to walk in" : "Pinch or scroll to walk in"}
       </div>
       <Detail />
+      <DomeBack />
     </>
   );
 }
