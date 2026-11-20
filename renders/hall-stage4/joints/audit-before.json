@@ -1,0 +1,2782 @@
+{
+ "collisions": [
+  {
+   "a": "arm2_vault_coffers",
+   "b": "arm2_wall_-1",
+   "triangles": 1,
+   "where": [
+    -5.9,
+    50.9,
+    12.31
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "arm2_vault_coffers",
+   "b": "end_entablature",
+   "triangles": 90,
+   "where": [
+    0.0,
+    52.77,
+    13.69
+   ],
+   "extent": [
+    11.77,
+    4.39,
+    2.0
+   ]
+  },
+  {
+   "a": "arm2_vault_coffers",
+   "b": "end_wall",
+   "triangles": 32,
+   "where": [
+    0.0,
+    52.79,
+    13.47
+   ],
+   "extent": [
+    11.8,
+    4.42,
+    2.33
+   ]
+  },
+  {
+   "a": "arm2_vault_coffers",
+   "b": "entablature_-1",
+   "triangles": 6,
+   "where": [
+    -5.9,
+    50.9,
+    12.31
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "bay1_niche_frame_-1",
+   "b": "bay1_niche_sill_-1",
+   "triangles": 30,
+   "where": [
+    -6.48,
+    20.6,
+    7.15
+   ],
+   "extent": [
+    0.08,
+    1.68,
+    0.0
+   ]
+  },
+  {
+   "a": "bay1_niche_frame_1",
+   "b": "bay1_niche_sill_1",
+   "triangles": 28,
+   "where": [
+    6.48,
+    20.6,
+    7.15
+   ],
+   "extent": [
+    0.08,
+    1.68,
+    0.0
+   ]
+  },
+  {
+   "a": "bay1_recess_ceiling_-1",
+   "b": "nave_vault_band",
+   "triangles": 8,
+   "where": [
+    -6.2,
+    20.65,
+    12.48
+   ],
+   "extent": [
+    0.0,
+    3.5,
+    0.35
+   ]
+  },
+  {
+   "a": "bay1_recess_ceiling_-1",
+   "b": "nave_vault_coffers",
+   "triangles": 2,
+   "where": [
+    -6.2,
+    22.4,
+    12.47
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "bay1_recess_ceiling_1",
+   "b": "nave_vault_band",
+   "triangles": 7,
+   "where": [
+    6.2,
+    20.65,
+    12.56
+   ],
+   "extent": [
+    0.0,
+    3.5,
+    0.18
+   ]
+  },
+  {
+   "a": "bay1_recess_ceiling_1",
+   "b": "nave_vault_coffers",
+   "triangles": 3,
+   "where": [
+    6.2,
+    22.4,
+    12.47
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "bay1_vestibule_base_-1",
+   "b": "facade_base_-1",
+   "triangles": 9,
+   "where": [
+    -6.26,
+    16.22,
+    1.05
+   ],
+   "extent": [
+    0.72,
+    0.1,
+    0.49
+   ]
+  },
+  {
+   "a": "bay1_vestibule_base_1",
+   "b": "facade_base_1",
+   "triangles": 14,
+   "where": [
+    6.26,
+    16.22,
+    1.05
+   ],
+   "extent": [
+    0.72,
+    0.1,
+    0.5
+   ]
+  },
+  {
+   "a": "crossing_blind_arch_-1",
+   "b": "drum_base_ring",
+   "triangles": 97,
+   "where": [
+    -5.88,
+    40.1,
+    18.31
+   ],
+   "extent": [
+    0.09,
+    2.19,
+    0.22
+   ]
+  },
+  {
+   "a": "crossing_blind_arch_-1",
+   "b": "entablature_-1",
+   "triangles": 28,
+   "where": [
+    -5.88,
+    40.1,
+    12.4
+   ],
+   "extent": [
+    0.09,
+    12.24,
+    0.0
+   ]
+  },
+  {
+   "a": "crossing_blind_arch_-1",
+   "b": "tondo_frame_-1_-1",
+   "triangles": 81,
+   "where": [
+    -5.88,
+    35.29,
+    16.0
+   ],
+   "extent": [
+    0.09,
+    0.66,
+    0.81
+   ]
+  },
+  {
+   "a": "crossing_blind_arch_-1",
+   "b": "tondo_frame_-1_1",
+   "triangles": 76,
+   "where": [
+    -5.88,
+    44.91,
+    16.0
+   ],
+   "extent": [
+    0.09,
+    0.66,
+    0.81
+   ]
+  },
+  {
+   "a": "crossing_blind_arch_1",
+   "b": "drum_base_ring",
+   "triangles": 96,
+   "where": [
+    5.88,
+    40.1,
+    18.31
+   ],
+   "extent": [
+    0.09,
+    2.19,
+    0.22
+   ]
+  },
+  {
+   "a": "crossing_blind_arch_1",
+   "b": "entablature_1",
+   "triangles": 30,
+   "where": [
+    5.88,
+    40.1,
+    12.4
+   ],
+   "extent": [
+    0.09,
+    12.24,
+    0.0
+   ]
+  },
+  {
+   "a": "crossing_blind_arch_1",
+   "b": "tondo_frame_1_-1",
+   "triangles": 76,
+   "where": [
+    5.88,
+    35.29,
+    16.0
+   ],
+   "extent": [
+    0.09,
+    0.66,
+    0.81
+   ]
+  },
+  {
+   "a": "crossing_blind_arch_1",
+   "b": "tondo_frame_1_1",
+   "triangles": 81,
+   "where": [
+    5.88,
+    44.91,
+    16.0
+   ],
+   "extent": [
+    0.09,
+    0.66,
+    0.81
+   ]
+  },
+  {
+   "a": "dome",
+   "b": "drum",
+   "triangles": 47,
+   "where": [
+    0.17,
+    40.1,
+    24.21
+   ],
+   "extent": [
+    12.07,
+    11.78,
+    0.02
+   ]
+  },
+  {
+   "a": "end_entablature",
+   "b": "triglyph_-1",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.96,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "end_entablature",
+   "b": "triglyph_-2",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.96,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "end_entablature",
+   "b": "triglyph_-3",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.96,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "end_entablature",
+   "b": "triglyph_0",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.96,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "end_entablature",
+   "b": "triglyph_1",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.96,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "end_entablature",
+   "b": "triglyph_2",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.96,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "end_entablature",
+   "b": "triglyph_3",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.96,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "entablature_-1",
+   "b": "nave_vault_band",
+   "triangles": 4,
+   "where": [
+    -5.99,
+    19.67,
+    12.3
+   ],
+   "extent": [
+    0.44,
+    4.95,
+    0.0
+   ]
+  },
+  {
+   "a": "entablature_-1",
+   "b": "nave_vault_coffers",
+   "triangles": 9,
+   "where": [
+    -5.76,
+    30.76,
+    12.3
+   ],
+   "extent": [
+    0.57,
+    16.69,
+    0.0
+   ]
+  },
+  {
+   "a": "entablature_1",
+   "b": "nave_vault_coffers",
+   "triangles": 2,
+   "where": [
+    5.78,
+    39.1,
+    12.3
+   ],
+   "extent": [
+    0.26,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "facade",
+   "b": "nave_vault_band",
+   "triangles": 77,
+   "where": [
+    0.0,
+    18.5,
+    15.37
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "floor_lower",
+   "b": "step_1",
+   "triangles": 1,
+   "where": [
+    0.0,
+    6.85,
+    -0.15
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "floor_lower_sides_l",
+   "b": "pedestal_-1",
+   "triangles": 3,
+   "where": [
+    -10.25,
+    7.72,
+    0.0
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "floor_lower_sides_l",
+   "b": "step_1",
+   "triangles": 2,
+   "where": [
+    -7.38,
+    7.72,
+    -0.08
+   ],
+   "extent": [
+    5.75,
+    0.0,
+    0.15
+   ]
+  },
+  {
+   "a": "floor_lower_sides_l",
+   "b": "step_2",
+   "triangles": 2,
+   "where": [
+    -7.38,
+    7.72,
+    -0.08
+   ],
+   "extent": [
+    5.75,
+    0.0,
+    0.15
+   ]
+  },
+  {
+   "a": "floor_lower_sides_l",
+   "b": "step_3",
+   "triangles": 4,
+   "where": [
+    -7.38,
+    8.16,
+    -0.15
+   ],
+   "extent": [
+    5.75,
+    0.87,
+    0.3
+   ]
+  },
+  {
+   "a": "floor_lower_sides_r",
+   "b": "pedestal_1",
+   "triangles": 3,
+   "where": [
+    10.25,
+    7.72,
+    0.0
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "floor_lower_sides_r",
+   "b": "step_1",
+   "triangles": 2,
+   "where": [
+    7.38,
+    7.72,
+    -0.23
+   ],
+   "extent": [
+    5.75,
+    0.0,
+    0.15
+   ]
+  },
+  {
+   "a": "floor_lower_sides_r",
+   "b": "step_2",
+   "triangles": 2,
+   "where": [
+    7.38,
+    7.72,
+    -0.23
+   ],
+   "extent": [
+    5.75,
+    0.0,
+    0.15
+   ]
+  },
+  {
+   "a": "floor_lower_sides_r",
+   "b": "step_3",
+   "triangles": 4,
+   "where": [
+    7.38,
+    8.16,
+    -0.15
+   ],
+   "extent": [
+    5.75,
+    0.87,
+    0.3
+   ]
+  },
+  {
+   "a": "nave_vault_band",
+   "b": "nave_wall_-1",
+   "triangles": 1,
+   "where": [
+    -5.9,
+    20.45,
+    12.31
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "nave_vault_coffers",
+   "b": "nave_wall_-1",
+   "triangles": 1,
+   "where": [
+    -5.9,
+    27.9,
+    12.31
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "pedestal_-1",
+   "b": "platform",
+   "triangles": 6,
+   "where": [
+    -5.27,
+    9.71,
+    0.45
+   ],
+   "extent": [
+    1.46,
+    0.78,
+    0.9
+   ]
+  },
+  {
+   "a": "pedestal_-1",
+   "b": "podium_-1",
+   "triangles": 8,
+   "where": [
+    -5.27,
+    9.33,
+    0.45
+   ],
+   "extent": [
+    1.46,
+    0.0,
+    0.9
+   ]
+  },
+  {
+   "a": "pedestal_1",
+   "b": "platform",
+   "triangles": 6,
+   "where": [
+    5.27,
+    9.71,
+    0.45
+   ],
+   "extent": [
+    1.46,
+    0.78,
+    0.9
+   ]
+  },
+  {
+   "a": "pedestal_1",
+   "b": "podium_1",
+   "triangles": 8,
+   "where": [
+    5.27,
+    9.33,
+    0.45
+   ],
+   "extent": [
+    1.46,
+    0.0,
+    0.9
+   ]
+  },
+  {
+   "a": "platform",
+   "b": "step_3",
+   "triangles": 4,
+   "where": [
+    0.0,
+    8.92,
+    0.26
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "podium_-1",
+   "b": "step_3",
+   "triangles": 2,
+   "where": [
+    -7.38,
+    8.76,
+    -0.02
+   ],
+   "extent": [
+    5.75,
+    0.0,
+    0.56
+   ]
+  },
+  {
+   "a": "podium_1",
+   "b": "step_3",
+   "triangles": 2,
+   "where": [
+    7.38,
+    8.76,
+    -0.02
+   ],
+   "extent": [
+    5.75,
+    0.0,
+    0.56
+   ]
+  },
+  {
+   "a": "step_1",
+   "b": "step_nosing_1",
+   "triangles": 11,
+   "where": [
+    0.0,
+    7.12,
+    0.13
+   ],
+   "extent": [
+    9.0,
+    0.0,
+    0.29
+   ]
+  },
+  {
+   "a": "step_2",
+   "b": "step_nosing_2",
+   "triangles": 11,
+   "where": [
+    0.0,
+    7.82,
+    0.27
+   ],
+   "extent": [
+    9.0,
+    0.0,
+    0.38
+   ]
+  },
+  {
+   "a": "step_3",
+   "b": "step_nosing_3",
+   "triangles": 11,
+   "where": [
+    0.0,
+    8.59,
+    0.4
+   ],
+   "extent": [
+    9.0,
+    0.0,
+    0.47
+   ]
+  },
+  {
+   "a": "tondo_disc_-1_-1",
+   "b": "tondo_frame_-1_-1",
+   "triangles": 65,
+   "where": [
+    -5.19,
+    34.91,
+    16.32
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "tondo_disc_-1_1",
+   "b": "tondo_frame_-1_1",
+   "triangles": 65,
+   "where": [
+    -5.19,
+    45.29,
+    16.32
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "tondo_disc_1_-1",
+   "b": "tondo_frame_1_-1",
+   "triangles": 65,
+   "where": [
+    5.19,
+    34.91,
+    16.32
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "tondo_disc_1_1",
+   "b": "tondo_frame_1_1",
+   "triangles": 65,
+   "where": [
+    5.19,
+    45.29,
+    16.32
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_-1",
+   "b": "triglyph_groove_-1_-1",
+   "triangles": 4,
+   "where": [
+    -1.64,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_-1",
+   "b": "triglyph_groove_-1_0",
+   "triangles": 4,
+   "where": [
+    -1.64,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_-1",
+   "b": "triglyph_groove_-1_1",
+   "triangles": 4,
+   "where": [
+    -1.64,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_-2",
+   "b": "triglyph_groove_-2_-1",
+   "triangles": 4,
+   "where": [
+    -3.28,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_-2",
+   "b": "triglyph_groove_-2_0",
+   "triangles": 4,
+   "where": [
+    -3.28,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_-2",
+   "b": "triglyph_groove_-2_1",
+   "triangles": 4,
+   "where": [
+    -3.28,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_-3",
+   "b": "triglyph_groove_-3_-1",
+   "triangles": 4,
+   "where": [
+    -4.92,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_-3",
+   "b": "triglyph_groove_-3_0",
+   "triangles": 4,
+   "where": [
+    -4.92,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_-3",
+   "b": "triglyph_groove_-3_1",
+   "triangles": 4,
+   "where": [
+    -4.92,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_0",
+   "b": "triglyph_groove_0_-1",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_0",
+   "b": "triglyph_groove_0_0",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_0",
+   "b": "triglyph_groove_0_1",
+   "triangles": 4,
+   "where": [
+    0.0,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_1",
+   "b": "triglyph_groove_1_-1",
+   "triangles": 4,
+   "where": [
+    1.64,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_1",
+   "b": "triglyph_groove_1_0",
+   "triangles": 4,
+   "where": [
+    1.64,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_1",
+   "b": "triglyph_groove_1_1",
+   "triangles": 4,
+   "where": [
+    1.64,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_2",
+   "b": "triglyph_groove_2_-1",
+   "triangles": 4,
+   "where": [
+    3.28,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_2",
+   "b": "triglyph_groove_2_0",
+   "triangles": 4,
+   "where": [
+    3.28,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_2",
+   "b": "triglyph_groove_2_1",
+   "triangles": 4,
+   "where": [
+    3.28,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_3",
+   "b": "triglyph_groove_3_-1",
+   "triangles": 4,
+   "where": [
+    4.92,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_3",
+   "b": "triglyph_groove_3_0",
+   "triangles": 4,
+   "where": [
+    4.92,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "a": "triglyph_3",
+   "b": "triglyph_groove_3_1",
+   "triangles": 4,
+   "where": [
+    4.92,
+    54.89,
+    13.82
+   ],
+   "extent": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "open_ends": [
+  {
+   "object": "arch_back_edge",
+   "where": [
+    5.93,
+    45.99,
+    12.3
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.004
+  },
+  {
+   "object": "arch_back_edge",
+   "where": [
+    -5.94,
+    45.99,
+    12.3
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.004
+  },
+  {
+   "object": "arch_front_edge",
+   "where": [
+    5.94,
+    34.21,
+    12.3
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.004
+  },
+  {
+   "object": "arch_front_edge",
+   "where": [
+    -5.94,
+    34.21,
+    12.3
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.004
+  },
+  {
+   "object": "arm2_pilaster_base_-1_50.9",
+   "where": [
+    -5.93,
+    50.33,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "arm2_pilaster_base_-1_50.9",
+   "where": [
+    -5.93,
+    51.47,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "arm2_pilaster_base_1_50.9",
+   "where": [
+    5.93,
+    50.33,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "arm2_pilaster_base_1_50.9",
+   "where": [
+    5.93,
+    51.47,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "arm2_pilaster_capital_-1_50.9",
+   "where": [
+    -5.93,
+    50.37,
+    10.25
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "arm2_pilaster_capital_-1_50.9",
+   "where": [
+    -5.93,
+    51.43,
+    10.25
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "arm2_pilaster_capital_1_50.9",
+   "where": [
+    5.93,
+    50.37,
+    10.25
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "arm2_pilaster_capital_1_50.9",
+   "where": [
+    5.93,
+    51.43,
+    10.25
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "bay1_niche_frame_-1",
+   "where": [
+    -6.47,
+    19.82,
+    5.3
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "bay1_niche_frame_-1",
+   "where": [
+    -6.47,
+    21.38,
+    5.3
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "bay1_niche_frame_1",
+   "where": [
+    6.47,
+    19.82,
+    5.3
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "bay1_niche_frame_1",
+   "where": [
+    6.47,
+    21.38,
+    5.3
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "bay1_niche_sill_-1",
+   "where": [
+    -6.41,
+    19.75,
+    5.19
+   ],
+   "facing": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "area_m2": 0.035
+  },
+  {
+   "object": "bay1_niche_sill_-1",
+   "where": [
+    -6.41,
+    21.45,
+    5.19
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.035
+  },
+  {
+   "object": "bay1_niche_sill_1",
+   "where": [
+    6.41,
+    19.75,
+    5.19
+   ],
+   "facing": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "area_m2": 0.035
+  },
+  {
+   "object": "bay1_niche_sill_1",
+   "where": [
+    6.41,
+    21.45,
+    5.19
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.035
+  },
+  {
+   "object": "bay1_recess_base_-1",
+   "where": [
+    -5.93,
+    18.97,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "bay1_recess_base_-1",
+   "where": [
+    -5.93,
+    22.33,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "bay1_recess_base_1",
+   "where": [
+    5.93,
+    18.97,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "bay1_recess_base_1",
+   "where": [
+    5.93,
+    22.33,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "bay1_vestibule_base_-1",
+   "where": [
+    -5.9,
+    16.27,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "bay1_vestibule_base_-1",
+   "where": [
+    -5.9,
+    18.03,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "bay1_vestibule_base_1",
+   "where": [
+    5.9,
+    16.27,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "bay1_vestibule_base_1",
+   "where": [
+    5.9,
+    18.03,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "bay1_vestibule_impost_-1",
+   "where": [
+    -5.9,
+    16.23,
+    10.2
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "bay1_vestibule_impost_-1",
+   "where": [
+    -5.9,
+    18.07,
+    10.2
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "bay1_vestibule_impost_1",
+   "where": [
+    5.9,
+    16.23,
+    10.2
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "bay1_vestibule_impost_1",
+   "where": [
+    5.9,
+    18.07,
+    10.2
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "crossing_base_-1",
+   "where": [
+    -5.93,
+    33.33,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "crossing_base_-1",
+   "where": [
+    -5.93,
+    46.87,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "crossing_base_1",
+   "where": [
+    5.93,
+    33.33,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "crossing_base_1",
+   "where": [
+    5.93,
+    46.87,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "crossing_blind_arch_-1",
+   "where": [
+    -5.86,
+    46.14,
+    12.3
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.014
+  },
+  {
+   "object": "crossing_blind_arch_-1",
+   "where": [
+    -5.86,
+    34.06,
+    12.3
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.014
+  },
+  {
+   "object": "crossing_blind_arch_1",
+   "where": [
+    5.86,
+    46.14,
+    12.3
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.014
+  },
+  {
+   "object": "crossing_blind_arch_1",
+   "where": [
+    5.86,
+    34.06,
+    12.3
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.014
+  },
+  {
+   "object": "end_door_archivolt",
+   "where": [
+    4.1,
+    54.92,
+    7.56
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "end_door_archivolt",
+   "where": [
+    -4.1,
+    54.92,
+    7.56
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "end_door_impost_-1",
+   "where": [
+    -4.17,
+    54.97,
+    7.31
+   ],
+   "facing": [
+    -1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "end_door_impost_-1",
+   "where": [
+    -3.64,
+    56.0,
+    7.31
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "end_door_impost_1",
+   "where": [
+    4.17,
+    54.97,
+    7.31
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "end_door_impost_1",
+   "where": [
+    3.64,
+    56.0,
+    7.31
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "end_pilaster_base_-1",
+   "where": [
+    -4.1,
+    55.03,
+    1.13
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "end_pilaster_base_-1",
+   "where": [
+    -5.19,
+    55.03,
+    1.13
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "end_pilaster_base_1",
+   "where": [
+    4.1,
+    55.03,
+    1.13
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "end_pilaster_base_1",
+   "where": [
+    5.19,
+    55.03,
+    1.13
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "entablature_-1",
+   "where": [
+    -16.0,
+    15.26,
+    11.55
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.45
+  },
+  {
+   "object": "entablature_-1",
+   "where": [
+    -5.66,
+    55.0,
+    11.55
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.45
+  },
+  {
+   "object": "entablature_1",
+   "where": [
+    16.0,
+    15.26,
+    11.55
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.45
+  },
+  {
+   "object": "entablature_1",
+   "where": [
+    5.66,
+    55.0,
+    11.55
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.45
+  },
+  {
+   "object": "facade_base_-1",
+   "where": [
+    -16.0,
+    15.43,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "facade_base_-1",
+   "where": [
+    -5.83,
+    16.23,
+    1.13
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "facade_base_1",
+   "where": [
+    16.0,
+    15.43,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "facade_base_1",
+   "where": [
+    5.83,
+    16.23,
+    1.13
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "facade_niche_frame_-1",
+   "where": [
+    -8.25,
+    15.47,
+    4.79
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "facade_niche_frame_-1",
+   "where": [
+    -6.19,
+    15.47,
+    4.79
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "facade_niche_frame_1",
+   "where": [
+    6.19,
+    15.47,
+    4.79
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "facade_niche_frame_1",
+   "where": [
+    8.25,
+    15.47,
+    4.79
+   ],
+   "facing": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "facade_niche_sill_-1",
+   "where": [
+    -8.37,
+    15.41,
+    4.68
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.035
+  },
+  {
+   "object": "facade_niche_sill_-1",
+   "where": [
+    -6.07,
+    15.41,
+    4.68
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.035
+  },
+  {
+   "object": "facade_niche_sill_1",
+   "where": [
+    6.07,
+    15.41,
+    4.68
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.035
+  },
+  {
+   "object": "facade_niche_sill_1",
+   "where": [
+    8.37,
+    15.41,
+    4.68
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.035
+  },
+  {
+   "object": "facade_panel_frame_-1",
+   "where": [
+    -8.15,
+    15.47,
+    3.02
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "facade_panel_frame_-1",
+   "where": [
+    -8.25,
+    15.47,
+    3.12
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "facade_panel_frame_1",
+   "where": [
+    6.29,
+    15.47,
+    3.02
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "facade_panel_frame_1",
+   "where": [
+    6.19,
+    15.47,
+    3.12
+   ],
+   "facing": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "area_m2": 0.009
+  },
+  {
+   "object": "facade_string_course_-1",
+   "where": [
+    -16.0,
+    15.41,
+    9.2
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "facade_string_course_-1",
+   "where": [
+    -5.81,
+    16.23,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "facade_string_course_1",
+   "where": [
+    16.0,
+    15.41,
+    9.2
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "facade_string_course_1",
+   "where": [
+    5.81,
+    16.23,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "nave_pilaster_base_-1_22.9",
+   "where": [
+    -5.93,
+    22.33,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "nave_pilaster_base_-1_22.9",
+   "where": [
+    -5.93,
+    23.47,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "nave_pilaster_base_-1_27.3",
+   "where": [
+    -5.93,
+    26.73,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "nave_pilaster_base_-1_27.3",
+   "where": [
+    -5.93,
+    27.87,
+    1.13
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "nave_pilaster_base_1_22.9",
+   "where": [
+    5.93,
+    22.33,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "nave_pilaster_base_1_22.9",
+   "where": [
+    5.93,
+    23.47,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "nave_pilaster_base_1_27.3",
+   "where": [
+    5.93,
+    26.73,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "nave_pilaster_base_1_27.3",
+   "where": [
+    5.93,
+    27.87,
+    1.13
+   ],
+   "facing": [
+    1.0,
+    -0.0,
+    0.0
+   ],
+   "area_m2": 0.066
+  },
+  {
+   "object": "nave_pilaster_capital_-1_22.9",
+   "where": [
+    -5.93,
+    22.37,
+    10.25
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "nave_pilaster_capital_-1_22.9",
+   "where": [
+    -5.93,
+    23.43,
+    10.25
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "nave_pilaster_capital_-1_27.3",
+   "where": [
+    -5.93,
+    26.77,
+    10.25
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "nave_pilaster_capital_-1_27.3",
+   "where": [
+    -5.93,
+    27.83,
+    10.25
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "nave_pilaster_capital_1_22.9",
+   "where": [
+    5.93,
+    22.37,
+    10.25
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "nave_pilaster_capital_1_22.9",
+   "where": [
+    5.93,
+    23.43,
+    10.25
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "nave_pilaster_capital_1_27.3",
+   "where": [
+    5.93,
+    26.77,
+    10.25
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "nave_pilaster_capital_1_27.3",
+   "where": [
+    5.93,
+    27.83,
+    10.25
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.031
+  },
+  {
+   "object": "step_nosing_1",
+   "where": [
+    4.5,
+    6.87,
+    0.24
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.005
+  },
+  {
+   "object": "step_nosing_1",
+   "where": [
+    -4.5,
+    6.87,
+    0.24
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.005
+  },
+  {
+   "object": "step_nosing_2",
+   "where": [
+    4.5,
+    7.4,
+    0.43
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.005
+  },
+  {
+   "object": "step_nosing_2",
+   "where": [
+    -4.5,
+    7.4,
+    0.43
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.005
+  },
+  {
+   "object": "step_nosing_3",
+   "where": [
+    4.5,
+    8.27,
+    0.61
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.005
+  },
+  {
+   "object": "step_nosing_3",
+   "where": [
+    -4.5,
+    8.27,
+    0.61
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.005
+  },
+  {
+   "object": "step_nosing_4",
+   "where": [
+    4.5,
+    8.94,
+    0.78
+   ],
+   "facing": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.005
+  },
+  {
+   "object": "step_nosing_4",
+   "where": [
+    -4.5,
+    8.94,
+    0.78
+   ],
+   "facing": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "area_m2": 0.005
+  },
+  {
+   "object": "string_course_-1_0",
+   "where": [
+    -5.81,
+    23.37,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_-1_0",
+   "where": [
+    -5.81,
+    26.83,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_-1_1",
+   "where": [
+    -5.81,
+    27.77,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_-1_1",
+   "where": [
+    -5.81,
+    50.43,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_-1_2",
+   "where": [
+    -5.81,
+    51.37,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_-1_2",
+   "where": [
+    -5.81,
+    55.0,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_1_0",
+   "where": [
+    5.81,
+    23.37,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_1_0",
+   "where": [
+    5.81,
+    26.83,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_1_1",
+   "where": [
+    5.81,
+    27.77,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_1_1",
+   "where": [
+    5.81,
+    50.43,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_1_2",
+   "where": [
+    5.81,
+    51.37,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    -1.0,
+    -0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "string_course_1_2",
+   "where": [
+    5.81,
+    55.0,
+    9.2
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "area_m2": 0.045
+  },
+  {
+   "object": "tondo_frame_-1_-1",
+   "where": [
+    -5.74,
+    35.55,
+    16.29
+   ],
+   "facing": [
+    -0.34,
+    -0.34,
+    -0.88
+   ],
+   "area_m2": 0.036
+  },
+  {
+   "object": "tondo_frame_-1_1",
+   "where": [
+    -4.55,
+    45.84,
+    16.29
+   ],
+   "facing": [
+    0.34,
+    -0.34,
+    0.88
+   ],
+   "area_m2": 0.036
+  },
+  {
+   "object": "tondo_frame_1_-1",
+   "where": [
+    4.55,
+    34.36,
+    16.29
+   ],
+   "facing": [
+    0.34,
+    -0.34,
+    -0.88
+   ],
+   "area_m2": 0.036
+  },
+  {
+   "object": "tondo_frame_1_1",
+   "where": [
+    5.74,
+    44.65,
+    16.29
+   ],
+   "facing": [
+    -0.34,
+    -0.34,
+    0.88
+   ],
+   "area_m2": 0.036
+  }
+ ],
+ "skewed": [
+  {
+   "object": "facade_panel_frame_-1",
+   "worst_deg": 1.95
+  },
+  {
+   "object": "facade_panel_frame_1",
+   "worst_deg": 1.95
+  }
+ ]
+}
