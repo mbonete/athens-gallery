@@ -141,17 +141,17 @@ ALBEDO = {   # linear; started from the fresco's lit colours, then calibrated (R
     # Round 8 (Maria): white marble, not the fresco's buff. Warm white, veins (the _dark ends of
     # the Marble014 ramp) a cool grey. Was stucco (0.563, 0.462, 0.426), stone (0.57, 0.468, 0.43),
     # rib (0.58, 0.49, 0.39).
-    "stucco": (0.70, 0.68, 0.64), "stucco_dark": (0.63, 0.615, 0.59),
-    "stone": (0.70, 0.68, 0.64), "stone_dark": (0.63, 0.615, 0.59),
-    "rib": (0.70, 0.68, 0.64), "rib_dark": (0.66, 0.64, 0.605),
+    "stucco": (0.70, 0.69, 0.665), "stucco_dark": (0.651, 0.642, 0.62),
+    "stone": (0.70, 0.69, 0.665), "stone_dark": (0.651, 0.642, 0.62),
+    "rib": (0.70, 0.69, 0.665), "rib_dark": (0.665, 0.656, 0.632),
     "coffer_light": (0.64, 0.56, 0.45), "coffer_dark": (0.38, 0.33, 0.27),     # panels: mottled, ~0.8 x rib
     "riser_light": (0.41, 0.375, 0.34), "riser_dark": (0.25, 0.23, 0.205),      # risers: darker (see REPORT)
     # Stage 4: floors recalibrated against the fresco under the warm light (the web read them salmon).
-    "floor_white": (0.74, 0.72, 0.68), "floor_rose": (0.47, 0.26, 0.29), "floor_band": (0.23, 0.15, 0.24),   # white: was (0.63, 0.565, 0.75)
+    "floor_white": (0.70, 0.685, 0.655), "floor_rose": (0.47, 0.26, 0.29), "floor_band": (0.23, 0.15, 0.24),   # white: was (0.63, 0.565, 0.75)
     "floor_mauve": (0.18, 0.116, 0.22),                                       # lower floor, darker field
-    "lower_white": (0.70, 0.68, 0.645),                                       # lower floor, white bands (was 0.29, 0.31, 0.55)
-    "step": (0.72, 0.70, 0.66), "step_dark": (0.66, 0.64, 0.61),              # treads, white marble (were 0.68, 0.60, 0.58)
-    "step_riser": (0.47, 0.41, 0.47),                                         # risers (191,175,162)
+    "lower_white": (0.68, 0.665, 0.64),                                       # lower floor, white bands (was 0.29, 0.31, 0.55)
+    "step": (0.72, 0.71, 0.685), "step_dark": (0.67, 0.66, 0.64),              # treads, white marble (were 0.68, 0.60, 0.58)
+    "step_riser": (0.64, 0.63, 0.61),                                         # risers (191,175,162)
 }
 
 # Light. The fresco's shading: faces turned to +X (left nave wall) are lit (median 215,190,176),
