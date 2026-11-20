@@ -11,6 +11,7 @@ import { rig } from "./rig";
 import { ShiftCamera } from "./ShiftCamera";
 import { getState, setState } from "./store";
 import { glide } from "./input";
+import { DomePicking } from "./DomeControls";
 import { frustumFor, poseAt, progressNear, SHIFT_X, STATIONS, TOTAL } from "./walk";
 
 // The fresco's sky, as seen through the far door and the drum (sRGB 175, 175, 245).
@@ -87,6 +88,7 @@ export function Scene() {
       <directionalLight ref={sun} position={[-27, 46, 13]} intensity={1.8} />
       <primitive object={sunTarget} />
       <Hall />
+      <DomePicking />
       {STATIONS.map((st) => (
         <HungPainting key={st.painting.slug} painting={st.painting} side={st.side} z={st.z} wallX={st.wallX} room={st.room} />
       ))}

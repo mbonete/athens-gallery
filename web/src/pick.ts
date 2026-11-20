@@ -8,6 +8,7 @@ import { PAINTINGS } from "./paintings";
 import { rig } from "./rig";
 import { getState } from "./store";
 import { enter } from "./transition";
+import { hoverDome, tapDome } from "./dome";
 
 const MIN_PX = 48; // a target is never smaller than this on screen
 const MARGIN_PX = 12;
@@ -60,12 +61,15 @@ export function attachPicking(el: HTMLElement) {
     if (!down || !e.isPrimary || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10) return;
     const p = pickAt(e.clientX, e.clientY, el);
     if (p) enter(p);
+    else tapDome(e.clientX, e.clientY, el);
     down = null;
   };
   const onCancel = () => (down = null);
   const onMove = (e: PointerEvent) => {
     if (e.pointerType !== "mouse") return;
-    el.style.cursor = pickAt(e.clientX, e.clientY, el) ? "pointer" : "";
+    const p = pickAt(e.clientX, e.clientY, el);
+    el.style.cursor = p ? "pointer" : "";
+    hoverDome(e.clientX, e.clientY, el, !!p);
   };
   // A second finger turns the gesture into a pinch.
   const onTouch = (e: TouchEvent) => e.touches.length > 1 && (down = null);
