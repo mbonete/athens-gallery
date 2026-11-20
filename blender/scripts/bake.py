@@ -368,12 +368,18 @@ def detail_of(mat, normal):
 
 
 def face_factor(c, n):
+    """What the lightmap carries beyond the light, per face:
+    - Raphael's right side: downward faces x RIGHT_UNDERSIDE; faces turned to -X, and every face
+      inside a right-hand recess (Raphael paints the right bays' recesses in shade, though the
+      convention sun is not blocked there), x RIGHT_WALL;
+    - the side walls of the nave and the second arm (walls, pilasters, recesses, their mouldings,
+      bay 1's vestibule excepted) x SIDE_TINT: the fresco's receding walls are buff."""
     f = Vector((1.0, 1.0, 1.0))
     if c.x > 0.5 and n.z < -0.5:
         f *= P.RIGHT_UNDERSIDE
-    if c.x > 0.5 and n.x < -0.5:
+    if c.x > 0.5 and (n.x < -0.5 or c.x > P.NAVE_HALF_W + 0.05) and c.y > P.FACADE_Y1 and c.z < P.SPRING_Z + 0.5:
         f = Vector([a * b for a, b in zip(f, P.RIGHT_WALL)])
-    if abs(n.x) > 0.5:
+    if (abs(c.x) > P.NAVE_HALF_W - 0.9 and P.BAY1_SIDE_RECESS[0] - 0.05 < c.y < P.ARM2_Y1 and c.z < P.SPRING_Z + 0.5):
         f = Vector([a * b for a, b in zip(f, P.SIDE_TINT)])
     return f
 
