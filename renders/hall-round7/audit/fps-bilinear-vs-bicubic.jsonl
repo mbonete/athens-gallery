@@ -1,0 +1,4 @@
+{"url":"http://localhost:5202/?lmfilter=bilinear","W":"1600","H":"1000","DPR":"1","cpu":"1","idle":{"n":178,"fps":60,"meanMs":16.66,"p95Ms":18.6,"maxMs":18.7},"walk":{"n":484,"fps":60,"meanMs":16.67,"p95Ms":17.6,"maxMs":17.7},"errors":[]}
+{"url":"http://localhost:5202/?lmfilter=bilinear","W":"2560","H":"1440","DPR":"2","cpu":"1","idle":{"n":178,"fps":60,"meanMs":16.66,"p95Ms":17.6,"maxMs":17.7},"walk":{"n":482,"fps":60,"meanMs":16.67,"p95Ms":17.6,"maxMs":17.8},"errors":[]}
+{"url":"http://localhost:5202/?lmfilter=bicubic","W":"1600","H":"1000","DPR":"1","cpu":"1","idle":{"n":178,"fps":60,"meanMs":16.67,"p95Ms":17.6,"maxMs":17.7},"walk":{"n":483,"fps":60,"meanMs":16.67,"p95Ms":17.6,"maxMs":17.7},"errors":[]}
+{"url":"http://localhost:5202/?lmfilter=bicubic","W":"2560","H":"1440","DPR":"2","cpu":"1","idle":{"n":178,"fps":60,"meanMs":16.67,"p95Ms":17.6,"maxMs":17.8},"walk":{"n":483,"fps":60,"meanMs":16.67,"p95Ms":17.6,"maxMs":17.7},"errors":[]}

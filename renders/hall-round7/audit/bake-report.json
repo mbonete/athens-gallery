@@ -1,0 +1,70 @@
+{
+  "quality": "rough",
+  "config": {
+    "samples": 128,
+    "density": 16.0,
+    "max_size": 4096,
+    "margin": 2,
+    "gap": 2.0,
+    "denoise": true
+  },
+  "light_scale": 4.0,
+  "groups": {
+    "front": {
+      "objects": 23,
+      "area_m2": 938.3,
+      "atlas": [
+        1152,
+        448
+      ],
+      "density_px_per_m": 16.0,
+      "clipped_fraction": 0.0,
+      "bake_s": 65.5
+    },
+    "facade": {
+      "objects": 9,
+      "area_m2": 1584.9,
+      "atlas": [
+        704,
+        704
+      ],
+      "density_px_per_m": 16.0,
+      "clipped_fraction": 0.0,
+      "bake_s": 28.9
+    },
+    "nave": {
+      "objects": 27,
+      "area_m2": 3075.8,
+      "atlas": [
+        1280,
+        1152
+      ],
+      "density_px_per_m": 16.0,
+      "clipped_fraction": 0.0,
+      "bake_s": 122.4
+    },
+    "crossing": {
+      "objects": 52,
+      "area_m2": 3443.4,
+      "atlas": [
+        1664,
+        1536
+      ],
+      "density_px_per_m": 16.0,
+      "clipped_fraction": 0.0,
+      "bake_s": 309.8
+    },
+    "arm2": {
+      "objects": 38,
+      "area_m2": 1183.8,
+      "atlas": [
+        960,
+        896
+      ],
+      "density_px_per_m": 16.0,
+      "clipped_fraction": 0.0,
+      "bake_s": 133.3
+    }
+  },
+  "seconds": 666.1
+}
