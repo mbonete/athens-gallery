@@ -1,0 +1,150 @@
+{
+ "cuts": 27,
+ "outer_edge_px": {
+  "median": 2.0,
+  "median_abs": 4.5,
+  "max_abs": 229.5
+ },
+ "inner_edge_px": {
+  "median": 4.5,
+  "median_abs": 5.5,
+  "max_abs": 257.5
+ },
+ "per_cut": [
+  {
+   "deg": 12,
+   "outer": 5.0,
+   "inner": 9.0
+  },
+  {
+   "deg": 20,
+   "outer": 0.0,
+   "inner": 0.5
+  },
+  {
+   "deg": 24,
+   "outer": 2.0,
+   "inner": 2.5
+  },
+  {
+   "deg": 32,
+   "outer": -2.0,
+   "inner": 2.0
+  },
+  {
+   "deg": 36,
+   "outer": -3.5,
+   "inner": 1.5
+  },
+  {
+   "deg": 40,
+   "outer": 2.0,
+   "inner": 0.0
+  },
+  {
+   "deg": 44,
+   "outer": 209.0,
+   "inner": 235.5
+  },
+  {
+   "deg": 52,
+   "outer": 2.0,
+   "inner": 1.0
+  },
+  {
+   "deg": 56,
+   "outer": 4.5,
+   "inner": -5.0
+  },
+  {
+   "deg": 64,
+   "outer": 12.0,
+   "inner": 10.0
+  },
+  {
+   "deg": 72,
+   "outer": 21.0,
+   "inner": 15.5
+  },
+  {
+   "deg": 84,
+   "outer": 229.5,
+   "inner": 247.5
+  },
+  {
+   "deg": 92,
+   "outer": -139.0,
+   "inner": -144.5
+  },
+  {
+   "deg": 100,
+   "outer": 11.5,
+   "inner": 10.0
+  },
+  {
+   "deg": 112,
+   "outer": 3.5,
+   "inner": 6.0
+  },
+  {
+   "deg": 116,
+   "outer": 2.0,
+   "inner": 2.0
+  },
+  {
+   "deg": 120,
+   "outer": 3.0,
+   "inner": 3.5
+  },
+  {
+   "deg": 124,
+   "outer": -0.5,
+   "inner": 4.5
+  },
+  {
+   "deg": 132,
+   "outer": -4.5,
+   "inner": 2.5
+  },
+  {
+   "deg": 136,
+   "outer": -5.5,
+   "inner": 1.0
+  },
+  {
+   "deg": 140,
+   "outer": -6.0,
+   "inner": 2.5
+  },
+  {
+   "deg": 144,
+   "outer": -3.0,
+   "inner": 5.5
+  },
+  {
+   "deg": 148,
+   "outer": -2.5,
+   "inner": 13.0
+  },
+  {
+   "deg": 156,
+   "outer": 1.0,
+   "inner": 13.0
+  },
+  {
+   "deg": 160,
+   "outer": 215.0,
+   "inner": 254.5
+  },
+  {
+   "deg": 164,
+   "outer": 216.5,
+   "inner": 257.0
+  },
+  {
+   "deg": 168,
+   "outer": 219.0,
+   "inner": 257.5
+  }
+ ]
+}

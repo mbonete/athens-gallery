@@ -1,0 +1,18 @@
+{
+ "radius_m": 0.3,
+ "nlm_h": 4.0,
+ "texels": 3028155,
+ "seam_texels": 385733,
+ "seam_step_levels_before": {
+  "p50": 4.0,
+  "p95": 37.0,
+  "p99": 64.0,
+  "max": 149.0
+ },
+ "seam_step_levels_after": {
+  "p50": 1.93,
+  "p95": 23.55,
+  "p99": 47.5,
+  "max": 140.51
+ }
+}
