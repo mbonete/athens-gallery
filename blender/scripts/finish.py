@@ -813,6 +813,7 @@ def apply():
     finish2.end_wall(M)
     finish2.bosch_base(M)
     finish2.fill_empty_slots(M)
+    finish2.opening_arch(M)
     return M
 
 

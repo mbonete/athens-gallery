@@ -283,3 +283,27 @@ _W2 = PILASTER_W / 2
 NAVE_RECESSES = [(PILASTERS_Y[0] + _W2, PILASTERS_Y[1] - _W2), (PILASTERS_Y[1] + _W2, round(NAVE_Y1 - RECESS_PIER, 3))]
 ARM2_RECESSES = [(round(CROSS_Y1 + TRANSVERSE_T + RECESS_PIER, 3), ARM2_PILASTERS_Y[0] - _W2),
                  (ARM2_PILASTERS_Y[0] + _W2, round(ARM2_Y1 - RECESS_PIER, 3))]
+
+# ---------------------------------------------------------------- stage 5: the opening arch
+# The fresco's lunette frame (a gold meander on a dark ground) built as the hall's opening arch.
+# It is front-parallel, so it projects as a circle. Radii are scan px (3840 wide) round the circle
+# fitted to the meander band's edges (15 radial cuts, 8-172 degrees; rms 6 px outer, 5 px inner).
+# Every member is placed from those px at its own depth through the camera solve, so its edges
+# land on the painted ones and its sides run along Raphael's sight lines (none is painted).
+ARCH_Y = round(EYE_Z * F_PX / (IMG_H - CY), 3)   # 4.753: where the fresco's bottom edge meets the floor
+ARCH_C = (1915.5, 2021.0)       # circle centre: below the horizon (v 1776), so the arch is segmental
+ARCH_SPRING_V = 1771.0          # impost top (painted at v 1765-1775)
+ARCH_R = dict(inner=1619.0, meander=(1631.0, 1717.0), pattern=(1638.0, 1711.0), fillet=1733.0,
+              beads=(1765.0, 1797.0), egg=(1826.0, 1868.0), outer=1925.0)
+ARCH_PROJ = 0.03                # the archivolt (inner band, meander, fillet) stands proud of the wall
+ARCH_BAND_PROJ = 0.01           # the outer bands (grey with beads, egg-and-dart, red)
+ARCH_DEPTH = 0.40               # front wall thickness (designed)
+ARCH_PILASTER_W = 0.255         # painted pilasters: u 165-300 and 3510-3620 (0.28 and 0.23 m), mean
+ARCH_PILASTER_D = 0.05
+ARCH_IMPOST_H = 0.12            # painted impost and the block under it: v 1770-1830 at the face
+ARCH_WALL = (12.0, 9.0)         # front wall: half-width and height (designed; covers the start view on portrait phones, to 8.3 m)
+ARCH_MEANDER = dict(periods_half=15, cols=7, rows=7, gold=0.6)   # 7 strips a period (pitch 26.5 px), 7 levels
+ARCH_COLOURS = {                # sRGB, medians of k-means clusters over each band
+    "inner": (160, 136, 130), "ground": (78, 50, 47), "gold": (172, 122, 64), "gold_shade": (142, 97, 52),
+    "fillet": (177, 151, 148), "grey": (155, 127, 120), "bead": (147, 103, 65),
+    "egg_ground": (140, 110, 97), "dart": (106, 59, 43), "red": (93, 49, 37)}

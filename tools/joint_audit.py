@@ -27,7 +27,8 @@ meshes = [ob for ob in bpy.data.objects if ob.type == "MESH" and ob.get("kind") 
 # Members a moulding is fixed to (embedding into these is intended).
 SUPPORTS = ("nave_wall", "arm2_wall", "facade", "end_wall", "crossing_side", "arch_front", "arch_back",
             "platform", "floor_lower", "podium", "drum", "pendentives", "nave_pilaster_", "arm2_pilaster_",
-            "end_pilaster_", "bay1_vestibule_back", "bay1_vestibule_side", "bay1_recess_ceiling")
+            "end_pilaster_", "bay1_vestibule_back", "bay1_vestibule_side", "bay1_recess_ceiling",
+            "opening_wall", "opening_pilaster_")
 MOULDINGS = ("entablature", "string_course", "capital", "base", "archivolt", "frame", "impost", "sill", "edge",
              "nosing", "blind_arch", "drum_base_ring", "drum_sill", "drum_top_cornice", "end_entablature")
 

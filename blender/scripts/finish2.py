@@ -734,3 +734,128 @@ def hang_bay1(option, paintings_dir):
     else:
         _image_plane("mucha", f"{paintings_dir}/mucha-summer-texture.jpg", mw, mh, (-rx + 0.06, yc, zc), 1)
     return yc
+
+
+# ================================================================ stage 5: the opening arch
+def eye_point(u, v, y):
+    """The point at depth y that Raphael's eye sees at scan px (u, v)."""
+    k = y / P.F_PX
+    return Vector(((u - P.CX) * k, y, P.EYE_Z - (v - P.CY) * k))
+
+
+def _eye_strip(name, outer, inner, y0, y1, kind, mats):
+    """A solid between two px polylines (outer and inner edge, same length), from depth y0 to y1:
+    every edge runs along a sight line, so from Raphael's eye only its front shows."""
+    bm = bmesh.new()
+    fo = [bm.verts.new(eye_point(u, v, y0)) for u, v in outer]
+    fi = [bm.verts.new(eye_point(u, v, y0)) for u, v in inner]
+    bo = [bm.verts.new(eye_point(u, v, y1)) for u, v in outer]
+    bi = [bm.verts.new(eye_point(u, v, y1)) for u, v in inner]
+    n = len(outer)
+    for i in range(n - 1):
+        j = i + 1
+        bm.faces.new((fo[i], fo[j], fi[j], fi[i]))     # front
+        bm.faces.new((bo[i], bi[i], bi[j], bo[j]))     # back
+        bm.faces.new((fo[i], bo[i], bo[j], fo[j]))     # outer side
+        bm.faces.new((fi[i], fi[j], bi[j], bi[i]))     # inner side
+    bm.faces.new((fo[0], fi[0], bi[0], bo[0]))
+    bm.faces.new((fo[-1], bo[-1], bi[-1], fi[-1]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    return _obj(name, bm, kind, mats)
+
+
+def _arc_px(r, v_end, n):
+    """n points (n odd: one on the crown) on the arch circle of radius r px, from the left end at
+    height v_end to the right one."""
+    cu, cv = P.ARCH_C
+    t0 = math.asin((cv - v_end) / r)
+    ts = np.linspace(math.pi - t0, t0, n)
+    return [(cu + r * math.cos(t), cv - r * math.sin(t)) for t in ts]
+
+
+def _band_material():
+    m = bpy.data.materials.get("arch_band") or bpy.data.materials.new("arch_band")
+    m.use_nodes = True
+    bsdf = m.node_tree.nodes.get("Principled BSDF")
+    lin = [((c / 255 + 0.055) / 1.055) ** 2.4 for c in P.ARCH_COLOURS["gold"]]
+    dark = [((c / 255 + 0.055) / 1.055) ** 2.4 for c in P.ARCH_COLOURS["ground"]]
+    bsdf.inputs["Base Color"].default_value = (*[(a + b) / 2 for a, b in zip(lin, dark)], 1)
+    bsdf.inputs["Roughness"].default_value = 0.8
+    m["detail"], m["tile"] = "arch_band", [1.0, 1.0]
+    return m
+
+
+def opening_arch(M):
+    """The fresco's lunette frame as the hall's opening arch, in front of Raphael's eye.
+    - Face plane y = ARCH_Y (4.75 m), where the fresco's bottom edge meets the floor; every member
+      is placed from scan px at its own depth (eye_point), so its edges land on the painted ones.
+    - Archivolt (inner plain band, meander between dark lines, light fillet) 3 cm proud; the outer
+      bands (grey with two bead strings, egg-and-dart, red) 1 cm proud. Both are textured by the
+      vector-drawn band tile (make_detail.py, key arch_band) along the arc.
+    - The fresco shows no soffit inside the plain inner band: the soffit and the jambs follow
+      Raphael's sight lines (splayed), plain stone, through a 0.40 m front wall.
+    - Joint rules: archivolt and bands land on the impost, which is wider and projects further
+      (R4); the impost returns along the splayed jamb and round the back of the pier, ending in
+      the wall (R1, R2); pilasters stand on plinths, flush with the jamb (R10).
+    - Plain stone pilasters where the painted ones stand (no grotesques); the wall round the arch
+      is plain stone (designed). None of it casts shadows: in the fresco the light still comes in."""
+    stone = [M["stone"]]
+    band = [_band_material()]
+    Y, D = P.ARCH_Y, P.ARCH_DEPTH
+    R = P.ARCH_R
+    cu, cv = P.ARCH_C
+    vs = P.ARCH_SPRING_V
+    n = 193
+    objs = []
+    # Archivolt and outer bands: their ends go 1.5 px (3 mm) below the springing into the impost.
+    ve = vs + 1.5
+    objs.append(_eye_strip("opening_archivolt", _arc_px(R["fillet"], ve, n), _arc_px(R["inner"], ve, n),
+                           Y - P.ARCH_PROJ, Y + 0.005, "stone", band))
+    objs.append(_eye_strip("opening_archivolt_bands", _arc_px(R["outer"], ve, n), _arc_px(R["fillet"], ve, n),
+                           Y - P.ARCH_BAND_PROJ, Y + 0.005, "stone", band))
+    # The front wall, with the opening cut along the sight lines (arch above, jambs below).
+    W, H = P.ARCH_WALL
+    wall = box("opening_wall", -W, W, Y, Y + D, 0.0, H, "stone", stone)
+    v_low = P.CY + (P.EYE_Z + 1.0) * P.F_PX / (Y - 0.3)            # below the floor at every depth
+    arc = _arc_px(R["inner"], vs, n)
+    outline = [(arc[0][0], v_low)] + arc + [(arc[-1][0], v_low)]
+    boolean(wall, cutter_prism([eye_point(u, v, Y - 0.3) for u, v in outline],
+                               [eye_point(u, v, Y + D + 0.3) for u, v in outline]))
+    objs.append(wall)
+    # Pilasters (flush with the jamb), plinths, imposts.
+    zs = eye_point(cu, vs, Y).z
+    k = Y / P.F_PX
+    pw_px = P.ARCH_PILASTER_W / k
+    zi = zs - P.ARCH_IMPOST_H
+    v_imp = P.CY - (zi + 0.003 - P.EYE_Z) * P.F_PX / (Y - P.ARCH_PILASTER_D)
+    imp = Profile(zi, n=4)
+    imp.h(P.ARCH_PILASTER_D + 0.012).v(0.05).cyma_reversa(0.025, 0.035).h(0.012)
+    imp.v(zs - imp.q)
+    imp = imp.closed()
+    for side in (-1, 1):
+        uj = arc[0][0] if side < 0 else arc[-1][0]                  # jamb, px
+        uo = uj + side * pw_px
+        yf, yb = Y - P.ARCH_PILASTER_D, Y + 0.01
+        v_floor = P.CY + P.EYE_Z * P.F_PX / yf
+        a, b = sorted((uo, uj))
+        objs.append(_eye_strip(f"opening_pilaster_{side}", [(a, v_imp), (a, v_floor)], [(b, v_imp), (b, v_floor)],
+                               yf, yb, "stone", stone))
+        # plinth: 2 cm proud of the pilaster, 0.15 m high, sunk 1 cm into the floor
+        yp = yf - 0.02
+        vp_top = P.CY - (0.15 - P.EYE_Z) * P.F_PX / yp
+        vp_bot = P.CY + (P.EYE_Z + 0.01) * P.F_PX / yp
+        pa, pb = (a - 0.02 / k, b) if side < 0 else (a, b + 0.02 / k)
+        objs.append(_eye_strip(f"opening_pilaster_base_{side}", [(pa, vp_top), (pa, vp_bot)], [(pb, vp_top), (pb, vp_bot)],
+                               yp, yb, "stone", stone))
+        # impost: across the pier's front from beyond the outer band, back along the splayed jamb,
+        # round the back of the pier, returning into the wall at both ends
+        xj = eye_point(uj, vs, Y).x
+        xo = eye_point(cu + side * math.sqrt(R["outer"] ** 2 - (cv - vs) ** 2), vs, Y).x + side * 0.06
+        xjb = xj * (Y + D) / Y
+        run = [(xo, Y + 0.3), (xo, Y), (xj, Y), (xjb, Y + D), (xjb - (xj - xo), Y + D), (xjb - (xj - xo), Y + D - 0.3)]
+        if side > 0:
+            run = run[::-1]
+        objs.append(sweep(f"opening_impost_{side}", imp, *plan_path(run, 1), "stone", stone))
+    for ob in objs:
+        ob.visible_shadow = False
+    return objs

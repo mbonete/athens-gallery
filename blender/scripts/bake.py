@@ -435,6 +435,26 @@ CYL = {"_vault_coffers": ("y", P.NAVE_HALF_W), "_vault_band": ("y", P.NAVE_HALF_
        "_soffit": ("y", P.CROSS_HALF), "drum": ("z", P.CROSS_HALF)}
 
 
+def arch_uvs(ob, uv):
+    """The opening arch's band tile (make_detail.py, arch_band): u counts meander periods from the
+    crown down either side (mirrored at the crown), v runs across the bands from the inner edge
+    (0) to the outer (1). Both from the scan px Raphael's eye sees each vertex at."""
+    me = ob.data
+    mw = ob.matrix_world
+    cu, cv = P.ARCH_C
+    r0, r1 = P.ARCH_R["inner"], P.ARCH_R["outer"]
+    rm = sum(P.ARCH_R["pattern"]) / 2
+    half = math.pi / 2 + math.asin((cv - P.ARCH_SPRING_V) / rm)
+    period = half / P.ARCH_MEANDER["periods_half"]
+    for li, loop in enumerate(me.loops):
+        w = mw @ me.vertices[loop.vertex_index].co
+        u = P.CX + P.F_PX * w.x / w.y
+        v = P.CY - P.F_PX * (w.z - P.EYE_Z) / w.y
+        r = math.hypot(u - cu, v - cv)
+        t = math.atan2(cv - v, u - cu)
+        uv.data[li].uv = (abs(t - math.pi / 2) / period, (r - r0) / (r1 - r0))
+
+
 def detail_uvs(ob, tiles):
     """Detail UVs in metres / tile: planar by the face's dominant axis, cylindrical (arc length)
     on the vaults, soffits and the drum; floors start their pattern at the material's origin."""
@@ -443,6 +463,9 @@ def detail_uvs(ob, tiles):
     mw = ob.matrix_world
     rot = mw.to_3x3()
     cyl = next((v for k, v in CYL.items() if k in ob.name), None)
+    if ob.name.startswith("opening_archivolt"):
+        arch_uvs(ob, uv)
+        return
     ycen = (P.CROSS_Y0 + P.CROSS_Y1) / 2
     for p in me.polygons:
         mat = me.materials[p.material_index] if p.material_index < len(me.materials) else None

@@ -14,6 +14,7 @@ Each tile reproduces the Blender material's albedo, but seamless for UV tiling:
 - no cracks or stains (the fresco's age, not the building).
 """
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -126,6 +127,95 @@ def floor_lower(spec):
     return cv2.resize(c, (N, N), interpolation=cv2.INTER_AREA)
 
 
+def arch_light():
+    """Median light on the opening arch's face (bake_front.npz): the band tile carries the fresco's
+    colours divided by it, so the web shows them as painted."""
+    f = out_dir / "bake_front.npz"
+    if not f.exists():
+        return np.ones(3, np.float32)
+    d = np.load(f)
+    pos, nrm, L = d["position"], d["normal"].astype(np.float32), d["light"][..., :3].astype(np.float32)
+    on = d["covered"] & (np.abs(pos[..., 1] - (P.ARCH_Y - P.ARCH_PROJ)) < 0.004) & (nrm[..., 1] < -0.99)
+    if on.sum() < 50:
+        return np.ones(3, np.float32)
+    return np.median(L[on], axis=0)              # per channel: the frame is painted in its own light
+
+
+def arch_band(light):
+    """The opening arch's bands as painted, drawn as vectors: u = one meander period along the
+    arc, v = across the bands from the inner edge (row 0 at the bottom of the image is the inner
+    edge after the flip below). Sizes in scan px from params.ARCH_R; colours ARCH_COLOURS."""
+    R, Cc, Mq = P.ARCH_R, P.ARCH_COLOURS, P.ARCH_MEANDER
+    W, H, ss = 512, 1024, 3                        # tile, supersampling
+    x = (np.arange(W * ss) + 0.5) / (W * ss)       # fraction of a period
+    y = (np.arange(H * ss) + 0.5) / (H * ss)       # 0 inner edge .. 1 outer
+    X, Yv = np.meshgrid(x, y)
+    r = R["inner"] + Yv * (R["outer"] - R["inner"])
+    col = lambda k: np.array(to_lin(np.array(Cc[k], np.float32)), np.float32)   # noqa: E731
+    img = np.empty((H * ss, W * ss, 3), np.float32)
+
+    def paint(mask, k):
+        img[mask] = col(k)
+    paint(np.ones_like(r, bool), "red")
+    paint(r < R["egg"][1], "egg_ground")
+    paint(r < R["egg"][0], "grey")
+    paint(r < R["fillet"], "fillet")
+    paint(r < R["meander"][1], "ground")
+    paint(r < R["meander"][0], "inner")
+    # arc length (px) of one period at each radius: the tile is a wedge of the arch
+    rm = sum(R["pattern"]) / 2
+    half = math.pi / 2 + math.asin((P.ARCH_C[1] - P.ARCH_SPRING_V) / rm)
+    dth = half / Mq["periods_half"]
+    # bead strings: beads 9 px long, 5 px wide, every 12 px
+    for rb in R["beads"]:
+        nb = round(dth * rb / 12.0)                 # a whole number of beads a period
+        ph = ((X * nb) % 1.0 - 0.5) * dth * rb / nb
+        paint(((ph / 4.5) ** 2 + ((r - rb) / 2.5) ** 2) < 1.0, "bead")
+    # egg-and-dart: 9 eggs a period, light rim, dark darts between
+    re0, re1 = R["egg"]
+    rc, hr = (re0 + re1) / 2, (re1 - re0) / 2
+    e = (X * 9) % 1.0 - 0.5
+    ex = e * dth * rc / 9                           # px from the egg's axis
+    egg = (ex / 8.5) ** 2 + ((r - rc) / (hr * 0.82)) ** 2
+    paint((egg < 1.0) & (egg >= 0.62), "fillet")
+    paint(egg < 0.62, "gold")
+    paint((np.abs(np.abs(e) - 0.5) * dth * rc / 9 < 1.3) & (r > re0 + 4) & (r < re1 - 3), "dart")
+    # meander: one square spiral a period hung from a continuous outer border; 7 columns (gold
+    # strips 0.6 of the pitch, the shaded 30 % on the inner/right side) and 7 levels
+    p0, p1 = R["pattern"]
+    a = X * Mq["cols"]                              # columns 0..7
+    b = (p1 - r) / (p1 - p0) * Mq["rows"]           # levels 0 (outer) .. 7 (inner)
+    g = Mq["gold"] / 2
+    segs = [("h", 0, -1.0, 8.0)]                    # outer border, continuous
+    path = [(0, 0), (0, 6), (6, 6), (6, 1), (1, 1), (1, 5), (5, 5), (5, 2), (2, 2), (2, 4), (4, 4), (4, 3), (3, 3)]
+    for (c0, r0_), (c1, r1_) in zip(path, path[1:]):
+        if c0 == c1:
+            segs.append(("v", c0, min(r0_, r1_), max(r0_, r1_)))
+        else:
+            segs.append(("h", r0_, min(c0, c1), max(c0, c1)))
+    zone = (r >= p0) & (r < p1)
+    gold = np.zeros_like(zone)
+    shade = np.zeros_like(zone)
+    core = np.zeros_like(zone)                      # a strip's lit part wins over a neighbour's shade
+    for kind, c, lo, hi in segs:
+        if kind == "v":
+            d = a - (c + 0.5)
+            m = (np.abs(d) < g) & (b > lo + 0.5 - g) & (b < hi + 0.5 + g)
+            gold |= m
+            shade |= m & (d > g * 0.4)
+            core |= m & (d <= g * 0.4)
+        else:
+            d = b - (c + 0.5)
+            m = (np.abs(d) < g) & (a > lo + 0.5 - g) & (a < hi + 0.5 + g)
+            gold |= m
+            shade |= m & (d > g * 0.4)
+            core |= m & (d <= g * 0.4)
+    paint(zone & gold, "gold")
+    paint(zone & shade & ~core, "gold_shade")
+    img = cv2.resize(img, (W, H), interpolation=cv2.INTER_AREA)[::-1]   # v up -> image rows down
+    return img / light
+
+
 made = {}
 for key, spec in specs.items():
     if key == "flat":
@@ -134,6 +224,10 @@ for key, spec in specs.items():
         lin = floor_hall(spec)
     elif key == "floor_lower":
         lin = floor_lower(spec)
+    elif key == "arch_band":
+        al = arch_light()
+        lin = arch_band(al)
+        print(f"arch_band: light on the arch face (median, linear RGB) {np.round(al, 3).tolist()}")
     elif key == "step_riser":
         r = np.array(P.ALBEDO["step_riser"], np.float32)
         lin = textured(specs["step"], dark=r * 0.92, light=r)
