@@ -2,7 +2,8 @@
 import hall from "./data/hall.json";
 import { PAINTINGS, type Painting } from "./paintings";
 
-export type Pose = { x: number; y: number; z: number; yaw: number; sym: number };
+/** pitch: radians up from horizontal (only the dome look sets it; the walk keeps 0). */
+export type Pose = { x: number; y: number; z: number; yaw: number; sym: number; pitch?: number };
 
 const EYE0 = hall.eye[1]; // Raphael's eye above the lower floor (1.295 m at 70 %)
 const STAND = hall.standingEye;
@@ -49,6 +50,11 @@ export function poseAt(progress: number): Pose {
   const u = clamp01(progress) * TOTAL;
   const z = u <= HOLD ? 0 : -(u - HOLD);
   return withHeight({ x: 0, z: Math.max(z, WALK_END), yaw: 0, sym: 0 });
+}
+
+/** Scroll progress for the point of the walk at depth z. */
+export function progressAt(z: number) {
+  return (HOLD - Math.min(0, Math.max(z, WALK_END))) / TOTAL;
 }
 
 /** Scroll progress for a point a few metres before a painting, where it's in view on the

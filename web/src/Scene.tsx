@@ -66,7 +66,7 @@ export function Scene() {
     const pose = rig.drive === "scroll" ? poseAt(rig.progress) : rig.pose;
     if (rig.drive === "scroll") rig.pose = { ...pose };
     camera.position.set(pose.x, pose.y, pose.z);
-    camera.rotation.set(0, pose.yaw, 0, "YXZ");
+    camera.rotation.set(pose.pitch ?? 0, pose.yaw, 0, "YXZ");
     const f = frustumFor(camera.aspect);
     const mid = (f.up + f.down) / 2;
     camera.tanUp = f.up + (mid - f.up) * pose.sym;
