@@ -41,6 +41,7 @@ SIGMA = R / 2
 PLANE_TOL = 0.015                                            # same plane: within 1.5 cm
 K = 64
 DARK = 0.015                                                 # linear light: inside a solid
+VOID = 1e-4                                                  # no light at all: inside a solid (filled)
 PARALLEL = 0.995                                             # same plane: normals within 6 degrees
 
 
@@ -72,10 +73,10 @@ for f in sorted(OUT.glob("bake_*.npz")):
     g = f.stem[len("bake_"):]
     cov = d["covered"]
     light = d["light"][..., :3].astype(np.float32)
-    # Covered texels and Cycles' margin round each island; texels that get no light at all are
-    # inside another solid (a wall under a frame, a pilaster's foot in its base): they are filled
+    # Covered texels and Cycles' margin round each island; texels that get no light at all
+    # (VOID; a deep coffer step in shade still gets some) are inside another solid (a wall under a frame, a pilaster's foot in its base): they are filled
     # from their lit neighbours like empty ones, so filtering at the junction reads lit texels.
-    baked = (d["light"][..., 3] > 0) & (light.max(-1) > DARK)
+    baked = (d["light"][..., 3] > 0) & (light.max(-1) > VOID)
     # 1. denoise (on the filled atlas, so the search windows never meet black)
     e8 = np.clip(np.round(enc(fill_nearest(light, baked))), 0, 255).astype(np.uint8)
     den = cv2.fastNlMeansDenoisingColored(e8, None, H_NLM, H_NLM, 5, 15) if H_NLM > 0 else e8

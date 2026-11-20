@@ -226,9 +226,35 @@ def split_long(ob, step):
     bm.free()
 
 
+def dome_unwrap(ob):
+    """The coffered dome as one island, by an azimuthal equidistant projection about its axis
+    (distance from the crown along the meridian, angle round the axis): nearly true to scale from
+    the springing to the oculus, no seams. Smart project collapsed its 10k stepped faces into
+    slivers (round 6), so every coffer read some other face's light. The step walls are radial,
+    so they project to lines: they take the light of the faces beside them."""
+    me = ob.data
+    for uvl in [u for u in me.uv_layers if u.name not in ("detail", "lightmap")]:
+        me.uv_layers.remove(uvl)
+    if "detail" not in me.uv_layers:
+        me.uv_layers.new(name="detail")
+    uv = me.uv_layers.get("lightmap") or me.uv_layers.new(name="lightmap")
+    mw = ob.matrix_world
+    c0 = Vector((0, (P.CROSS_Y0 + P.CROSS_Y1) / 2, P.DRUM_Z1))
+    R = P.CROSS_HALF
+    for li, loop in enumerate(me.loops):
+        w = mw @ me.vertices[loop.vertex_index].co - c0
+        el = math.atan2(w.z, math.hypot(w.x, w.y))
+        rho = R * (math.pi / 2 - el)
+        t = math.atan2(w.y, w.x)
+        uv.data[li].uv = (0.5 + 0.5 * rho * math.cos(t) / (R * math.pi / 2), 0.5 + 0.5 * rho * math.sin(t) / (R * math.pi / 2))
+    return max(uv_coverage([ob]), 1e-4)
+
+
 def unwrap_one(ob):
     """Smart-project one object on its own (multi-object packing is unreliable here: some groups
     came out collapsed or overlapping). Returns the share of the unit square its islands cover."""
+    if ob.name == "dome_coffers":
+        return dome_unwrap(ob)
     split_long(ob, P.BAKE_ISLAND_MAX)
     me = ob.data
     for uvl in [u for u in me.uv_layers if u.name not in ("detail", "lightmap")]:
