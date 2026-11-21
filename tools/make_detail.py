@@ -153,9 +153,11 @@ def arch_band(light):
     r = R["inner"] + Yv * (R["outer"] - R["inner"])
     col = lambda k: np.array(to_lin(np.array(Cc[k], np.float32)), np.float32)   # noqa: E731
     img = np.empty((H * ss, W * ss, 3), np.float32)
+    gold_mask = np.zeros((H * ss, W * ss), np.float32)   # 1 where gold leaf (P.ARCH_GOLD)
 
     def paint(mask, k):
         img[mask] = col(k)
+        gold_mask[mask] = 1.0 if k in P.ARCH_GOLD else 0.0
     paint(np.ones_like(r, bool), "red")
     paint(r < R["egg"][1], "egg_ground")
     paint(r < R["egg"][0], "grey")
@@ -213,7 +215,8 @@ def arch_band(light):
     paint(zone & gold, "gold")
     paint(zone & shade & ~core, "gold_shade")
     img = cv2.resize(img, (W, H), interpolation=cv2.INTER_AREA)[::-1]   # v up -> image rows down
-    return img / light
+    gold_mask = cv2.resize(gold_mask, (W, H), interpolation=cv2.INTER_AREA)[::-1]
+    return img / light, gold_mask
 
 
 made = {}
@@ -226,7 +229,7 @@ for key, spec in specs.items():
         lin = floor_lower(spec)
     elif key == "arch_band":
         al = arch_light()
-        lin = arch_band(al)
+        lin, alpha = arch_band(al)
         print(f"arch_band: light on the arch face (median, linear RGB) {np.round(al, 3).tolist()}")
     elif key == "step_riser":
         r = np.array(P.ALBEDO["step_riser"], np.float32)
@@ -234,7 +237,11 @@ for key, spec in specs.items():
     else:
         lin = textured(spec)
     path = out_dir / "detail" / f"{key}.png"
-    cv2.imwrite(str(path), to_srgb8(lin)[..., ::-1])
+    if key == "arch_band":   # alpha: the gold-leaf mask (Scene.tsx adds the sheen there)
+        a8 = np.clip(alpha * 255 + 0.5, 0, 255).astype(np.uint8)[..., None]
+        cv2.imwrite(str(path), np.concatenate([to_srgb8(lin)[..., ::-1], a8], -1))
+    else:
+        cv2.imwrite(str(path), to_srgb8(lin)[..., ::-1])
     made[key] = [round(float(v), 4) for v in lin.reshape(-1, 3).mean(0)]
     print(f"{key:14s} {lin.shape[1]}x{lin.shape[0]} mean linear albedo {made[key]}")
 if "step" in specs and "step_riser" not in specs:

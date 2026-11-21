@@ -149,9 +149,13 @@ ALBEDO = {   # linear; started from the fresco's lit colours, then calibrated (R
     "coffer_light": (0.64, 0.56, 0.45), "coffer_dark": (0.38, 0.33, 0.27),     # panels: mottled, ~0.8 x rib
     "riser_light": (0.41, 0.375, 0.34), "riser_dark": (0.25, 0.23, 0.205),      # risers: darker (see REPORT)
     # Stage 4: floors recalibrated against the fresco under the warm light (the web read them salmon).
-    "floor_white": (0.584, 0.545, 0.4), "floor_rose": (0.47, 0.26, 0.29), "floor_band": (0.23, 0.15, 0.24),   # white: was (0.63, 0.565, 0.75)
-    "floor_mauve": (0.18, 0.116, 0.22),                                       # lower floor, darker field
-    "lower_white": (0.568, 0.529, 0.39),                                       # lower floor, white bands (was 0.29, 0.31, 0.55)
+    # Round 10 (Maria): the floors' patterns #754543 as seen on the sunlit floor (lozenges and the
+    # lower floor's squares; were rose (0.47, 0.26, 0.29) and mauve (0.18, 0.116, 0.22)), and
+    # everything else the floor cream: the corridor's slab lines (were purple (0.23, 0.15, 0.24))
+    # and the lower floor's bands and rings (were (0.568, 0.529, 0.39)).
+    "floor_white": (0.584, 0.545, 0.4), "floor_rose": (0.164, 0.058, 0.059), "floor_band": (0.584, 0.545, 0.4),
+    "floor_mauve": (0.155, 0.048, 0.046),                                     # lower floor's squares (more light reaches them: (120, 76, 76) at 0.164, 0.058, 0.059)
+    "lower_white": (0.584, 0.545, 0.4),                                       # lower floor's bands and rings
     "step": (0.601, 0.564, 0.418), "step_dark": (0.559, 0.525, 0.39),              # treads, white marble (were 0.68, 0.60, 0.58)
     "step_riser": (0.534, 0.501, 0.372),                                         # risers (191,175,162)
 }
@@ -323,7 +327,13 @@ ARCH_PILASTER_D = 0.05
 ARCH_IMPOST_H = 0.12            # painted impost and the block under it: v 1770-1830 at the face
 ARCH_WALL = (12.0, 9.0)         # front wall: half-width and height (designed; covers the start view on portrait phones, to 8.3 m)
 ARCH_MEANDER = dict(periods_half=15, cols=7, rows=7, gold=0.6)   # 7 strips a period (pitch 26.5 px), 7 levels
-ARCH_COLOURS = {                # sRGB, medians of k-means clusters over each band
-    "inner": (160, 136, 130), "ground": (78, 50, 47), "gold": (172, 122, 64), "gold_shade": (142, 97, 52),
-    "fillet": (177, 151, 148), "grey": (155, 127, 120), "bead": (147, 103, 65),
-    "egg_ground": (140, 110, 97), "dart": (106, 59, 43), "red": (93, 49, 37)}
+ARCH_COLOURS = {                # sRGB as seen; started from medians of k-means clusters over each band
+    # Round 10 (Maria): the pinks are the wall's cream as it shows beside the arch (218, 209, 183),
+    # the thin fillets 10 % lighter (were inner (160, 136, 130), grey (155, 127, 120), egg ground
+    # (140, 110, 97), fillet (177, 151, 148)); the yellows clean gold leaf (were gold
+    # (172, 122, 64), shade (142, 97, 52), beads (147, 103, 65)), with a sheen in the web
+    # (Scene.tsx, ARCH_GOLD). The dark reds stay as painted.
+    "inner": (218, 209, 183), "ground": (78, 50, 47), "gold": (194, 150, 62), "gold_shade": (140, 102, 38),
+    "fillet": (227, 218, 191), "grey": (218, 209, 183), "bead": (194, 150, 62),
+    "egg_ground": (218, 209, 183), "dart": (106, 59, 43), "red": (93, 49, 37)}
+ARCH_GOLD = ("gold", "gold_shade", "bead")   # the band tile's alpha marks these (the web's sheen)

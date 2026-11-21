@@ -14,7 +14,6 @@ px, py = (2 * u - 1) * K, (2 * v - 1) * K
 r2 = px * px + py * py
 dy = (1 - r2) / (1 + r2); dx = px * (1 + dy); dz = -py * (1 + dy)
 bx, by, bz = dx, -dz, dy                       # web -> Blender
-# Below 1 deg under the horizon the sky is the horizon's haze (no ground: the door shows haze).
 el = np.arcsin(np.clip(bz, -1, 1)); el = np.maximum(el, np.radians(0.5))
 azi = np.arctan2(bx, by)
 col = (azi / (2 * np.pi) * W + W / 2 - 0.5) % W
@@ -24,6 +23,16 @@ def bilinear(img, x, y):
     x1 = (x0 + 1) % W; y1 = np.minimum(y0 + 1, H - 1); x0 %= W
     return (img[y0, x0] * (1 - fx) + img[y0, x1] * fx) * (1 - fy) + (img[y1, x0] * (1 - fx) + img[y1, x1] * fx) * fy
 lin = bilinear(eq, col, row)
+# Below the horizon: haze, the sky's lowest 3 deg averaged and smoothed round the horizon (a photo's
+# clouds on the horizon would otherwise streak), blended in over the first degree down.
+r3 = int(round(H * (90 - 3) / 180)); r0 = int(round(H * 90 / 180))
+haze = eq[r3:r0].mean(0)
+haze = np.concatenate([haze[-W // 8:], haze, haze[:W // 8]])
+k = np.exp(-0.5 * (np.arange(-W // 8, W // 8 + 1) / (W * 10 / 360)) ** 2); k /= k.sum()
+haze = np.stack([np.convolve(haze[:, c], k, "valid") for c in range(3)], -1)
+below = np.clip(-np.degrees(np.arcsin(np.clip(bz, -1, 1))), 0, 1)[..., None]
+hz = haze[np.floor(col).astype(int) % W]
+lin = lin * (1 - below) + hz * below
 np.save(out.rsplit(".", 1)[0] + "-lin.npy", lin.astype(np.float32))
 def srgb(x):
     x = np.clip(x, 0, 1); return np.where(x <= 0.0031308, 12.92 * x, 1.055 * x ** (1 / 2.4) - 0.055)

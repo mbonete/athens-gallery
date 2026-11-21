@@ -138,6 +138,44 @@ function lightmapBicubic(mat: THREE.MeshBasicMaterial) {
   mat.customProgramCacheKey = () => "lm-bicubic";
 }
 
+/** The opening arch's gold leaf (Maria, round 10: clean, smooth, with a sheen). The band tile's
+ * alpha marks the gold (tools/make_detail.py, params ARCH_GOLD). There the bake's sun adds a
+ * soft view-dependent highlight: Blinn-Phong, pale gold, so the leaf brightens and warms where it
+ * turns the sun towards the eye and changes as the visitor walks. The GLB carries no normals
+ * (the hall is unlit), and the band is flat, so the normal comes from the position's derivatives. */
+const SUN_DIR = new THREE.Vector3(...((hall as { sun?: number[] }).sun ?? [0.637, 0.574, 0.515])).normalize();
+const GOLD_SHEEN = new THREE.Color(0.48, 0.34, 0.1); // linear, added at the lobe's peak
+const GOLD_SHININESS = 10;
+function goldLeaf(mat: THREE.MeshBasicMaterial) {
+  const prev = mat.onBeforeCompile.bind(mat);
+  mat.onBeforeCompile = (shader, renderer) => {
+    prev(shader, renderer);
+    shader.uniforms.goldSun = { value: SUN_DIR };
+    shader.uniforms.goldSheen = { value: GOLD_SHEEN };
+    shader.vertexShader = shader.vertexShader
+      .replace("#include <common>", "#include <common>\nvarying vec3 vGoldP;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvGoldP = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        "#include <common>",
+        "#include <common>\nuniform vec3 goldSun;\nuniform vec3 goldSheen;\nvarying vec3 vGoldP;",
+      )
+      .replace("#include <map_fragment>", "#include <map_fragment>\nfloat goldMask = sampledDiffuseColor.a;")
+      .replace(
+        "#include <opaque_fragment>",
+        `{
+  vec3 v = normalize(cameraPosition - vGoldP);
+  vec3 n = normalize(cross(dFdx(vGoldP), dFdy(vGoldP)));
+  n = dot(n, v) < 0.0 ? -n : n;
+  float lobe = pow(max(dot(n, normalize(goldSun + v)), 0.0), ${GOLD_SHININESS.toFixed(1)});
+  outgoingLight += goldMask * lobe * goldSheen * diffuse;
+}
+#include <opaque_fragment>`,
+      );
+  };
+  mat.customProgramCacheKey = () => (LM_BICUBIC ? "lm-bicubic" : "lm") + "|gold-leaf";
+}
+
 function Hall() {
   const { gl } = useThree();
   const gltf = useLoader(GLTFLoader, "/models/hall.glb", (loader) => {
@@ -173,6 +211,7 @@ function Hall() {
         toneMapped: false,
       });
       lightmapBicubic(mat);
+      if (old.name.split("|")[1] === "arch_band") goldLeaf(mat);
       mesh.material = mat;
       old.dispose();
       hallMaterials.push({ mat, base: mat.color.clone() });

@@ -37,6 +37,11 @@
   "wallX": 4.13,
   "paintingBottom": 1.4798,
   "lightScale": 4.0,
+  "sun": [
+    0.6366,
+    0.5736,
+    0.5155
+  ],
   "places": [
     {
       "n": 1,

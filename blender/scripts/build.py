@@ -491,6 +491,10 @@ if "export" in VIEW_NAMES or "json" in VIEW_NAMES:
         "paintingBottom": round(P.PAINTING_BOTTOM * k + P.PLATFORM_Z * k, 4),
         # The lightmaps store light / lightScale (web: colour = detail x tint x lightmap x lightScale).
         "lightScale": P.LIGHT_SCALE,
+        # Direction towards the bake's sun, web axes (x, z up, -y): the gold leaf's sheen (Scene.tsx).
+        "sun": [round(v, 4) for v in (math.cos(math.radians(P.SUN_ELEVATION)) * math.cos(math.radians(P.SUN_AZIMUTH)),
+                                      math.sin(math.radians(P.SUN_ELEVATION)),
+                                      math.cos(math.radians(P.SUN_ELEVATION)) * math.sin(math.radians(P.SUN_AZIMUTH)))],
         "places": [],
     }
     n = 0

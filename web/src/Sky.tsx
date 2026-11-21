@@ -3,11 +3,12 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { rig } from "./rig";
 
-/** A clear daytime sky, rendered from a physical model of the atmosphere (sky/make_sky.sh:
- * Blender's multiple-scattering sky) with its sun where the hall's bake puts the sun, and shown at
- * the bake's exposure: a white card facing that sun is as bright here as in the lightmaps. So the
- * sky through the openings matches the light on the marble. It's drawn unlit around the camera,
- * first and without depth, so the hall covers it everywhere except through its openings.
+/** A photographed sky with scattered fair-weather clouds (Poly Haven, CC0; sky/make_sky.sh),
+ * turned so its sun stands where the hall's bake puts the sun, its sun disc taken out, and its
+ * clear blue matched to a physical model of the same sky (Blender's multiple-scattering sky) at
+ * twice the bake's exposure, so the sky through the openings sits with the light on the marble.
+ * It's drawn unlit around the camera, first and without depth, so the hall covers it everywhere
+ * except through its openings.
  *
  * The texture is a stereographic projection centred on the zenith: no pole and no seam.
  * A direction d maps to p = (d.x, -d.z) / (1 + d.y), uv = 0.5 + 0.5 p / K, so the walk's
