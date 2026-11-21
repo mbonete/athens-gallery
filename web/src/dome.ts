@@ -211,7 +211,7 @@ let tl: gsap.core.Timeline | gsap.core.Tween | null = null;
  * round and in the middle. */
 export function lookUp(opts: { push?: boolean } = {}) {
   if (getState().mode !== "walk" || rig.drive !== "scroll" || !rig.camera) return;
-  setState({ mode: "looking-up", started: true });
+  setState({ mode: "looking-up" });
   if (opts.push !== false) history.pushState({ dome: true }, "", "#dome");
 
   const from = { ...rig.pose, pitch: rig.pose.pitch ?? 0 };

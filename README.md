@@ -4,6 +4,10 @@ A web gallery of up to 10 paintings inside the architecture of Raphael's *School
 Athens*, rebuilt in 3D. The visitor walks toward the vanishing point and enters each
 painting. Architecture only: no figures, no statues.
 
+Visitors see it as **Studiolo**: "Nine favourite paintings, chosen by Maria Bonete, hung in
+the architecture of Raphael's *School of Athens*." The title stands over the start view with
+how to visit (`web/src/Intro.tsx`) and steps aside with the first step.
+
 ## Gates
 
 | Gate | Before | What you see | Status |

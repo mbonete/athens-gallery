@@ -5,11 +5,38 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 .stage { position: fixed; inset: 0; }
 .stage, .stage canvas { touch-action: none; }
 .stage canvas { display: block; }
-.loading, .hint { position: fixed; left: 50%; transform: translateX(-50%); font-size: 15px; letter-spacing: 0.02em; }
-.loading { top: 50%; }
-.hint { bottom: calc(28px + env(safe-area-inset-bottom)); padding: 8px 14px; border-radius: 999px;
-  background: rgb(244 241 234 / 0.85); opacity: 0; transition: opacity 0.6s; pointer-events: none; }
-.hint.show { opacity: 1; }
+.loading { position: fixed; left: 50%; top: 50%; transform: translateX(-50%); font-size: 15px; letter-spacing: 0.02em; }
+/* The exhibition's title at the entrance (Intro.tsx). Wide screens: over the steps, on a paper
+   ground rising from the bottom. Portrait: the title on the bare wall above the arch, how to
+   visit at the bottom. The title in spaced capitals, as Roman inscriptions are cut. */
+.intro { position: fixed; inset: 0; z-index: 4; pointer-events: none; display: flex; flex-direction: column;
+  justify-content: flex-end; align-items: center; text-align: center; opacity: 0; transition: opacity 0.6s; }
+.intro.show { opacity: 1; }
+.intro::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 36%;
+  background: linear-gradient(to top, rgb(244 241 234 / 0.92) 50%, rgb(244 241 234 / 0)); }
+.intro > * { position: relative; }
+.intro-title { max-width: 860px; padding: 0 24px; }
+.intro-sub, .intro-note { text-wrap: balance; }
+.intro h1 { font-weight: normal; font-size: clamp(38px, 5.6vw, 72px); line-height: 1; letter-spacing: 0.24em;
+  margin: 0 -0.24em 14px 0; text-transform: uppercase; }
+.intro-sub { font-size: clamp(16px, 1.5vw, 20px); line-height: 1.4; margin: 0 0 6px; }
+.intro-note { font-size: 14px; line-height: 1.4; color: var(--muted); margin: 0; }
+.intro-title::after { content: ""; display: block; width: 48px; height: 2px; background: #5d3125; margin: 16px auto 0; }
+.intro-how { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 24px; max-width: 1200px;
+  margin: 14px 0 calc(24px + env(safe-area-inset-bottom)); padding: 0 16px; font-size: 14px; line-height: 1.4; }
+@media (orientation: portrait) {
+  .intro { justify-content: space-between; }
+  .intro::before { height: 24%; }
+  .intro-title { padding-top: calc(28px + env(safe-area-inset-top)); }
+  .intro-how { flex-direction: column; gap: 2px; }
+}
+@media (max-height: 500px) {
+  .intro-note { display: none; }
+  .intro h1 { font-size: 30px; margin-bottom: 8px; }
+  .intro-title::after { margin-top: 10px; }
+  .intro-how { margin-top: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .intro { transition: none; } }
 .osd { position: fixed; inset: 0; visibility: hidden; opacity: 0; z-index: 5; }
 .panel { position: fixed; visibility: hidden; opacity: 0; z-index: 6; background: var(--paper);
   overflow: hidden; --content: 0; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06); }

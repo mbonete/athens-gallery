@@ -9,7 +9,7 @@
 // - Keyboard: ArrowUp/ArrowDown, PageUp/PageDown, Space/Shift+Space, Home/End. Space is left to a
 //   focused button (it opens the painting; see Keys.tsx).
 import { rig } from "./rig";
-import { getState, setState } from "./store";
+import { getState } from "./store";
 import { TOTAL } from "./walk";
 
 /** Metres walked per doubling of the finger spread. */
@@ -26,7 +26,6 @@ const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matc
 function walk(metres: number) {
   if (!walking()) return;
   rig.target = clamp01(rig.target + metres / TOTAL);
-  if (rig.target > 0.002 && !getState().started) setState({ started: true });
 }
 
 /** Walk to a point of the walk on the visitor's behalf (a painting got keyboard focus): the
@@ -35,7 +34,6 @@ export function walkTo(progress: number) {
   if (!walking()) return;
   rig.target = clamp01(progress);
   if (reduced()) rig.progress = rig.target;
-  if (rig.target > 0.002 && !getState().started) setState({ started: true });
 }
 
 /** Keys that a focused control handles itself. */
