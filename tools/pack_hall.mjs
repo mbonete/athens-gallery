@@ -66,6 +66,12 @@ for (const mat of doc.getRoot().listMaterials()) {
   mat.getBaseColorTextureInfo()?.setWrapS(TextureInfo.WrapMode.REPEAT).setWrapT(TextureInfo.WrapMode.REPEAT);
   mat.setMetallicFactor(0).setRoughnessFactor(1);
 }
-await doc.transform(dedup(), prune(), meshopt({ encoder: MeshoptEncoder, level: "medium", quantizeTexcoord: 16 }));
+// Positions on one grid for the whole hall (quantizationVolume "scene"): with a grid per mesh, an
+// edge shared by two meshes (the nave wall and the crossing arch's leg, in one plane) rounded
+// differently on each side and opened a sub-pixel slit that flickered as a 1 px line at grazing
+// angles (Maria, 2026-11-21). 16 bits over the hall: about 0.7 mm.
+await doc.transform(dedup(), prune(), meshopt({
+  encoder: MeshoptEncoder, level: "medium", quantizeTexcoord: 16, quantizePosition: 16, quantizationVolume: "scene",
+}));
 await io.write(output, doc);
 console.log(`wrote ${output}: ${(fs.statSync(output).size / 1e6).toFixed(2)} MB`);
