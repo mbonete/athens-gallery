@@ -1,0 +1,16 @@
+{
+  "note": "Written by tools/vault_ornament.py: the vault ornament's plane (web metres). Texture = the left half, the arch's axis at its right edge; the right half mirrors it.",
+  "z": -3.3071,
+  "xc": -0.02589,
+  "yc": 0.93855,
+  "rIn": 2.79755,
+  "x0": -3.12589,
+  "y0": 1.29013,
+  "y1": 3.95419,
+  "halfWidth": 3.1,
+  "texture": "/ornament/vault-front.png",
+  "px": [
+    2048,
+    1760
+  ]
+}

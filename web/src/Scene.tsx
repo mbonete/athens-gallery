@@ -15,6 +15,8 @@ import { DomePicking } from "./DomeControls";
 import { frustumFor, poseAt, progressNear, SHIFT_X, STATIONS, TOTAL } from "./walk";
 import { Sky } from "./Sky";
 import { Banners } from "./Banners";
+import { VaultOrnament } from "./VaultOrnament";
+import { GOLD_SHEEN, GOLD_SHININESS, SUN_DIR } from "./goldLeaf";
 
 export function Scene() {
   const { gl, scene, set, size } = useThree();
@@ -99,6 +101,7 @@ export function Scene() {
       <Sky />
       <Hall />
       <Banners />
+      <VaultOrnament />
       <DomePicking />
       {STATIONS.map((st) => (
         <HungPainting key={st.painting.slug} painting={st.painting} side={st.side} z={st.z} wallX={st.wallX} room={st.room} />
@@ -157,10 +160,8 @@ function lightmapBicubic(mat: THREE.MeshBasicMaterial) {
  * alpha marks the gold (tools/make_detail.py, params ARCH_GOLD). There the bake's sun adds a
  * soft view-dependent highlight: Blinn-Phong, pale gold, so the leaf brightens and warms where it
  * turns the sun towards the eye and changes as the visitor walks. The GLB carries no normals
- * (the hall is unlit), and the band is flat, so the normal comes from the position's derivatives. */
-const SUN_DIR = new THREE.Vector3(...((hall as { sun?: number[] }).sun ?? [0.637, 0.574, 0.515])).normalize();
-const GOLD_SHEEN = new THREE.Color(0.48, 0.34, 0.1); // linear, added at the lobe's peak
-const GOLD_SHININESS = 10;
+ * (the hall is unlit), and the band is flat, so the normal comes from the position's derivatives.
+ * The sun and the lobe: goldLeaf.ts. */
 function goldLeaf(mat: THREE.MeshBasicMaterial) {
   const prev = mat.onBeforeCompile.bind(mat);
   mat.onBeforeCompile = (shader, renderer) => {
