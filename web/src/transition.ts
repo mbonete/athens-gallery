@@ -117,9 +117,30 @@ function screenRect(obj: THREE.Object3D, w: number, h: number, pose: Pose) {
   return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
 }
 
-function placePanel(r: { x: number; y: number; w: number; h: number }) {
+type Rect = { x: number; y: number; w: number; h: number };
+
+function placePanel(r: Rect) {
   const el = dom.panel!;
   Object.assign(el.style, { left: `${r.x}px`, top: `${r.y}px`, width: `${r.w}px`, height: `${r.h}px` });
+}
+
+/** The panel unfolds out of the wall label (Maria: the card must not cover the walk-up). It sits
+ * at its resting place the whole time and is revealed by a clip: from the label's spot on screen
+ * (kept inside the panel, at least a small card's size) to the whole panel, and back. */
+const clipNow: Rect = { x: 0, y: 0, w: 0, h: 0 };
+let clipFrame: Rect = { x: 0, y: 0, w: 0, h: 0 };
+function labelInPanel(plaque: THREE.Object3D, pose: Pose, P: Rect): Rect {
+  const r = screenRect(plaque, 0.3, 0.2, pose);
+  const w = Math.min(P.w, Math.max(r.w, 56));
+  const h = Math.min(P.h, Math.max(r.h, 36));
+  const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+  return { x: clamp(r.x + r.w / 2 - w / 2, P.x, P.x + P.w - w), y: clamp(r.y + r.h / 2 - h / 2, P.y, P.y + P.h - h), w, h };
+}
+function clipPanel() {
+  const P = clipFrame;
+  const c = clipNow;
+  dom.panel!.style.clipPath =
+    `inset(${c.y - P.y}px ${P.x + P.w - c.x - c.w}px ${P.y + P.h - c.y - c.h}px ${c.x - P.x}px)`;
 }
 
 export function enter(p: Painting, opts: { push?: boolean } = {}) {
@@ -135,25 +156,29 @@ export function enter(p: Painting, opts: { push?: boolean } = {}) {
   rig.drive = "manual";
   rig.pose = { ...from };
 
-  // The wall label becomes the panel: start the panel on the label's screen rect.
+  // The wall label stays on the wall and comes forward with the painting. Once the camera has
+  // (nearly) arrived, the panel unfolds out of it. Until then the panel is in place but
+  // transparent and lets clicks through: it can still take focus (Keys.tsx moves it to Back).
   const plaque = rig.plaques.get(p.slug)!;
-  const start = screenRect(plaque, 0.3, 0.2, from);
-  placePanel(start);
   const panel = dom.panel!;
-  gsap.set(panel, { opacity: 1, visibility: "visible", "--content": 0 });
-  (plaque as THREE.Mesh).visible = false;
   const end = panelRect();
+  placePanel(end);
+  clipFrame = end;
+  Object.assign(clipNow, labelInPanel(plaque, to, end));
+  clipPanel();
+  gsap.set(panel, { opacity: 0, visibility: "visible", pointerEvents: "none", "--content": 1 });
 
   const myVisit = ++visit;
-  const tl = gsap.timeline({ onComplete: () => myVisit === visit && openZoom(p, rect, myVisit) });
+  const tl = gsap.timeline();
   enterTl = tl;
   tl.to(rig.pose, { ...to, duration: dur(1.3), ease: "power2.inOut" }, 0);
   tl.to(rig, { light: 0.12, duration: dur(1.1), ease: "power1.inOut" }, dur(0.1));
-  tl.to(start, {
-    ...end, duration: dur(0.9), ease: "power3.inOut",
-    onUpdate: () => placePanel(start),
-  }, dur(0.15));
-  tl.to(panel, { "--content": 1, duration: dur(0.35) }, dur(0.85));
+  tl.call(() => {
+    (plaque as THREE.Mesh).visible = false;
+    gsap.set(panel, { opacity: 1, pointerEvents: "auto" });
+  }, [], dur(1.1));
+  tl.to(clipNow, { ...end, duration: dur(0.4), ease: "power3.out", onUpdate: clipPanel }, dur(1.1));
+  tl.call(() => myVisit === visit && openZoom(p, rect, myVisit), [], dur(1.3));
 }
 
 async function openZoom(p: Painting, rect: ReturnType<typeof targetRect>, myVisit: number) {
@@ -236,8 +261,9 @@ export function leave(opts: { pop?: boolean } = {}) {
   const el = dom.osd!;
 
   const walkBack = () => {
-    const now = { ...panelRect() };
-    const end = screenRect(plaque, 0.3, 0.2, back);
+    // The panel folds back into the label first (from wherever its unfolding got to), the label
+    // is on the wall again, and then the walk back starts.
+    const fold = labelInPanel(plaque, rig.pose, clipFrame);
     const tl = gsap.timeline({
       onComplete: () => {
         (plaque as THREE.Mesh).visible = true;
@@ -247,10 +273,13 @@ export function leave(opts: { pop?: boolean } = {}) {
         setState({ mode: "walk", active: null });
       },
     });
-    tl.to(panel, { "--content": 0, duration: dur(0.2) }, 0);
-    tl.to(now, { ...end, duration: dur(0.9), ease: "power3.inOut", onUpdate: () => placePanel(now) }, dur(0.1));
-    tl.to(rig.pose, { ...back, duration: dur(1.2), ease: "power2.inOut" }, 0);
-    tl.to(rig, { light: 1, duration: dur(1.0), ease: "power1.inOut" }, dur(0.1));
+    tl.to(clipNow, { ...fold, duration: dur(0.25), ease: "power2.in", onUpdate: clipPanel }, 0);
+    tl.call(() => {
+      gsap.set(panel, { opacity: 0, pointerEvents: "none" });
+      (plaque as THREE.Mesh).visible = true;
+    }, [], dur(0.25));
+    tl.to(rig.pose, { ...back, duration: dur(1.2), ease: "power2.inOut" }, dur(0.2));
+    tl.to(rig, { light: 1, duration: dur(1.0), ease: "power1.inOut" }, dur(0.25));
   };
 
   if (viewer && mode === "detail") {
