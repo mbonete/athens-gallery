@@ -231,6 +231,10 @@ for key, spec in specs.items():
         al = arch_light()
         lin, alpha = arch_band(al)
         print(f"arch_band: light on the arch face (median, linear RGB) {np.round(al, 3).tolist()}")
+    elif key == "relief_scroll":   # deco round: the facade panels' acanthus scroll (tools/relief_scroll.py)
+        sys.path.insert(0, str(ROOT / "tools"))
+        import relief_scroll
+        lin = relief_scroll.tile(spec, textured(spec))
     elif key == "step_riser":
         r = np.array(P.ALBEDO["step_riser"], np.float32)
         lin = textured(specs["step"], dark=r * 0.92, light=r)

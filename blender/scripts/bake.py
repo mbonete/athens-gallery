@@ -130,7 +130,8 @@ for ob in meshes:
 
 def cull_hidden(ob):
     """Delete faces no visitor can see, so they take no atlas space:
-    - beyond the hall's side walls behind the facade (every vertex at |x| > HALL_X, y > facade front);
+    - beyond the hall's side walls behind the facade (every vertex at |x| > HALL_X, y > facade front),
+      except in the niches' shells: the facade niches' outer halves lie past HALL_X;
     - undersides of floors and steps;
     - the far side of the end wall;
     - the outer shells of the drum and dome;
@@ -145,6 +146,7 @@ def cull_hidden(ob):
     bm.from_mesh(ob.data)
     ycen = (P.CROSS_Y0 + P.CROSS_Y1) / 2
     crossing_wall = ob.name.startswith(("arch_front", "arch_back", "crossing_side"))
+    shell = ob.name.startswith(("facade_shell", "shell_"))   # the facade niches reach past HALL_X (deco round)
     if crossing_wall:
         inv = mw.inverted()
         no = (mw.to_3x3().transposed() @ Vector((0, 0, 1))).normalized()
@@ -155,7 +157,7 @@ def cull_hidden(ob):
         vs = [mw @ v.co for v in f.verts]
         n = (rot @ f.normal).normalized()
         c = sum(vs, Vector()) / len(vs)
-        if all(abs(v.x) > P.BAKE_HALL_X and v.y > P.FACADE_Y0 + 0.05 for v in vs):
+        if all(abs(v.x) > P.BAKE_HALL_X and v.y > P.FACADE_Y0 + 0.05 for v in vs) and not shell:
             gone.append(f)
         elif n.z < -0.99 and c.z < P.PLATFORM_Z + 0.05:
             gone.append(f)
@@ -632,6 +634,8 @@ def detail_uvs(ob, tiles):
         key, _ = detail_of(mat, n)
         tw, th = tiles.get(key, (1.0, 1.0))
         ox, oy = (mat.get("origin", (0.0, 0.0)) if mat else (0.0, 0.0)) if key.startswith("floor") else (0.0, 0.0)
+        uo = mat.get("uv_origin") if mat else None     # a tile mapped once over a panel (deco round)
+        ux0, uz0 = (uo[0], uo[1]) if uo else (0.0, 0.0)
         c = mw @ p.center
         for li in p.loop_indices:
             w = mw @ me.vertices[me.loops[li].vertex_index].co
@@ -644,9 +648,9 @@ def detail_uvs(ob, tiles):
             elif abs(n.z) >= max(abs(n.x), abs(n.y)):
                 u, v = (w.x - ox) / tw, (w.y - oy) / th
             elif abs(n.x) >= abs(n.y):
-                u, v = w.y / tw, w.z / th
+                u, v = (w.y - ux0) / tw, (w.z - uz0) / th
             else:
-                u, v = w.x / tw, w.z / th
+                u, v = (w.x - ux0) / tw, (w.z - uz0) / th
             uv.data[li].uv = (u, v)
 
 

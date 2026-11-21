@@ -848,6 +848,9 @@ def apply():
     finish2.end_wall(M)
     finish2.bosch_base(M)
     finish2.fill_empty_slots(M)
+    if getattr(P, "NICHE_SHELL", None):          # deco round: each shell its own object (bake density)
+        import shells
+        shells.split()
     finish2.opening_arch(M)
     return M
 

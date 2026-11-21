@@ -107,6 +107,17 @@ def round_niche_cut(x_face, inward, yc, width, z0, z1, depth, n=24):
     return cutter_prism(a, b)
 
 
+def niche_cut(wall, side, x_face, yc, width, z0, z1, depth):
+    """A niche in a side wall: shell-headed (shells.py, deco round) or the plain round head."""
+    if getattr(P, "NICHE_SHELL", None):
+        import shells
+        a = width / 2
+        shells.cut(wall, Vector((x_face, yc, z1 - a)), Vector((0, -side, 0)), Vector((side, 0, 0)), a, depth, z0,
+                   P.NICHE_SHELL["flutes_recess"])
+    else:
+        boolean(wall, round_niche_cut(x_face, side, yc, width, z0, z1, depth))
+
+
 def frame_profile(width=None, proj=0.06, embed=0.0):
     """A flat moulded frame (fascia and a small cyma), for niches, panels and tondi."""
     width = width or P.FRAME_W
@@ -192,7 +203,7 @@ def bay1(M):
         # The empty niche on the recess's back wall, its frame standing on a ledge (R6).
         yc, w = P.BAY1_NICHE_YC, P.BAY1_NICHE_W
         z0, z1 = P.BAY1_NICHE_Z
-        boolean(wall, round_niche_cut(side * rx, side, yc, w, z0, z1, P.BAY1_NICHE_DEPTH))
+        niche_cut(wall, side, side * rx, yc, w, z0, z1, P.BAY1_NICHE_DEPTH)
         niche_frame(f"bay1_niche_frame_{side}", side * rx, side, yc, w, z0, z1, stone)
         fw = P.FRAME_W
         ya, yb = yc - w / 2 - fw - 0.12, yc + w / 2 + fw + 0.12
@@ -211,7 +222,7 @@ def niche_set(M, side, tag, yc, rx):
     z0, z1 = P.BAY1_NICHE_Z
     hand = 1 if side < 0 else -1
     wall = bpy.data.objects[f"{tag.split('_')[0]}_wall_{side}"]
-    boolean(wall, round_niche_cut(side * rx, side, yc, w, z0, z1, P.BAY1_NICHE_DEPTH))
+    niche_cut(wall, side, side * rx, yc, w, z0, z1, P.BAY1_NICHE_DEPTH)
     niche_frame(f"{tag}_niche_frame_{side}", side * rx, side, yc, w, z0, z1, stone)
     fw = P.FRAME_W
     ya, yb = yc - w / 2 - fw - 0.12, yc + w / 2 + fw + 0.12
@@ -325,6 +336,32 @@ def facade(M):
         xa, xb = xc - (w / 2 + fw + 0.03), xc + (w / 2 + fw + 0.03)
         sweep(f"facade_niche_sill_{side}", ledge(rz1, nz0),                  # returned ends (R1)
               *plan_path([(xa, y + 0.3), (xa, y), (xb, y), (xb, y + 0.3)], 1), "stone", stone)
+        if getattr(P, "RELIEF_SCROLL", False):
+            relief_scroll(M, side, xc - w / 2, rz0, w, rz1 - rz0)
+
+
+def relief_scroll(M, side, x0, z0, w, h):
+    """Deco round (idea 5): the sunk panel's back face takes the acanthus scroll in grisaille, a
+    detail tile mapped once over the panel (bake.detail_uvs: "uv_origin"). The scroll's relief is
+    painted, as Raphael's grisaille is: tools/relief_scroll.py draws it, make_detail.py ships it."""
+    fac = bpy.data.objects["facade"]
+    m = M["stone_facade"].copy()
+    m.name = f"relief_scroll_{side}"
+    m["detail"], m["tile"], m["uv_origin"] = "relief_scroll", [w, h], [x0, z0]
+    if m.name not in fac.data.materials:
+        fac.data.materials.append(m)
+    mi = list(fac.data.materials).index(m)
+    mw = fac.matrix_world
+    yb = P.FACADE_Y0 + P.RELIEF_DEPTH
+    n = 0
+    for poly in fac.data.polygons:
+        c = mw @ poly.center
+        if (abs(c.y - yb) < 0.002 and (mw.to_3x3() @ poly.normal).y < -0.9
+                and x0 - 0.001 < c.x < x0 + w + 0.001 and z0 - 0.001 < c.z < z0 + h + 0.001):
+            poly.material_index = mi
+            n += 1
+    if n == 0:
+        raise RuntimeError(f"relief panel {side}: no back face found")
 
 
 # ================================================================ floors and steps
