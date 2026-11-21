@@ -30,9 +30,10 @@ export const STATIONS: Station[] = PAINTINGS.map((painting) => {
 /** The walk stops where a painting in the doorway is seen whole (5.5 m before it). */
 const WALK_END = STATIONS.some((s) => s.side === 0) ? Math.max(hall.walkEnd, END_Z + 5.5) : hall.walkEnd;
 
-// Scroll only walks the corridor, facing forward. A short hold first keeps Raphael's view
-// on screen before the walk starts. Lengths in metres of walk.
-const HOLD = 2.5;
+// Scroll only walks the corridor, facing forward. Lengths in metres of walk. No hold at the start
+// (was 2.5 m: 125 px of wheel, more than a light trackpad scroll, moved nothing; Maria: "a user
+// lightly beginning a mouse scroll movement would see nothing happening"): the first pixel walks.
+const HOLD = 0;
 export const TOTAL = HOLD + Math.abs(WALK_END);
 
 export function poseAt(progress: number): Pose {
