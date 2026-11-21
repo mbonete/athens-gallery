@@ -165,7 +165,7 @@ ALBEDO = {   # linear; started from the fresco's lit colours, then calibrated (R
 # both sides (202-204), soffits get only bounce light. In linear terms the direct part on +X faces
 # vs frontal faces is 0.32 : 0.26 -> light travels 39 deg off the -X axis towards +Y, i.e. the sun
 # is to the front right. Cast shadows on the platform floor run at ~45 deg in plan the same way.
-SUN_AZIMUTH = float(os.environ.get('SUN_AZIMUTH', 39.0))  # stage 2 tried 50 (REPORT, "Light"); kept 39          # degrees from -X towards +Y (direction of travel)
+SUN_AZIMUTH = float(os.environ.get('SUN_AZIMUTH', 20.0))  # Maria 2026-11-21: a raking sun along the left wall, so its pilasters read (was 39, the fresco's +X:frontal 0.32:0.26; frontal faces now take less)
 SUN_ELEVATION = 35.0         # not measurable precisely: floor shadows ~1-1.5x the figures' height
                              # (45-55 deg), but the frieze under the cornice is lit (needs < ~30 deg)
 SUN_ANGLE = 3.0

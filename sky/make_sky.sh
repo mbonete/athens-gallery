@@ -17,6 +17,10 @@ mkdir -p "$WORK"
 "$B" -b --factory-startup -P "$HERE/natural_sky.py" -- "$HERE/../blender/scripts" "$WORK" 1 4096 2>&1 | grep -E "^\[sky\]|Traceback|Error" || true
 "$B" -b --factory-startup -P "$HERE/readexr.py" -- "$WORK/sky.exr" "$WORK/model.npy" 2>&1 | grep -E "Traceback|Error" || true
 "$B" -b --factory-startup -P "$HERE/readexr.py" -- "$PHOTO" "$WORK/photo-in.npy" 2>&1 | grep -E "Traceback|Error" || true
+# Blender's errors are filtered above; a missing output means a step failed (seen once while a bake ran).
+for f in scale.txt model.npy photo-in.npy; do
+  test -s "$WORK/$f" || { echo "make_sky: $f was not written (a Blender step failed); rerun" >&2; exit 1; }
+done
 SCALE=$("$PY" -c "print($(head -1 "$WORK/scale.txt") * $EXPOSURE)")
 ROT=$(awk '/^rot_deg/ {print $2}' "$WORK/scale.txt")
 "$PY" -I "$HERE/photo_sky.py" "$WORK/photo-in.npy" "$WORK/model.npy" "$SCALE" "$ROT" "$WORK/photo.npy"
