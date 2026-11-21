@@ -9,7 +9,7 @@ import { Scene } from "./Scene";
 import { getState, setState, useStore } from "./store";
 import { attachWalkInput } from "./input";
 import { attachPicking } from "./pick";
-import { enter, leave } from "./transition";
+import { enter, leave, loadZoom } from "./transition";
 import { progressNear, STATIONS } from "./walk";
 
 // Dev check: ?fresco frames the canvas at the fresco's proportions (3840 x 2661).
@@ -36,6 +36,19 @@ export function App() {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+
+  // The zoom viewer's code, once the hall is up and the browser has a moment: the first walk-up
+  // then finds it loaded.
+  useEffect(() => {
+    if (!ready) return;
+    const load = () => void loadZoom().catch(() => {});
+    if ("requestIdleCallback" in window) {
+      const id = requestIdleCallback(load, { timeout: 2000 });
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(load, 300);
+    return () => clearTimeout(id);
+  }, [ready]);
 
   // A link to a painting starts at its stop and walks in.
   useEffect(() => {

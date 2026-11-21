@@ -1,6 +1,6 @@
 // Walking up to a painting, swapping to the zoomable image, and walking back.
 import gsap from "gsap";
-import OpenSeadragon from "openseadragon";
+import type OpenSeadragon from "openseadragon";
 import * as THREE from "three";
 import { displayH, displayW, type Painting } from "./paintings";
 import { rig } from "./rig";
@@ -12,6 +12,21 @@ export const dom = {
   osd: null as HTMLDivElement | null,
   panel: null as HTMLDivElement | null,
 };
+
+/** OpenSeadragon is fetched on its own, after the hall (App.tsx asks for it once the browser is
+ * idle) or at the latest when a walk-up starts; the walk-up takes longer than the fetch. */
+let zoomLib: Promise<typeof OpenSeadragon> | null = null;
+let OSD: typeof OpenSeadragon | null = null;
+export function loadZoom() {
+  zoomLib ??= import("openseadragon").then(
+    (m) => (OSD = m.default),
+    (e) => {
+      zoomLib = null; // let the next walk-up try again
+      throw e;
+    },
+  );
+  return zoomLib;
+}
 
 let viewer: OpenSeadragon.Viewer | null = null;
 /** The running walk-up, so going back can cancel it. */
@@ -108,6 +123,7 @@ function placePanel(r: { x: number; y: number; w: number; h: number }) {
 
 export function enter(p: Painting, opts: { push?: boolean } = {}) {
   if (getState().mode !== "walk" || !rig.camera) return;
+  loadZoom().catch(() => {});
   setState({ mode: "entering", active: p });
   if (opts.push !== false) history.pushState({ painting: p.slug }, "", `#painting/${p.slug}`);
 
@@ -139,9 +155,12 @@ export function enter(p: Painting, opts: { push?: boolean } = {}) {
   tl.to(panel, { "--content": 1, duration: dur(0.35) }, 0.85);
 }
 
-function openZoom(p: Painting, rect: ReturnType<typeof targetRect>, myVisit: number) {
+async function openZoom(p: Painting, rect: ReturnType<typeof targetRect>, myVisit: number) {
   const current = () => myVisit === visit && getState().mode === "entering";
   if (!current()) return;
+  // Normally loaded long before; if the fetch failed, the 3D painting stays and Back still works.
+  const OpenSeadragon = await loadZoom().catch(() => null);
+  if (!OpenSeadragon || !current()) return;
   const W = window.innerWidth;
   const H = window.innerHeight;
   const el = dom.osd!;
@@ -195,7 +214,7 @@ export function focusHotspot(p: Painting, i: number) {
   const hs = p.hotspots[i];
   const pt = viewer.viewport.imageToViewportCoordinates(hs.x * p.imageW, hs.y * p.imageH);
   const span = 0.18;
-  viewer.viewport.fitBounds(new OpenSeadragon.Rect(pt.x - span / 2, pt.y - span / 2 * 0.75, span, span * 0.75));
+  viewer.viewport.fitBounds(new OSD!.Rect(pt.x - span / 2, pt.y - span / 2 * 0.75, span, span * 0.75));
   window.dispatchEvent(new CustomEvent("hotspot", { detail: i }));
 }
 
