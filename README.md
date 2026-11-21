@@ -50,6 +50,16 @@ frames the canvas at the fresco's proportions to check the opening view.
 - Tapping picks on screen (`src/pick.ts`): each piece's outline with its label, grown to at
   least 48 px, smallest match wins. 3D hit boxes failed: on the side walls a nearer piece
   hid the targets behind it.
+- Keyboard and screen readers (`src/Keys.tsx`): each painting, in walk order, and the dome
+  (before the two paintings under it) has a visually hidden button; a painting's is named
+  after its title and artist. Focusing one walks to the point nearest it where it's whole on
+  screen (a painting with its label), and the focus ring is drawn around it there. Enter or Space opens
+  it as a tap does; focus moves to Back in the panel (a dialog named by the title, so a
+  screen reader announces it) and returns to the button on the way out. Escape leaves a
+  painting or the dome. Up/Down arrows, PageUp/PageDown, Space/Shift+Space and Home/End
+  walk. A tap or click on the canvas doesn't move focus. The canvas is an image with a label.
+- OpenSeadragon is a separate chunk, fetched once the hall is ready and the browser is idle
+  (or when a walk-up starts, if that comes first); the 1.3 s walk-up is longer than the fetch.
 
 ## What is not real yet
 
@@ -64,8 +74,8 @@ frames the canvas at the fresco's proportions to check the opening view.
     tested on the phone.
 
 - **Web:** no facts yet (Maria writes them); the panel shows museum data only.
-  The hall's light is baked (rough bake so far: see `renders/hall-stage3/`). No reduced-motion walk yet (transitions just get very short). Not tested on an
-  iPhone. The JavaScript is not split yet.
+  The hall's light is baked (rough bake so far: see `renders/hall-stage3/`). Under reduced motion the walk-up, Back, the dome and the keyboard's walk to a painting are cuts; the visitor's own walking still glides. Not tested on an
+  iPhone. Only OpenSeadragon is split from the main JavaScript.
 
 - **Depth is a choice, not a measurement.** One image fixes the view, not the depth. The
   model assumes the domed crossing is square (Gate 1).
