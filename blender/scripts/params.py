@@ -138,20 +138,22 @@ FRESCO_SRGB = {
     "sky": (175, 175, 245),
 }
 ALBEDO = {   # linear; started from the fresco's lit colours, then calibrated (REPORT.md, "Colour")
+    # Round 9 (Maria, "now is too white", her swatch sRGB 212,203,171 "or a tad lighter"): cream
+    # marble, the round-8 whites x (0.835, 0.795, 0.61), aiming the lit nave wall at ~(216, 207, 175).
     # Round 8 (Maria): white marble, not the fresco's buff. Warm white, veins (the _dark ends of
     # the Marble014 ramp) a cool grey. Was stucco (0.563, 0.462, 0.426), stone (0.57, 0.468, 0.43),
     # rib (0.58, 0.49, 0.39).
-    "stucco": (0.70, 0.69, 0.665), "stucco_dark": (0.668, 0.659, 0.638),
-    "stone": (0.70, 0.69, 0.665), "stone_dark": (0.668, 0.659, 0.638),
-    "rib": (0.70, 0.69, 0.665), "rib_dark": (0.676, 0.667, 0.644),
+    "stucco": (0.584, 0.549, 0.406), "stucco_dark": (0.558, 0.524, 0.389),
+    "stone": (0.584, 0.549, 0.406), "stone_dark": (0.558, 0.524, 0.389),
+    "rib": (0.584, 0.549, 0.406), "rib_dark": (0.564, 0.53, 0.393),
     "coffer_light": (0.64, 0.56, 0.45), "coffer_dark": (0.38, 0.33, 0.27),     # panels: mottled, ~0.8 x rib
     "riser_light": (0.41, 0.375, 0.34), "riser_dark": (0.25, 0.23, 0.205),      # risers: darker (see REPORT)
     # Stage 4: floors recalibrated against the fresco under the warm light (the web read them salmon).
-    "floor_white": (0.70, 0.685, 0.655), "floor_rose": (0.47, 0.26, 0.29), "floor_band": (0.23, 0.15, 0.24),   # white: was (0.63, 0.565, 0.75)
+    "floor_white": (0.584, 0.545, 0.4), "floor_rose": (0.47, 0.26, 0.29), "floor_band": (0.23, 0.15, 0.24),   # white: was (0.63, 0.565, 0.75)
     "floor_mauve": (0.18, 0.116, 0.22),                                       # lower floor, darker field
-    "lower_white": (0.68, 0.665, 0.64),                                       # lower floor, white bands (was 0.29, 0.31, 0.55)
-    "step": (0.72, 0.71, 0.685), "step_dark": (0.67, 0.66, 0.64),              # treads, white marble (were 0.68, 0.60, 0.58)
-    "step_riser": (0.64, 0.63, 0.61),                                         # risers (191,175,162)
+    "lower_white": (0.568, 0.529, 0.39),                                       # lower floor, white bands (was 0.29, 0.31, 0.55)
+    "step": (0.601, 0.564, 0.418), "step_dark": (0.559, 0.525, 0.39),              # treads, white marble (were 0.68, 0.60, 0.58)
+    "step_riser": (0.534, 0.501, 0.372),                                         # risers (191,175,162)
 }
 
 # Light. The fresco's shading: faces turned to +X (left nave wall) are lit (median 215,190,176),
@@ -168,6 +170,11 @@ SUN_COLOR = (1.0, 0.985, 0.955)    # round 8: warm-white daylight (was (1.0, 0.9
 SKY = (0.43, 0.43, 0.91)     # fresco sky in the far door, linear
 SKY_LIGHT = (0.88, 0.93, 1.0)   # round 8: the sky as light, cool, so shade reads cool-neutral grey (was (0.95, 0.93, 0.45): the fresco's yellow shade)
 SKY_STRENGTH = 0.6
+# Round 9: the bake sees every material colour at this fraction of its saturation (luminance kept;
+# bake.py, "white balance"). Light bouncing between cream walls otherwise compounds the cream at
+# each bounce and the shade turns khaki ((129, 116, 87) on the right wall at 1.0); the eye's colour
+# constancy would not see that. The colours on screen (detail tiles) keep their full saturation.
+BOUNCE_CHROMA = 0.4
 GREY_DIM = 0.6               # unfinished grey parts are dimmed in the finished renders so they do not clip
 EXPOSURE = 0.0               # Standard view transform (no tone curve), stops
 

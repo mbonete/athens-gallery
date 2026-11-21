@@ -75,6 +75,31 @@ for link in list(scene.world.node_tree.links):
         to = link.to_socket
         scene.world.node_tree.links.remove(link)
         to.default_value = 0.0
+# White balance (params.BOUNCE_CHROMA): the colours the bake's light bounces off, desaturated.
+# The lightmaps hold light only; what the web shows of a surface's own colour comes from the
+# materials' albedo_dark/albedo_light (detail tiles), which this leaves alone.
+def _desat(c):
+    y = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+    return [y + (v - y) * P.BOUNCE_CHROMA for v in c[:3]] + list(c[3:])
+
+
+n_cols = n_imgs = 0
+for mat in bpy.data.materials:
+    if not mat.use_nodes:
+        continue
+    for node in mat.node_tree.nodes:
+        if node.type == "RGB":
+            node.outputs[0].default_value = _desat(node.outputs[0].default_value); n_cols += 1
+        for sock in node.inputs:
+            if sock.type == "RGBA" and not sock.is_linked:
+                sock.default_value = _desat(sock.default_value); n_cols += 1
+for im in bpy.data.images:
+    if im.is_float and not im.filepath and im.size[0] > 0:      # the floors' designed tiles
+        a = np.empty(im.size[0] * im.size[1] * 4, np.float32); im.pixels.foreach_get(a)
+        a = a.reshape(-1, 4); y = a[:, :3] @ np.array([0.2126, 0.7152, 0.0722], np.float32)
+        a[:, :3] = y[:, None] + (a[:, :3] - y[:, None]) * P.BOUNCE_CHROMA
+        im.pixels.foreach_set(a.ravel()); im.pack(); n_imgs += 1
+log(f"white balance: {n_cols} colours, {n_imgs} images at {P.BOUNCE_CHROMA} of their saturation")
 scene.cycles.use_denoising = False          # denoised afterwards, with the stitch (tools/lightmap_post.py)
 bake = scene.render.bake
 bake.use_pass_direct = bake.use_pass_indirect = True
