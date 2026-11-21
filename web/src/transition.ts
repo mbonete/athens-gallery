@@ -11,6 +11,7 @@ import { frustumFor, poseAt, type Pose } from "./walk";
 export const dom = {
   osd: null as HTMLDivElement | null,
   panel: null as HTMLDivElement | null,
+  zoomUi: null as HTMLDivElement | null,
 };
 
 /** OpenSeadragon is fetched on its own, after the hall (App.tsx asks for it once the browser is
@@ -181,31 +182,85 @@ export function enter(p: Painting, opts: { push?: boolean } = {}) {
   tl.call(() => myVisit === visit && openZoom(p, rect, myVisit), [], dur(1.3));
 }
 
+/** The painting's own rect on screen at the end of the walk-up: walkUpPose fits it into `rect`
+ * ("contain"), centred. */
+function paintingRect(p: Painting, rect: Rect): Rect {
+  const pw = displayW(p);
+  const ph = displayH(p);
+  const s = Math.min(rect.w / pw, rect.h / ph);
+  const w = Math.round(pw * s);
+  const h = Math.round(ph * s);
+  return { x: Math.round(rect.x + (rect.w - w) / 2), y: Math.round(rect.y + (rect.h - h) / 2), w, h };
+}
+
+/** Zoom state for the + and - buttons and the cursor (Detail.tsx listens to "zoomstate"). */
+function zoomState() {
+  if (!viewer) return;
+  const vp = viewer.viewport;
+  const z = vp.getZoom(false);
+  const canIn = z < vp.getMaxZoom() * 0.98;
+  const canOut = z > vp.getHomeZoom() * 1.02;
+  dom.osd!.dataset.zoom = canIn ? "in" : "out";
+  window.dispatchEvent(new CustomEvent("zoomstate", { detail: { canIn, canOut } }));
+}
+
+/** The + and - buttons: one click step (x2) about the middle of the view. */
+export function zoomStep(dir: 1 | -1) {
+  if (!viewer || getState().mode !== "detail") return;
+  viewer.viewport.zoomBy(dir > 0 ? 2 : 0.5, undefined, reduced());
+  viewer.viewport.applyConstraints(reduced());
+}
+
 async function openZoom(p: Painting, rect: ReturnType<typeof targetRect>, myVisit: number) {
   const current = () => myVisit === visit && getState().mode === "entering";
   if (!current()) return;
   // Normally loaded long before; if the fetch failed, the 3D painting stays and Back still works.
   const OpenSeadragon = await loadZoom().catch(() => null);
   if (!OpenSeadragon || !current()) return;
-  const W = window.innerWidth;
-  const H = window.innerHeight;
+  // Click to zoom, drag to pan (Maria, 2026-11-21): the viewer is exactly the painting's rect, and
+  // the image always fills it (visibilityRatio 1), so the painting never leaves its frame and the
+  // 3D one behind it never shows. Mouse: a click zooms x2 on that spot, at full zoom a click goes
+  // back to the whole painting; drag pans; the wheel zooms. Touch: pinch, double-tap, one-finger drag.
   const el = dom.osd!;
+  const pr = paintingRect(p, rect);
+  Object.assign(el.style, { left: `${pr.x}px`, top: `${pr.y}px`, width: `${pr.w}px`, height: `${pr.h}px` });
+  const ui = dom.zoomUi!;
+  Object.assign(ui.style, { left: `${pr.x + pr.w}px`, top: `${pr.y + pr.h}px` });
   gsap.set(el, { opacity: 0, visibility: "visible" });
   viewer?.destroy();
   viewer = OpenSeadragon({
     element: el,
     tileSources: p.dzi,
     showNavigationControl: false,
-    viewportMargins: { left: rect.x, top: rect.y, right: W - rect.x - rect.w, bottom: H - rect.y - rect.h },
-    visibilityRatio: 0.6,
+    visibilityRatio: 1,
+    constrainDuringPan: true,
     minZoomImageRatio: 1,
     maxZoomPixelRatio: p.maxZoom ?? 2.5,
-    animationTime: 0.9,
+    zoomPerClick: 2,
+    zoomPerScroll: 1.25,
+    animationTime: reduced() ? 0 : 0.6,
+    springStiffness: 8,
     blendTime: 0,
     immediateRender: false,
-    gestureSettingsTouch: { pinchRotate: false, flickEnabled: true },
-    gestureSettingsMouse: { clickToZoom: false },
+    gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: false, scrollToZoom: true, flickEnabled: false },
+    gestureSettingsPen: { clickToZoom: false, dblClickToZoom: false },
+    gestureSettingsTouch: { clickToZoom: false, dblClickToZoom: true, pinchToZoom: true, pinchRotate: false, flickEnabled: true },
   });
+  viewer.addHandler("canvas-click", (e) => {
+    const oe = e.originalEvent as Event & { pointerType?: string };
+    const touch = oe?.pointerType === "touch" || oe?.type?.startsWith("touch");
+    if (!viewer || !e.quick || touch) return; // a drag, or a tap (double-tap zooms)
+    e.preventDefaultAction = true;
+    const vp = viewer.viewport;
+    if (vp.getZoom(false) >= vp.getMaxZoom() * 0.98) vp.goHome(reduced());
+    else vp.zoomBy(2, vp.pointFromPixel(e.position), reduced());
+    vp.applyConstraints(reduced());
+  });
+  viewer.addHandler("canvas-press", () => {
+    if (viewer && viewer.viewport.getZoom(false) > viewer.viewport.getHomeZoom() * 1.02) el.dataset.drag = "";
+  });
+  viewer.addHandler("canvas-release", () => delete el.dataset.drag);
+  viewer.addHandler("zoom", zoomState);
   let shown = false;
   const show = () => {
     if (shown || !current()) return;
@@ -215,6 +270,7 @@ async function openZoom(p: Painting, rect: ReturnType<typeof targetRect>, myVisi
   viewer.addHandler("open", () => {
     if (!current() || !viewer) return;
     viewer.viewport.goHome(true);
+    zoomState();
     const item = viewer!.world.getItemAt(0);
     item.addHandler("fully-loaded-change", (e: { fullyLoaded: boolean }) => e.fullyLoaded && show());
     p.hotspots.forEach((hs, i) => {
@@ -321,4 +377,9 @@ export function leave(opts: { pop?: boolean } = {}) {
     viewer = null;
     walkBack();
   }
+}
+
+if (import.meta.env.DEV) {
+  // Test hook (dev only): scripted checks of the zoom viewer.
+  (window as unknown as Record<string, unknown>).__zoom = { get viewer() { return viewer; } };
 }
