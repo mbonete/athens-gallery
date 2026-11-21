@@ -14,7 +14,7 @@ const HOW: [string, string][] = TOUCH
     ]
   : [
       ["Walk", "Scroll, or pinch on a trackpad"],
-      ["A painting", "Click it to walk up; click again to zoom, drag to look around"],
+      ["A painting", "Click it to walk up, again to zoom; drag to look around"],
       ["The dome", "Click it to look up"],
       ["Keys", "Arrows to walk; Tab and Enter open a painting"],
     ];
@@ -24,10 +24,10 @@ const HOW: [string, string][] = TOUCH
 const LEAVE = 0.004;
 const BACK = 0.0005;
 
-/** The exhibition's own wall label, mounted beside the entrance like the label beside each
- * painting (Maria, 2026-11-21: Raphael's view first, the title noticed second). It steps aside
- * with the first step and is there again whenever the visitor is back at the start. It never
- * takes a click or a tap: the hall behind it does. */
+/** The exhibition's title at the entrance, as a banner across the bottom of the start view (Maria,
+ * 2026-11-21: this distribution, without tracked capitals or a fog; portrait: the title on the
+ * wall above the arch, how to visit at the bottom). It steps aside with the first step and is
+ * there again whenever the visitor is back at the start. It never takes a click or a tap. */
 export function Intro() {
   const ready = useStore((s) => s.ready);
   const mode = useStore((s) => s.mode);
@@ -48,14 +48,16 @@ export function Intro() {
 
   return (
     <header className={`intro ${ready && mode === "walk" && atStart ? "show" : ""}`}>
-      <h1>Studiolo</h1>
-      <p className="intro-line">
-        Nine favourite paintings, chosen by Maria Bonete, hung in the architecture of
-        Raphael’s <cite>School of Athens</cite>.
-      </p>
-      <p className="intro-note">
-        The hall is rebuilt in 3D from the fresco (<span className="nowrap">Vatican, 1509–1511</span>). Each painting hangs at its true size.
-      </p>
+      <div className="intro-title">
+        <h1>Studiolo</h1>
+        <p className="intro-line">
+          Nine favourite paintings, chosen by Maria Bonete, hung in the architecture of
+          Raphael’s <cite>School of Athens</cite>.
+        </p>
+        <p className="intro-note">
+          The hall is rebuilt in 3D from the fresco (<span className="nowrap">Vatican, 1509–1511</span>). Each painting hangs at its true size.
+        </p>
+      </div>
       <h2 className="visually-hidden">How to visit</h2>
       <dl className="intro-how">
         {HOW.map(([k, v]) => (
