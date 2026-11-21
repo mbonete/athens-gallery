@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
 import type { Painting } from "./paintings";
 
-export type Mode = "walk" | "entering" | "detail" | "leaving" | "looking-up" | "dome" | "looking-down";
+export type Mode = "walk" | "entering" | "detail" | "leaving" | "looking-up" | "dome" | "looking-down"
+  | "banner-in" | "banner" | "banner-out";
 type State = { mode: Mode; active: Painting | null; ready: boolean };
 
 let state: State = { mode: "walk", active: null, ready: false };

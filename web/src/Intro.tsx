@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { rig } from "./rig";
 import { useStore } from "./store";
+import { BANNERS } from "./Banners";
 
 const TOUCH = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
 
@@ -47,7 +48,8 @@ export function Intro() {
   }, []);
 
   return (
-    <header className={`intro ${ready && mode === "walk" && atStart ? "show" : ""}`}>
+    // With the banners in the hall (Banners.tsx) this stays for screen readers only; ?intro=bottom shows it.
+    <header className={BANNERS ? "visually-hidden" : `intro ${ready && mode === "walk" && atStart ? "show" : ""}`}>
       <div className="intro-title">
         <h1>Studiolo</h1>
         <p className="intro-line">

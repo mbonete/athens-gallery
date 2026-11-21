@@ -15,4 +15,6 @@ export const rig = {
   camera: null as ShiftCamera | null,
   paintingMeshes: new Map<string, Mesh>(),
   plaques: new Map<string, Object3D>(),
+  /** The entrance banners (Banners.tsx), by side; userData holds their w and h. */
+  banners: new Map<string, Mesh>(),
 };

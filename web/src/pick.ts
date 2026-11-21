@@ -9,6 +9,7 @@ import { rig } from "./rig";
 import { getState } from "./store";
 import { enter } from "./transition";
 import { hoverDome, lookDown, tapDome } from "./dome";
+import { leaveBanner, viewBanner } from "./banner";
 
 const MIN_PX = 48; // a target is never smaller than this on screen
 const MARGIN_PX = 12;
@@ -51,9 +52,24 @@ export function pickAt(clientX: number, clientY: number, el: HTMLElement) {
   return best ? PAINTINGS.find((p) => p.slug === best!.slug) ?? null : null;
 }
 
+/** The entrance banner under the pointer, if any: its own outline on screen, no margin (it is
+ * large, and it must not steal taps meant for the paintings behind it). */
+export function pickBanner(clientX: number, clientY: number, el: HTMLElement) {
+  if (!rig.camera || getState().mode !== "walk" || rig.drive !== "scroll") return null;
+  const box = el.getBoundingClientRect();
+  for (const [side, mesh] of rig.banners) {
+    const r: Rect = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    const { w, h } = mesh.userData as { w: number; h: number };
+    if (!screenRectOf(mesh, w, h, r, box)) continue;
+    if (clientX >= r.x0 && clientX <= r.x1 && clientY >= r.y0 && clientY <= r.y1) return side;
+  }
+  return null;
+}
+
 export function attachPicking(el: HTMLElement) {
   let down: { x: number; y: number; t: number; up: boolean } | null = null;
-  const lookingUp = () => getState().mode === "dome";
+  // Looking up into the dome or reading a banner: a tap anywhere goes back.
+  const lookingUp = () => getState().mode === "dome" || getState().mode === "banner";
   const onDown = (e: PointerEvent) => {
     down = e.isPrimary ? { x: e.clientX, y: e.clientY, t: performance.now(), up: lookingUp() } : null;
   };
@@ -64,11 +80,14 @@ export function attachPicking(el: HTMLElement) {
     // taps during the tilts do nothing).
     if (down.up && lookingUp()) {
       down = null;
-      lookDown();
+      if (getState().mode === "banner") leaveBanner();
+      else lookDown();
       return;
     }
-    const p = pickAt(e.clientX, e.clientY, el);
-    if (p) enter(p);
+    const b = pickBanner(e.clientX, e.clientY, el);
+    const p = b ? null : pickAt(e.clientX, e.clientY, el);
+    if (b) viewBanner(b);
+    else if (p) enter(p);
     else tapDome(e.clientX, e.clientY, el);
     down = null;
   };
@@ -76,7 +95,7 @@ export function attachPicking(el: HTMLElement) {
   const onMove = (e: PointerEvent) => {
     if (e.pointerType !== "mouse") return;
     const up = lookingUp(); // a click anywhere goes back
-    const p = up ? null : pickAt(e.clientX, e.clientY, el);
+    const p = up ? null : pickBanner(e.clientX, e.clientY, el) ?? pickAt(e.clientX, e.clientY, el);
     el.style.cursor = p || up ? "pointer" : "";
     hoverDome(e.clientX, e.clientY, el, !!p || up);
   };

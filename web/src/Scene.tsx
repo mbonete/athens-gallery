@@ -14,6 +14,7 @@ import { glide } from "./input";
 import { DomePicking } from "./DomeControls";
 import { frustumFor, poseAt, progressNear, SHIFT_X, STATIONS, TOTAL } from "./walk";
 import { Sky } from "./Sky";
+import { Banners } from "./Banners";
 
 export function Scene() {
   const { gl, scene, set, size } = useThree();
@@ -97,6 +98,7 @@ export function Scene() {
       <primitive object={sunTarget} />
       <Sky />
       <Hall />
+      <Banners />
       <DomePicking />
       {STATIONS.map((st) => (
         <HungPainting key={st.painting.slug} painting={st.painting} side={st.side} z={st.z} wallX={st.wallX} room={st.room} />

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { attachDomeKeys, attachDomePicking, lookDown } from "./dome";
 import { useStore } from "./store";
 import { BackArrow } from "./icons";
+import { attachBannerKeys, leaveBanner } from "./banner";
 
 /** Inside the canvas: gives the dome's picking pass the renderer and the scene. */
 export function DomePicking() {
@@ -11,15 +12,17 @@ export function DomePicking() {
   return null;
 }
 
-/** The way back while looking up into the dome (the detail view's Back, on its own). */
+/** The way back while looking up into the dome or reading an entrance banner. */
 export function DomeBack() {
   const mode = useStore((s) => s.mode);
-  const shown = mode === "looking-up" || mode === "dome";
+  const banner = mode === "banner-in" || mode === "banner";
+  const shown = mode === "looking-up" || mode === "dome" || banner;
   useEffect(() => attachDomeKeys(), []);
+  useEffect(() => attachBannerKeys(), []);
   return (
     <button
       className={`close dome-back ${shown ? "show" : ""}`}
-      onClick={() => lookDown()}
+      onClick={() => (banner ? leaveBanner() : lookDown())}
       aria-hidden={!shown}
       aria-label="Back to the walk"
       tabIndex={shown ? 0 : -1}
