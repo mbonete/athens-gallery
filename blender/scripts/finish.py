@@ -855,6 +855,37 @@ def apply():
     return M
 
 
+def _split_crossing_jambs():
+    """The crossing arches' legs, their faces into the opening below the springing, become their own
+    objects (crossing_jambs_front / _back). arch_front and arch_back take no sun (Raphael keeps the
+    arches' undersides and the walls above them in half-light), and their legs went with them: a
+    dark stripe the height of the pier beside the lit side wall in the same plane (Maria,
+    2026-11-21). The legs are walls; split off, they stand in the walls' light (and, like the
+    arches, cast no shadow)."""
+    def is_jamb(mw, rot, f):
+        c = mw @ f.calc_center_median()
+        return (abs((rot @ f.normal).normalized().x) > 0.98 and abs(abs(c.x) - P.CROSS_HALF) < 0.02
+                and max((mw @ v.co).z for v in f.verts) <= P.SPRING_Z + 1e-3)
+
+    for tag in ("front", "back"):
+        ob = bpy.data.objects.get(f"arch_{tag}")
+        if ob is None:
+            continue
+        mw, rot = ob.matrix_world, ob.matrix_world.to_3x3()
+        jam = ob.copy()
+        jam.data = ob.data.copy()
+        jam.name = jam.data.name = f"crossing_jambs_{tag}"
+        for c in ob.users_collection:
+            c.objects.link(jam)
+        for target, keep_jambs in ((ob, False), (jam, True)):
+            bm = bmesh.new()
+            bm.from_mesh(target.data)
+            gone = [f for f in bm.faces if is_jamb(mw, rot, f) != keep_jambs]
+            bmesh.ops.delete(bm, geom=gone, context="FACES")
+            bm.to_mesh(target.data)
+            bm.free()
+
+
 def light(sun, world, raphael=True):
     """Sun where Raphael's light comes from: front right (evidence in params.py and REPORT.md).
 
@@ -897,6 +928,7 @@ def light(sun, world, raphael=True):
             co.light_linking.link_state = "EXCLUDE"
         return c
 
+    _split_crossing_jambs()
     meshes = [ob for ob in bpy.data.objects if ob.type == "MESH" and ob.get("kind") != "painting"]
     vault = [ob.name for ob in meshes if ob.name.startswith(
         ("nave_vault", "arm2_vault", "arch_front_soffit", "arch_back_soffit", "dome"))]
@@ -905,7 +937,8 @@ def light(sun, world, raphael=True):
     floors = ("floor", "platform", "step", "podium", "pedestal", "ground")
     right = [ob.name for ob in meshes if not ob.name.startswith(floors)
              and min((ob.matrix_world @ Vector(c)).x for c in ob.bound_box) > 0.5]
-    sun.light_linking.blocker_collection = excluded("sun_not_blocking", vault + upper + right)
+    jambs = [ob.name for ob in meshes if ob.name.startswith("crossing_jambs")]
+    sun.light_linking.blocker_collection = excluded("sun_not_blocking", vault + upper + right + jambs)
     # Nor do the vaults and the faces up under them take the sun; nor the facade's front (painted
     # at 147, darker than the frontal faces deeper in) and the drum (P.NO_SUN).
     no_sun = [ob.name for ob in meshes if ob.name.startswith(P.NO_SUN) and not ob.name.startswith("bay1")]
