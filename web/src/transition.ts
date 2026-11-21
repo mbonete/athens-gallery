@@ -36,6 +36,7 @@ let visit = 0;
 /** Where in the corridor the visitor clicked from: Back returns there. */
 let returnProgress = 0;
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/** Durations and start times: under reduced motion every move is a cut, all at once. */
 const dur = (s: number) => (reduced() ? 0.01 : s);
 
 /** Where the painting sits on screen once the walk-up ends, leaving room for the panel. */
@@ -147,12 +148,12 @@ export function enter(p: Painting, opts: { push?: boolean } = {}) {
   const tl = gsap.timeline({ onComplete: () => myVisit === visit && openZoom(p, rect, myVisit) });
   enterTl = tl;
   tl.to(rig.pose, { ...to, duration: dur(1.3), ease: "power2.inOut" }, 0);
-  tl.to(rig, { light: 0.12, duration: dur(1.1), ease: "power1.inOut" }, 0.1);
+  tl.to(rig, { light: 0.12, duration: dur(1.1), ease: "power1.inOut" }, dur(0.1));
   tl.to(start, {
     ...end, duration: dur(0.9), ease: "power3.inOut",
     onUpdate: () => placePanel(start),
-  }, 0.15);
-  tl.to(panel, { "--content": 1, duration: dur(0.35) }, 0.85);
+  }, dur(0.15));
+  tl.to(panel, { "--content": 1, duration: dur(0.35) }, dur(0.85));
 }
 
 async function openZoom(p: Painting, rect: ReturnType<typeof targetRect>, myVisit: number) {
@@ -214,7 +215,7 @@ export function focusHotspot(p: Painting, i: number) {
   const hs = p.hotspots[i];
   const pt = viewer.viewport.imageToViewportCoordinates(hs.x * p.imageW, hs.y * p.imageH);
   const span = 0.18;
-  viewer.viewport.fitBounds(new OSD!.Rect(pt.x - span / 2, pt.y - span / 2 * 0.75, span, span * 0.75));
+  viewer.viewport.fitBounds(new OSD!.Rect(pt.x - span / 2, pt.y - span / 2 * 0.75, span, span * 0.75), reduced());
   window.dispatchEvent(new CustomEvent("hotspot", { detail: i }));
 }
 
@@ -247,14 +248,16 @@ export function leave(opts: { pop?: boolean } = {}) {
       },
     });
     tl.to(panel, { "--content": 0, duration: dur(0.2) }, 0);
-    tl.to(now, { ...end, duration: dur(0.9), ease: "power3.inOut", onUpdate: () => placePanel(now) }, 0.1);
+    tl.to(now, { ...end, duration: dur(0.9), ease: "power3.inOut", onUpdate: () => placePanel(now) }, dur(0.1));
     tl.to(rig.pose, { ...back, duration: dur(1.2), ease: "power2.inOut" }, 0);
-    tl.to(rig, { light: 1, duration: dur(1.0), ease: "power1.inOut" }, 0.1);
+    tl.to(rig, { light: 1, duration: dur(1.0), ease: "power1.inOut" }, dur(0.1));
   };
 
   if (viewer && mode === "detail") {
-    // Zoom back out to the painting's place, then hand over to the 3D painting.
-    viewer.viewport.goHome(false);
+    // Zoom back out to the painting's place, then hand over to the 3D painting. Under reduced
+    // motion the zoom out is a cut (one frame for the viewer to draw it, then the swap).
+    const vp = viewer.viewport;
+    vp.goHome(false);
     let done = false;
     const swapBack = () => {
       if (done) return;
@@ -269,8 +272,18 @@ export function leave(opts: { pop?: boolean } = {}) {
         },
       });
     };
-    viewer.addOnceHandler("animation-finish", swapBack);
-    setTimeout(swapBack, 1100);
+    const zoomed = Math.abs(vp.getZoom(true) / vp.getZoom(false) - 1) > 1e-4 ||
+      vp.getCenter(true).distanceTo(vp.getCenter(false)) > 1e-5;
+    if (!zoomed) {
+      // Already home: no zoom-out animation runs, so animation-finish would never come.
+      swapBack();
+    } else if (reduced()) {
+      vp.goHome(true);
+      requestAnimationFrame(() => requestAnimationFrame(swapBack));
+    } else {
+      viewer.addOnceHandler("animation-finish", swapBack);
+      setTimeout(swapBack, 1100);
+    }
   } else {
     // Left during the walk-up: drop any zoom viewer it may have started.
     gsap.killTweensOf([rig.pose, rig, el]);
