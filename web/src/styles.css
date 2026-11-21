@@ -21,7 +21,8 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 .panel dd { margin: 0; }
 .panel .source { font-size: 12px; color: var(--muted); }
 .panel a { color: inherit; }
-.close { font: inherit; font-size: 14px; background: none; border: 0; padding: 6px 0; color: var(--muted); cursor: pointer; min-height: 44px; }
+.close { font: inherit; font-size: 14px; background: none; border: 0; padding: 6px 0; color: var(--muted); cursor: pointer; min-height: 44px; border-radius: 999px; }
+.panel .close { padding: 6px 12px; margin-left: -12px; }
 .facts { display: grid; gap: 6px; margin: 0 0 16px; }
 .fact { font: inherit; font-size: 14px; text-align: left; background: none; border: 1px solid rgb(0 0 0 / 0.1);
   border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; gap: 10px; align-items: baseline; color: inherit; }
@@ -33,3 +34,14 @@ html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
   padding: 6px 16px; border-radius: 999px; background: rgb(244 241 234 / 0.9); color: var(--ink);
   opacity: 0; pointer-events: none; transition: opacity 0.3s; }
 .dome-back.show { opacity: 1; pointer-events: auto; }
+/* Keyboard focus: an ink ring between two paper bands, on any background (the pills', the
+   panel's paper, the marble, the dimmed hall). */
+.keys button:focus-visible, .close:focus-visible, .fact:focus-visible, .panel a:focus-visible {
+  outline: 2px solid var(--ink); outline-offset: 2px; box-shadow: 0 0 0 6px rgb(244 241 234 / 0.9); }
+.keys button:focus:not(:focus-visible) { outline: none; }
+.panel a:focus-visible { border-radius: 2px; }
+/* One button per painting and one for the dome (Keys.tsx): out of sight until keyboard focus
+   puts it over its painting; never in the way of a tap. */
+.keys button { position: fixed; left: 0; top: 0; width: 1px; height: 1px; margin: 0; padding: 0; border: 0;
+  background: none; border-radius: 6px; pointer-events: none; clip-path: inset(50%); }
+.keys button.at { clip-path: none; }

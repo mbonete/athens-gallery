@@ -20,6 +20,7 @@ export function DomeBack() {
       className={`close dome-back ${shown ? "show" : ""}`}
       onClick={() => lookDown()}
       aria-hidden={!shown}
+      aria-label="Back to the walk"
       tabIndex={shown ? 0 : -1}
     >
       ← Back to the walk

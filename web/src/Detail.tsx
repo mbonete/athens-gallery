@@ -27,13 +27,16 @@ export function Detail() {
   return (
     <>
       <div ref={osd} className="osd" style={{ pointerEvents: mode === "detail" ? "auto" : "none" }} />
-      <div ref={panel} className="panel" aria-hidden={!p}>
+      {/* A dialog named by the title: opened from the keyboard, focus moves to Back (Keys.tsx), and
+          a screen reader announces the painting's title. */}
+      <div ref={panel} className="panel" aria-hidden={!p} role={p ? "dialog" : undefined}
+        aria-labelledby={p ? "panel-title" : undefined}>
         {p && (
           <div className="content">
             <button className="close" onClick={() => leave()} aria-label="Back to the hall">
               ← Back to the hall
             </button>
-            <h1>{p.title}</h1>
+            <h1 id="panel-title">{p.title}</h1>
             <p className="who">{p.artist}, {p.date}</p>
             <dl>
               <dt>Technique</dt><dd>{p.medium}</dd>

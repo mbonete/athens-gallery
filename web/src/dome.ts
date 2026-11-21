@@ -13,6 +13,7 @@ import * as THREE from "three";
 import { DOME } from "./data/dome";
 import { rig } from "./rig";
 import { getState, setState } from "./store";
+import type { Box } from "./view";
 import { poseAt, progressAt } from "./walk";
 
 /** Drawn only by the picking pass (the main camera sees layer 0 only). */
@@ -38,6 +39,7 @@ const mark = new THREE.ShaderMaterial({
   uniforms: {
     uZ: { value: DOME.z }, uHalf: { value: DOME.half }, uSpring: { value: DOME.spring },
     uDrum: { value: DOME.drumBase }, uWin: { value: DOME.windows[0] }, uOuter: { value: DOME.outer },
+    uFloor: { value: -1e4 },
   },
   vertexShader: /* glsl */ `
     varying vec3 vW;
@@ -47,7 +49,7 @@ const mark = new THREE.ShaderMaterial({
       gl_Position = projectionMatrix * viewMatrix * w;
     }`,
   fragmentShader: /* glsl */ `
-    uniform float uZ, uHalf, uSpring, uDrum, uWin, uOuter;
+    uniform float uZ, uHalf, uSpring, uDrum, uWin, uOuter, uFloor;
     varying vec3 vW;
     void main() {
       vec2 d = vec2(vW.x, vW.z - uZ);
@@ -58,7 +60,8 @@ const mark = new THREE.ShaderMaterial({
       bool wall = vW.y > uDrum - 0.05 && length(d) < uHalf + 0.03;
       // From the windows up, within the drum's outer wall: window reveals, the plugs, the dome.
       bool drum = vW.y > uWin - 0.3 && length(d) < uOuter + 0.15;
-      gl_FragColor = (square || wall || drum) ? vec4(1.0) : vec4(0.0, 0.0, 0.0, 1.0);
+      // uFloor: nothing below it counts (the drum and the dome alone: the pendentives stay out).
+      gl_FragColor = vW.y > uFloor && (square || wall || drum) ? vec4(1.0) : vec4(0.0, 0.0, 0.0, 1.0);
     }`,
 });
 const crop = new THREE.Matrix4();
@@ -98,8 +101,8 @@ export function attachDomePicking(gl: THREE.WebGLRenderer, sc: THREE.Scene) {
 /** Draw the screen rectangle centred on (x, y) client px, (halfW, halfH) CSS px each way, at
  * nx x ny texels, and read it back without stalling the page (the GPU answers a frame or two
  * later). Resolves to the marked texels, row 0 at the bottom, or null if the scene is gone. */
-async function drawPatch(x: number, y: number, halfW: number, halfH: number, nx: number, ny: number, el: HTMLElement) {
-  const cam = rig.camera;
+async function drawPatch(x: number, y: number, halfW: number, halfH: number, nx: number, ny: number, el: HTMLElement,
+  cam: THREE.Camera | null = rig.camera, floor = -1e4) {
   const gl = renderer;
   const sc = scene;
   if (!cam || !gl || !sc) return null;
@@ -125,12 +128,14 @@ async function drawPatch(x: number, y: number, halfW: number, halfH: number, nx:
   try {
     sc.background = null;
     sc.overrideMaterial = mark;
+    mark.uniforms.uFloor.value = floor;
     gl.setRenderTarget(target);
     gl.setClearColor(0x000000, 0);
     gl.clear();
     gl.render(sc, pickCam);
   } finally {
     sc.overrideMaterial = null;
+    mark.uniforms.uFloor.value = -1e4;
     sc.background = bg;
     gl.setRenderTarget(prevTarget);
     gl.setClearColor(clear, prevAlpha);
@@ -154,6 +159,32 @@ export async function domeAt(x: number, y: number, el: HTMLElement, radius = PIC
     }
   }
   return false;
+}
+
+/** The box (client px) around the part of the dome that shows on screen, seen by `cam` (the live
+ * camera by default), or null if none does: the drum and the dome alone (`drum`), or with the
+ * pendentives as a tap counts them. One texel per `step` CSS px. Null unless walking. */
+export async function domeBox(el: HTMLElement, cam: THREE.Camera | null = rig.camera, drum = false, step = 12): Promise<Box | null> {
+  if (!walking()) return null;
+  const W = el.clientWidth, H = el.clientHeight;
+  const nx = Math.max(1, Math.round(W / step)), ny = Math.max(1, Math.round(H / step));
+  const r = el.getBoundingClientRect();
+  const px = await drawPatch(r.left + W / 2, r.top + H / 2, W / 2, H / 2, nx, ny, el, cam, drum ? DOME.drumBase - 0.05 : -1e4);
+  if (!px) return null;
+  let b: Box | null = null;
+  for (let j = 0; j < ny; j++) {
+    for (let i = 0; i < nx; i++) {
+      if (px[(j * nx + i) * 4] <= 127) continue;
+      const x0 = r.left + (i / nx) * W, x1 = r.left + ((i + 1) / nx) * W;
+      const y1 = r.top + (1 - j / ny) * H, y0 = r.top + (1 - (j + 1) / ny) * H; // row 0 is the bottom
+      if (!b) b = { x0, y0, x1, y1 };
+      else {
+        b.x0 = Math.min(b.x0, x0); b.x1 = Math.max(b.x1, x1);
+        b.y0 = Math.min(b.y0, y0); b.y1 = Math.max(b.y1, y1);
+      }
+    }
+  }
+  return b;
 }
 
 /** A tap that missed the paintings: look up if it was on the dome. */
@@ -249,7 +280,7 @@ export function attachDomeKeys() {
 if (import.meta.env.DEV) {
   // Test hook (dev only): scripted checks of the picking and the look up.
   (window as unknown as Record<string, unknown>).__dome = {
-    DOME, domeAt, lookUp, lookDown, PICK_RADIUS_PX,
+    DOME, domeAt, domeBox, lookUp, lookDown, PICK_RADIUS_PX,
     get tl() { return tl; },
     /** The exact dome mask of the whole screen, one texel per `step` CSS px: [x, y] centres. */
     async mask(step: number) {
