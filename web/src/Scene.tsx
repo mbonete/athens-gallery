@@ -13,10 +13,7 @@ import { getState, setState } from "./store";
 import { glide } from "./input";
 import { DomePicking } from "./DomeControls";
 import { frustumFor, poseAt, progressNear, SHIFT_X, STATIONS, TOTAL } from "./walk";
-
-// The fresco's sky, as seen through the far door and the drum (sRGB 175, 175, 245).
-const SKY = new THREE.Color().setRGB(175 / 255, 175 / 255, 245 / 255, THREE.SRGBColorSpace);
-const SKY_DIM = new THREE.Color("#2a2826");
+import { Sky } from "./Sky";
 
 export function Scene() {
   const { gl, scene, set, size } = useThree();
@@ -54,7 +51,6 @@ export function Scene() {
     set({ camera });
     const pmrem = new THREE.PMREMGenerator(gl);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.background = SKY.clone();
     return () => pmrem.dispose();
   }, [camera, gl, scene, set]);
 
@@ -78,8 +74,6 @@ export function Scene() {
     hemi.current.intensity = 0.9 * rig.light;
     sun.current.intensity = 2.8 * rig.light;
     scene.environmentIntensity = 0.35 * rig.light;
-    // The first frames can run before the effect above sets the background.
-    if (scene.background instanceof THREE.Color) scene.background.copy(SKY_DIM).lerp(SKY, rig.light);
   });
 
   return (
@@ -88,6 +82,7 @@ export function Scene() {
       {/* Lights only for the frames and the doorway's base: the hall itself is baked. */}
       <directionalLight ref={sun} position={[-27, 46, 13]} intensity={1.8} />
       <primitive object={sunTarget} />
+      <Sky />
       <Hall />
       <DomePicking />
       {STATIONS.map((st) => (
