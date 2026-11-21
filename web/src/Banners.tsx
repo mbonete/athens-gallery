@@ -1,26 +1,28 @@
 import { useFrame, useLoader } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import hall from "./data/hall.json";
 import { PAINTINGS } from "./paintings";
 import { rig } from "./rig";
 
 /** The exhibition's banners (Maria, 2026-11-21: exhibition banners at the entrance, as in
- * museums; now standing on the upper floor at the top of the steps, one each side). They carry
- * what the bottom banner carried: the title, the line and the note on the left, how to visit on
- * the right, each under a detail of one of the nine paintings (Klimt's gold, Hokusai's wave).
- * They stand on a low bronze base, facing the entrance, clear of the axis (the far door, the
- * Bosch) and of the first bay's paintings as seen from the start. A click or a tap walks up to
- * one to read it (banner.ts). */
+ * museums; then "move the banners closer to the user, next to the first step of stairs
+ * (downstairs)"): on the lower floor just past the entrance arch, one each side, in front of the
+ * first step. They carry what the bottom banner carried: the title, the line and the note on the
+ * left, how to visit on the right, each under a detail of one of the nine paintings (Klimt's gold,
+ * Hokusai's wave). They stand on a low bronze base, facing the entrance. From the start they are
+ * seen whole through the arch, outside the first bay's paintings and clear of the axis (the far
+ * door, the Bosch). A click or a tap walks up to one to read it (banner.ts). */
 export const BANNERS = new URLSearchParams(window.location.search).get("intro") !== "bottom";
 
 const TOUCH = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
 const W = 0.85; // metres (web): a roll-up banner's cloth
 const H = 2.1;
 const PX = 1000; // canvas px per metre
-const X = 3.0; // centre of each banner from the axis
-const Z = -8.0; // on the upper floor, 1.75 m past the top step
-const FLOOR = hall.floor[hall.floor.length - 1][1]; // the upper floor's height
+// From the start (eye at z 0), x / |z| of the cloth's edges is 0.40 to 0.58: outside the first
+// bay's paintings (0.29 to 0.34) and inside the arch, whose jamb is at 0.70 and whose curve
+// clears the cloth's top corners.
+const X = 2.25; // centre of each banner from the axis
+const Z = -4.6; // on the lower floor; the base's back edge is 8 cm before the first step (z -4.80)
 const BASE_H = 0.09; // the stand's base under the cloth
 const GROUND = "#24201c";
 const CREAM = "#f4f1ea";
@@ -137,7 +139,7 @@ function Banner({ side }: { side: "left" | "right" }) {
     for (const [m, c] of base) m.color.copy(c).multiplyScalar(rig.light);
   });
   const x = side === "left" ? -X : X;
-  const yc = FLOOR + BASE_H + H / 2;
+  const yc = BASE_H + H / 2; // the lower floor is y 0
   return (
     <group position={[x, yc, Z]}>
       <mesh ref={cloth} material={mats.cloth}>

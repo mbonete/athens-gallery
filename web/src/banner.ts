@@ -11,8 +11,9 @@ let returnProgress = 0;
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const dur = (s: number) => (reduced() ? 0.01 : s);
 
-/** Seen from the aisle side: the camera turns 12 deg about the banner towards the axis (straight
- * on, the left podium's pedestal at the top of the steps hides the banner's lower corner). */
+/** Seen from the axis side: the camera turns 12 deg about the banner towards the axis. The close
+ * view stands about 2.1 m back, outside the entrance arch; straight on, the arch's jamb would hide
+ * the banner's outer edge. */
 const OFF_AXIS = (12 * Math.PI) / 180;
 
 /** In front of the banner, its height (or width) filling 88 % of the view, centred. */
