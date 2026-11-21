@@ -291,25 +291,35 @@ function HungPainting({ painting, side, z, wallX, room }: {
 }
 
 /** The wall label, drawn on a canvas (crisp under any camera projection). */
+/** The labels' face (main.tsx loads it); Georgia stands in until it has loaded. */
+const LABEL_FONTS = ["italic 40px Cardo", "29px Cardo", "23px Cardo"];
+const FACE = "Cardo, Georgia, 'Times New Roman', serif";
+
 function labelTexture(p: Painting) {
   const c = document.createElement("canvas");
   c.width = 600;
   c.height = 400;
   const g = c.getContext("2d")!;
-  g.fillStyle = "#f4f1ea";
-  g.fillRect(0, 0, 600, 400);
-  g.fillStyle = "#2a2724";
-  g.font = "italic 38px Georgia, 'Times New Roman', serif";
-  wrap(g, p.title, 36, 74, 528, 44);
-  g.font = "28px Georgia, 'Times New Roman', serif";
-  g.fillText(`${p.artist}, ${p.date}`, 36, 250);
-  g.font = "22px Georgia, 'Times New Roman', serif";
-  g.fillStyle = "#6b655d";
-  g.fillText(`${p.medium}, ${p.dimensions}`, 36, 300);
-  g.fillText("Tap to look closer", 36, 356);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 8;
+  const draw = () => {
+    g.fillStyle = "#f4f1ea";
+    g.fillRect(0, 0, 600, 400);
+    g.fillStyle = "#2a2724";
+    g.font = `italic 40px ${FACE}`;
+    wrap(g, p.title, 36, 74, 528, 46);
+    g.font = `29px ${FACE}`;
+    g.fillText(`${p.artist}, ${p.date}`, 36, 250);
+    g.font = `23px ${FACE}`;
+    g.fillStyle = "#6b655d";
+    g.fillText(`${p.medium}, ${p.dimensions}`, 36, 300);
+    g.fillText("Tap to look closer", 36, 356);
+    t.needsUpdate = true;
+  };
+  draw();
+  // A canvas can't wait for a web font: draw again once Cardo is in.
+  Promise.all(LABEL_FONTS.map((f) => document.fonts.load(f))).then(draw, () => {});
   return t;
 }
 

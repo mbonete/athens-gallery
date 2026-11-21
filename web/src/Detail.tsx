@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { focusHotspot, dom, leave, zoomStep } from "./transition";
 import { useStore } from "./store";
+import { BackArrow } from "./icons";
 
 /** The zoomable painting (OpenSeadragon) and the label-turned-panel. */
 export function Detail() {
@@ -35,8 +36,12 @@ export function Detail() {
       <div ref={osd} className="osd" style={{ pointerEvents: mode === "detail" ? "auto" : "none" }} />
       {/* Zoom in and out by a step, at the painting's lower right corner (placed by transition.ts). */}
       <div ref={zoomUi} className={`zoom-ui ${mode === "detail" ? "show" : ""}`} aria-hidden={mode !== "detail"}>
-        <button type="button" aria-label="Zoom out" disabled={!zoom.canOut} onClick={() => zoomStep(-1)}>−</button>
-        <button type="button" aria-label="Zoom in" disabled={!zoom.canIn} onClick={() => zoomStep(1)}>+</button>
+        <button type="button" aria-label="Zoom out" disabled={!zoom.canOut} onClick={() => zoomStep(-1)}>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" /></svg>
+        </button>
+        <button type="button" aria-label="Zoom in" disabled={!zoom.canIn} onClick={() => zoomStep(1)}>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M8 3v10" /></svg>
+        </button>
       </div>
       {/* A dialog named by the title: opened from the keyboard, focus moves to Back (Keys.tsx), and
           a screen reader announces the painting's title. */}
@@ -45,7 +50,7 @@ export function Detail() {
         {p && (
           <div className="content">
             <button className="close" onClick={() => leave()} aria-label="Back to the hall">
-              ← Back to the hall
+              <BackArrow />Back to the hall
             </button>
             <h1 id="panel-title">{p.title}</h1>
             <p className="who">{p.artist}, {p.date}</p>

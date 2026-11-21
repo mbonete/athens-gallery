@@ -28,3 +28,5 @@ blender/textures/
 blender/athens-hall.blend
 # Bake pipeline intermediates (tools/bake_hall.sh)
 blender/build/
+# Impeccable review captures (regenerable)
+.impeccable/review/

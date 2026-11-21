@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-21T00:00:00Z",
+  "title": "Design System: Studiolo",
+  "extensions": {
+    "colorMeta": {
+      "paper": { "role": "neutral", "displayName": "Label Paper", "canonical": "#f4f1ea", "tonalRamp": ["#2b2925", "#45423c", "#625e56", "#827d73", "#a49e93", "#c6c0b4", "#e2ddd3", "#f4f1ea"] },
+      "ink": { "role": "neutral", "displayName": "Label Ink", "canonical": "#2a2724", "tonalRamp": ["#1c1a18", "#2a2724", "#45413c", "#615c56", "#7f7972", "#9e9891", "#c2bdb7", "#e6e3df"] },
+      "muted": { "role": "neutral", "displayName": "Field Grey", "canonical": "#6b655d", "tonalRamp": ["#24211e", "#3a3631", "#524d46", "#6b655d", "#878177", "#a59f96", "#c7c2ba", "#e7e4df"] },
+      "arch-red": { "role": "primary", "displayName": "Arch Red", "canonical": "#5d3125", "tonalRamp": ["#2a120c", "#5d3125", "#7a4537", "#985c4c", "#b57a69", "#cf9c8d", "#e6c3b8", "#f6e6e1"] },
+      "sky-clear": { "role": "neutral", "displayName": "Sky Clear", "canonical": "#c9d4e2", "tonalRamp": ["#1f2731", "#36404d", "#515d6c", "#6f7c8c", "#909cac", "#b0bbc9", "#c9d4e2", "#e9eef4"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The exhibition title on the entrance label; 30px short landscape, 28px portrait." },
+      "title": { "displayName": "Title", "purpose": "A painting's title in the info panel, always italic." },
+      "body-lead": { "displayName": "Body Lead", "purpose": "Entrance line; artist and date in the panel." },
+      "body": { "displayName": "Body", "purpose": "Entrance note and catalogue lists." },
+      "label": { "displayName": "Label", "purpose": "Back control and detail-fact buttons." },
+      "caption": { "displayName": "Caption", "purpose": "Licence and record link, in Field Grey." }
+    },
+    "shadows": [
+      { "name": "mounting", "value": "0 1px 2px rgb(42 39 36 / 0.16), 0 8px 24px rgb(42 39 36 / 0.14)", "purpose": "The entrance plaque, hung on the wall." },
+      { "name": "control-lift", "value": "0 1px 2px rgb(42 39 36 / 0.2), 0 4px 12px rgb(42 39 36 / 0.16)", "purpose": "Round zoom buttons over the painting." },
+      { "name": "panel-edge", "value": "0 0 0 1px rgb(0 0 0 / 0.06)", "purpose": "The info panel's seam against the dimmed hall." },
+      { "name": "focus-halo", "value": "outline: 2px solid #5d3125; outline-offset: 2px; box-shadow: 0 0 0 6px rgb(244 241 234 / 0.9)", "purpose": "Keyboard focus on any background." }
+    ],
+    "motion": [
+      { "name": "label-reveal", "value": "opacity, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Entrance label fades and rises 6px in; none under reduced motion." },
+      { "name": "control-fade", "value": "opacity 0.2s (zoom), 0.3s (dome back)", "purpose": "Floating controls appear with their mode." },
+      { "name": "panel-unfold", "value": "clip 0.4s power3.out in, 0.25s power2.in out (gsap)", "purpose": "The wall label unfolds into the panel; every move is a cut under reduced motion." }
+    ],
+    "breakpoints": [
+      { "name": "portrait", "value": "(orientation: portrait)" },
+      { "name": "short", "value": "(max-height: 500px)" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Entrance Wall Label",
+      "kind": "card",
+      "refersTo": "wall-label",
+      "description": "The exhibition's own label at the lower left of the start view: title, line, note, catalogue list.",
+      "html": "<header class=\"ds-label\"><h1>Studiolo</h1><p class=\"ds-line\">Nine favourite paintings, chosen by Maria Bonete, hung in the architecture of Raphael's <cite>School of Athens</cite>.</p><p class=\"ds-note\">The hall is rebuilt in 3D from the fresco (Vatican, 1509–1511). Each painting hangs at its true size.</p><dl class=\"ds-how\"><dt>Walk</dt><dd>Scroll, or pinch on a trackpad</dd><dt>The dome</dt><dd>Click it to look up</dd></dl></header>",
+      "css": ".ds-label { width: 412px; padding: 22px 24px 20px; background: #f4f1ea; color: #2a2724; font-family: Cardo, Georgia, 'Times New Roman', serif; box-shadow: 0 1px 2px rgb(42 39 36 / 0.16), 0 8px 24px rgb(42 39 36 / 0.14); } .ds-label h1 { font-weight: 400; font-size: 44px; line-height: 1; letter-spacing: -0.012em; margin: 0 0 12px; } .ds-line { font-size: 18px; line-height: 1.38; margin: 0 0 8px; } .ds-note { font-size: 15px; line-height: 1.4; color: #6b655d; margin: 0; } .ds-how { display: grid; grid-template-columns: max-content 1fr; gap: 5px 16px; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid rgb(42 39 36 / 0.16); font-size: 15px; line-height: 1.35; } .ds-how dt { color: #6b655d; } .ds-how dd { margin: 0; }"
+    },
+    {
+      "name": "Info Panel",
+      "kind": "card",
+      "refersTo": "info-panel",
+      "description": "What a painting's wall label unfolds into: back control, italic title, catalogue list, source.",
+      "html": "<div class=\"ds-panel\"><h1>Hylas and the Nymphs</h1><p class=\"ds-who\">John William Waterhouse, 1896</p><dl><dt>Technique</dt><dd>Oil on canvas</dd><dt>Size</dt><dd>98.2 × 163.3 cm</dd><dt>Collection</dt><dd>Manchester Art Gallery</dd></dl><p class=\"ds-source\">Image: via Wikimedia Commons (public domain). <a href=\"#\">Record</a></p></div>",
+      "css": ".ds-panel { width: 400px; padding: 20px 22px; background: #f4f1ea; color: #2a2724; font-family: Cardo, Georgia, serif; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06); } .ds-panel h1 { font-style: italic; font-weight: normal; font-size: 27px; line-height: 1.2; margin: 0 0 4px; } .ds-who { margin: 0 0 14px; font-size: 18px; } .ds-panel dl { display: grid; grid-template-columns: max-content 1fr; gap: 5px 16px; margin: 0 0 16px; font-size: 15px; } .ds-panel dt { color: #6b655d; } .ds-panel dd { margin: 0; } .ds-source { font-size: 13px; color: #6b655d; } .ds-panel a { color: inherit; } .ds-panel a:focus-visible { outline: 2px solid #5d3125; outline-offset: 2px; border-radius: 2px; box-shadow: 0 0 0 6px rgb(244 241 234 / 0.9); }"
+    },
+    {
+      "name": "Back Control",
+      "kind": "button",
+      "refersTo": "button-back",
+      "description": "Text-and-arrow back control at the head of the panel.",
+      "html": "<button class=\"ds-back\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M13 8H3M7 4 3 8l4 4\"/></svg>Back to the hall</button>",
+      "css": ".ds-back { font-family: Cardo, Georgia, serif; font-size: 14px; background: none; border: 0; padding: 6px 12px; color: #6b655d; cursor: pointer; min-height: 44px; border-radius: 999px; display: inline-flex; align-items: center; gap: 7px; } .ds-back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; } .ds-back:focus-visible { outline: 2px solid #5d3125; outline-offset: 2px; box-shadow: 0 0 0 6px rgb(244 241 234 / 0.9); }"
+    },
+    {
+      "name": "Floating Back Pill",
+      "kind": "button",
+      "refersTo": "button-back-floating",
+      "description": "The dome's way back, on a translucent paper pill over the vault.",
+      "html": "<button class=\"ds-pill\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M13 8H3M7 4 3 8l4 4\"/></svg>Back to the walk</button>",
+      "css": ".ds-pill { font-family: Cardo, Georgia, serif; font-size: 14px; border: 0; padding: 6px 16px; min-height: 44px; border-radius: 999px; background: rgb(244 241 234 / 0.9); color: #2a2724; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; } .ds-pill svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; } .ds-pill:focus-visible { outline: 2px solid #5d3125; outline-offset: 2px; box-shadow: 0 0 0 6px rgb(244 241 234 / 0.9); }"
+    },
+    {
+      "name": "Zoom Button",
+      "kind": "button",
+      "refersTo": "button-zoom",
+      "description": "Round paper buttons at the painting's lower right in the detail view.",
+      "html": "<div class=\"ds-zoom\"><button aria-label=\"Zoom out\" disabled><svg viewBox=\"0 0 16 16\"><path d=\"M3 8h10\"/></svg></button><button aria-label=\"Zoom in\"><svg viewBox=\"0 0 16 16\"><path d=\"M3 8h10M8 3v10\"/></svg></button></div>",
+      "css": ".ds-zoom { display: flex; gap: 6px; } .ds-zoom button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 0; background: rgb(244 241 234 / 0.94); color: #2a2724; cursor: pointer; box-shadow: 0 1px 2px rgb(42 39 36 / 0.2), 0 4px 12px rgb(42 39 36 / 0.16); } .ds-zoom svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; } .ds-zoom button:disabled { opacity: 0.4; cursor: default; } .ds-zoom button:focus-visible { outline: 2px solid #5d3125; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Exhibition's Own Labels",
+    "overview": "The hall is the exhibit: Raphael's architecture rebuilt in 3D, cream marble, a gold-leaf opening arch with a view-dependent sheen, floor patterns in a deep madder (#754543, baked into the model) and a photographed sky through the far doors. None of those colours come from CSS; they live in the baked model and the Blender albedos (`blender/scripts/params.py`, `Scene.tsx` gold-leaf shader). The interface does not compete with them. Every piece of UI is a museum wall label: a paper plaque set in ink in one Aldine face, mounted on the wall or unfolding from it.\n\nThe same label exists in three forms that share one vocabulary: the label beside each painting (drawn on canvas in the 3D scene), the entrance label for the exhibition itself, and the information panel a painting's label unfolds into. Paper, ink, a muted grey for field names and notes, one hairline, Cardo. Controls are few and quiet: a back pill, two round zoom buttons, invisible keyboard targets that appear only under focus.\n\nDensity is low and the voice is a catalogue entry: field names on the left in muted, values on the right in ink. The UI steps aside: the entrance label hides with the first step, takes no pointer events, and sits at the lower left so the centre axis (vanishing point, door, dome windows) stays clear.",
+    "keyCharacteristics": [
+      "Paper plaques, square-cornered, with ink text in Cardo only.",
+      "Catalogue grammar: two-column definition lists (muted term, ink value).",
+      "The arch's dark red appears in the UI only as focus and selection.",
+      "The hall's colours come from the model; the UI adds no decorative colour.",
+      "Drawn line icons at one stroke weight, coloured by their text."
+    ],
+    "rules": [
+      { "name": "The Red Is a Signal Rule", "body": "Arch Red marks focus and selection. It does not fill buttons, colour headings or decorate plaques.", "section": "colors" },
+      { "name": "The Hall Owns Colour Rule", "body": "Marble cream, gold leaf, the #754543 floor patterns and the sky are materials of the 3D world, tuned in the bake. UI surfaces do not borrow them as accents.", "section": "colors" },
+      { "name": "The One Face Rule", "body": "Cardo for every label, panel, title and control. No second family, no bold, no uppercase tracking.", "section": "typography" },
+      { "name": "The Catalogue Rule", "body": "Facts about a work or a visit are set as a two-column list: term in Field Grey, value in Ink, gap 5px by 16px.", "section": "typography" },
+      { "name": "The Hung, Not Floating Rule", "body": "A plaque gets a close contact shadow plus a soft spread, the way a label sits on a wall. No glows, no hard offsets.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** set every piece of UI as a wall label: paper (#f4f1ea), ink (#2a2724), Cardo, square corners.",
+      "**Do** put facts in the catalogue list: muted term, ink value.",
+      "**Do** keep the centre axis of the start view clear of UI.",
+      "**Do** use Arch Red only for focus and selection, with the paper halo around the ring.",
+      "**Do** draw icons at stroke 1.5 on a 16px grid, coloured by their text."
+    ],
+    "donts": [
+      "**Don't** use a second typeface, bold weights or tracked uppercase labels.",
+      "**Don't** centre a hero stack over a wash or fog layer on the start view.",
+      "**Don't** tint UI with the hall's materials (gold, marble cream, #754543).",
+      "**Don't** use hard offset shadows or glows; plaques are hung, not floating.",
+      "**Don't** let UI take the hall's clicks where it doesn't need to; the entrance label is pointer-transparent."
+    ]
+  }
+}

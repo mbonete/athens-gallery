@@ -2,6 +2,7 @@ import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import { attachDomeKeys, attachDomePicking, lookDown } from "./dome";
 import { useStore } from "./store";
+import { BackArrow } from "./icons";
 
 /** Inside the canvas: gives the dome's picking pass the renderer and the scene. */
 export function DomePicking() {
@@ -23,7 +24,7 @@ export function DomeBack() {
       aria-label="Back to the walk"
       tabIndex={shown ? 0 : -1}
     >
-      ← Back to the walk
+      <BackArrow />Back to the walk
     </button>
   );
 }
