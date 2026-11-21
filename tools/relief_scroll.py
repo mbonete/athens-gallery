@@ -253,7 +253,7 @@ def tile(spec, ground, n=None):
     cv = draw(w, h)
     f = shade(cv)
     relief = np.clip(cv.hgt * 4, 0, 1)
-    tone = 0.90 + 0.10 * relief                                  # light on light
+    tone = 0.95 + 0.05 * relief                                  # light on light; the ground stays cream
     N = n or ground.shape[0]
     f = cv2.resize((f * tone).astype(np.float32), (N, N), interpolation=cv2.INTER_AREA)
     g = cv2.resize(ground, (N, N), interpolation=cv2.INTER_AREA)
