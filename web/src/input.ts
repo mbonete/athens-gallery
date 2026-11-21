@@ -6,7 +6,8 @@
 // - Trackpad pinch (Chrome/Edge/Firefox send it as ctrl + wheel; Safari as gesture events):
 //   the same.
 // - Mouse wheel / two-finger trackpad scroll: down walks forward (for mice without a pinch).
-// - Keyboard: ArrowUp/ArrowDown, PageUp/PageDown, Home/End.
+// - Keyboard: ArrowUp/ArrowDown, PageUp/PageDown, Space/Shift+Space, Home/End. Space is left to a
+//   focused button (it opens the painting; see Keys.tsx).
 import { rig } from "./rig";
 import { getState, setState } from "./store";
 import { TOTAL } from "./walk";
@@ -20,12 +21,26 @@ const M_PER_KEY = 2;
 
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 const walking = () => getState().mode === "walk" && rig.drive === "scroll";
+const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function walk(metres: number) {
   if (!walking()) return;
   rig.target = clamp01(rig.target + metres / TOTAL);
   if (rig.target > 0.002 && !getState().started) setState({ started: true });
 }
+
+/** Walk to a point of the walk on the visitor's behalf (a painting got keyboard focus): the
+ * same glide as walking, or a cut under reduced motion. */
+export function walkTo(progress: number) {
+  if (!walking()) return;
+  rig.target = clamp01(progress);
+  if (reduced()) rig.progress = rig.target;
+  if (rig.target > 0.002 && !getState().started) setState({ started: true });
+}
+
+/** Keys that a focused control handles itself. */
+const control = (t: EventTarget | null) =>
+  t instanceof Element && !!t.closest("button, a, input, select, textarea, [contenteditable]");
 
 export function attachWalkInput(el: HTMLElement) {
   let spread0 = 0;
@@ -72,9 +87,11 @@ export function attachWalkInput(el: HTMLElement) {
 
   const onKey = (e: KeyboardEvent) => {
     if (!walking()) return; // inside a painting, keys belong to the zoom viewer
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const k = e.key;
     if (k === "ArrowUp" || k === "PageDown") walk(k === "PageDown" ? M_PER_KEY * 4 : M_PER_KEY);
     else if (k === "ArrowDown" || k === "PageUp") walk(k === "PageUp" ? -M_PER_KEY * 4 : -M_PER_KEY);
+    else if (k === " " && !control(e.target)) walk(e.shiftKey ? -M_PER_KEY * 4 : M_PER_KEY * 4);
     else if (k === "Home") walk(-TOTAL);
     else if (k === "End") walk(TOTAL);
     else return;

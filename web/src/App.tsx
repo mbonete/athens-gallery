@@ -3,6 +3,7 @@ import { Suspense, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { Detail } from "./Detail";
 import { DomeBack } from "./DomeControls";
+import { KeyRing, Keys } from "./Keys";
 import { PAINTINGS } from "./paintings";
 import { rig } from "./rig";
 import { Scene } from "./Scene";
@@ -16,6 +17,8 @@ import { progressNear, STATIONS } from "./walk";
 const FRESCO_FRAME = import.meta.env.DEV && new URLSearchParams(location.search).has("fresco");
 
 const TOUCH = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
+
+const CANVAS_LABEL = `The architecture of Raphael's School of Athens in 3D, with ${PAINTINGS.length} paintings`;
 
 export function App() {
   const ready = useStore((s) => s.ready);
@@ -69,10 +72,16 @@ export function App() {
         <Canvas
           dpr={[1, 2]}
           gl={{ antialias: true, toneMapping: THREE.AgXToneMapping, toneMappingExposure: 1.0 }}
-          onCreated={({ gl }) => gl.setClearColor("#c9d4e2")}
+          onCreated={({ gl }) => {
+            gl.setClearColor("#c9d4e2");
+            // Each painting and the dome also have a button (Keys.tsx); the canvas is the picture.
+            gl.domElement.setAttribute("role", "img");
+            gl.domElement.setAttribute("aria-label", CANVAS_LABEL);
+          }}
         >
           <Suspense fallback={null}>
             <Scene />
+            <KeyRing />
           </Suspense>
         </Canvas>
       </div>
@@ -80,6 +89,7 @@ export function App() {
       <div className={`hint ${ready && !started ? "show" : ""}`}>
         {TOUCH ? "Spread two fingers to walk in" : "Pinch or scroll to walk in"}
       </div>
+      <Keys stage={stage} />
       <Detail />
       <DomeBack />
     </>
