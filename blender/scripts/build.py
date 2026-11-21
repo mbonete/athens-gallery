@@ -166,7 +166,13 @@ for side in (-1, 1):
     niche = round_top(x0, x1, P.NICHE_Z[0], P.NICHE_Z[1])
     if side < 0:
         niche = mirror_x(niche)
-    boolean(facade, prism("niche_cut", niche, P.FACADE_Y0 - 0.2, P.FACADE_Y0 + P.NICHE_DEPTH))
+    if FINISH and getattr(P, "NICHE_SHELL", None):    # deco round: a shell head (shells.py)
+        import shells
+        a = (x1 - x0) / 2
+        shells.cut(facade, Vector((side * (x0 + x1) / 2, P.FACADE_Y0, P.NICHE_Z[1] - a)), Vector((1, 0, 0)),
+                   Vector((0, 1, 0)), a, P.NICHE_DEPTH, P.NICHE_Z[0], P.NICHE_SHELL["flutes_facade"])
+    else:
+        boolean(facade, prism("niche_cut", niche, P.FACADE_Y0 - 0.2, P.FACADE_Y0 + P.NICHE_DEPTH))
     rx0, rx1 = sorted((side * x0, side * x1))
     boolean(facade, box("relief_cut", rx0, rx1, P.FACADE_Y0 - 0.2, P.FACADE_Y0 + getattr(P, "RELIEF_DEPTH", 0.15),
                         P.RELIEF_Z[0], P.RELIEF_Z[1]))

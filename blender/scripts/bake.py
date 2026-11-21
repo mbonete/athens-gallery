@@ -632,6 +632,8 @@ def detail_uvs(ob, tiles):
         key, _ = detail_of(mat, n)
         tw, th = tiles.get(key, (1.0, 1.0))
         ox, oy = (mat.get("origin", (0.0, 0.0)) if mat else (0.0, 0.0)) if key.startswith("floor") else (0.0, 0.0)
+        uo = mat.get("uv_origin") if mat else None     # a tile mapped once over a panel (deco round)
+        ux0, uz0 = (uo[0], uo[1]) if uo else (0.0, 0.0)
         c = mw @ p.center
         for li in p.loop_indices:
             w = mw @ me.vertices[me.loops[li].vertex_index].co
@@ -644,9 +646,9 @@ def detail_uvs(ob, tiles):
             elif abs(n.z) >= max(abs(n.x), abs(n.y)):
                 u, v = (w.x - ox) / tw, (w.y - oy) / th
             elif abs(n.x) >= abs(n.y):
-                u, v = w.y / tw, w.z / th
+                u, v = (w.y - ux0) / tw, (w.z - uz0) / th
             else:
-                u, v = w.x / tw, w.z / th
+                u, v = (w.x - ux0) / tw, (w.z - uz0) / th
             uv.data[li].uv = (u, v)
 
 

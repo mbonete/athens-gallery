@@ -271,7 +271,8 @@ BAKE_QUALITY = os.environ.get("BAKE", "rough")
 BAKE_GROUPS = [("front", -999, 15.0), ("facade", 15.0, 19.0), ("nave", 19.0, 33.0),
                ("crossing", 33.0, 46.9), ("arm2", 46.9, 999)]
 # Density factors by object name prefix (first match): mouldings change light across a few cm.
-BAKE_DENSITY_SCALE = {"floor_lower_sides": 0.6, "facade": 0.8, "entablature": 1.6, "string_course": 1.6,
+BAKE_DENSITY_SCALE = {"facade_shell": 4.0, "shell_": 4.0,     # deco round: the shells' flutes (first: prefix match)
+                      "floor_lower_sides": 0.6, "facade": 0.8, "entablature": 1.6, "string_course": 1.6,
                       "nave_pilaster_capital": 2.0, "arm2_pilaster_capital": 2.0, "nave_pilaster_base": 1.6,
                       "arm2_pilaster_base": 1.6, "crossing_base": 1.6, "end_entablature": 1.6, "end_door": 1.6,
                       "end_pilaster_base": 1.6, "arch_front_edge": 1.6, "arch_back_edge": 1.6, "bay1_": 1.4,
@@ -296,7 +297,15 @@ LIGHT_SCALE = 4.0             # the lightmaps store light / LIGHT_SCALE (sRGB-en
 DETAIL_PX = 1024
 SIDE_TINT = (1.0, 1.0, 1.0)   # round 8: white marble (was (1.0, 0.99, 0.88), the fresco's buff side walls)
 FRAME_W = 0.16                # width of niche and panel frames (R6)
-RELIEF_DEPTH = 0.06           # the facade's relief panels: sunk panels, empty (stage 4: was 0.15)
+RELIEF_DEPTH = 0.06           # the facade's relief panels: sunk panels (stage 4: was 0.15)
+
+# Decoration round (Maria, renders/deco-ideas on branch deco-ideas: ideas 3 and 5).
+# Shell heads in every niche (blender/scripts/shells.py): flutes across the head, segments per
+# flute, rows from rim to hinge, and how far the ridges stand forward (fraction of the radius).
+NICHE_SHELL = dict(flutes_facade=11, flutes_recess=9, per_flute=4, rows=8, groove=0.10)
+# The facade's sunk panels carry an acanthus scroll in grisaille: detail tile "relief_scroll"
+# (tools/relief_scroll.py, through make_detail.py), mapped once over each panel.
+RELIEF_SCROLL = True
 
 # Stage 4: the recesses Raphael paints in every bay (as built in bay 1), with empty niches: the
 # side walls between the pilasters are set back to RECESS_X the full height; a pier of
