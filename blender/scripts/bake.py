@@ -133,12 +133,23 @@ def cull_hidden(ob):
     - beyond the hall's side walls behind the facade (every vertex at |x| > HALL_X, y > facade front);
     - undersides of floors and steps;
     - the far side of the end wall;
-    - the outer shells of the drum and dome."""
+    - the outer shells of the drum and dome;
+    - the crossing walls' faces toward the crossing above the drum's base. The walls rise 1.5 m
+      past it (their nave sides show there), and the drum's inside is tangent to those faces on
+      the four axes: along each tangent line the two coincide and fight, a flickering black line
+      looking up into the dome (Maria, 2026-11-21). Above the base they are behind the drum
+      everywhere else, so they are cut at the base and dropped."""
     mw = ob.matrix_world
     rot = mw.to_3x3()
     bm = bmesh.new()
     bm.from_mesh(ob.data)
     ycen = (P.CROSS_Y0 + P.CROSS_Y1) / 2
+    crossing_wall = ob.name.startswith(("arch_front", "arch_back", "crossing_side"))
+    if crossing_wall:
+        inv = mw.inverted()
+        no = (mw.to_3x3().transposed() @ Vector((0, 0, 1))).normalized()
+        bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:],
+                               plane_co=inv @ Vector((0, 0, P.DRUM_Z0)), plane_no=no)
     gone = []
     for f in bm.faces:
         vs = [mw @ v.co for v in f.verts]
@@ -149,6 +160,10 @@ def cull_hidden(ob):
         elif n.z < -0.99 and c.z < P.PLATFORM_Z + 0.05:
             gone.append(f)
         elif all(v.y > P.ARM2_Y1 + P.END_T - 0.01 for v in vs) and n.y > 0.9:
+            gone.append(f)
+        elif crossing_wall and min(v.z for v in vs) > P.DRUM_Z0 - 1e-4 and (
+                (abs(c.y - P.CROSS_Y1) < 0.02 and n.y < -0.98) or (abs(c.y - P.CROSS_Y0) < 0.02 and n.y > 0.98)
+                or (abs(abs(c.x) - P.CROSS_HALF) < 0.02 and abs(n.x) > 0.98 and n.x * c.x < 0)):
             gone.append(f)
         elif ob.name.startswith(("drum", "dome")) and c.z > P.DRUM_Z0 + 0.5:
             radial = Vector((c.x, c.y - ycen, 0))

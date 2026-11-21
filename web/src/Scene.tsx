@@ -45,6 +45,19 @@ export function Scene() {
           const r = gl.domElement.getBoundingClientRect();
           return { x: r.left + ((p.x + 1) / 2) * r.width, y: r.top + ((1 - p.y) / 2) * r.height, z: p.z };
         },
+        /** What a screen pixel (CSS px) hits: every intersection along its ray, nearest first. */
+        probe(x: number, y: number) {
+          const r = gl.domElement.getBoundingClientRect();
+          const ndc = new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
+          const ray = new THREE.Raycaster();
+          ray.layers.enableAll();
+          ray.setFromCamera(ndc, camera);
+          return ray.intersectObjects(scene.children, true).slice(0, 4).map((h) => ({
+            name: h.object.name, material: (h.object as THREE.Mesh).material && ((h.object as THREE.Mesh).material as THREE.Material).name,
+            d: +h.distance.toFixed(4), p: h.point.toArray().map((v) => +v.toFixed(4)), face: h.face ? h.face.normal.toArray().map((v) => +v.toFixed(3)) : null,
+            uv1: h.uv1 ? [+h.uv1.x.toFixed(5), +h.uv1.y.toFixed(5)] : null,
+          }));
+        },
       };
     }
     rig.camera = camera;
