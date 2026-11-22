@@ -281,7 +281,11 @@ BAKE_DENSITY_SCALE = {"vault_wall": 4.0, "vault_": 8.0,        # the vault ornam
                       "arm2_pilaster_base": 1.6, "crossing_base": 1.6, "end_entablature": 1.6, "end_door": 1.6,
                       "end_pilaster_base": 1.6, "arch_front_edge": 1.6, "arch_back_edge": 1.6, "bay1_": 1.4,
                       "facade_": 1.4, "drum_base_ring": 1.4, "drum_sill": 1.4, "drum_top_cornice": 1.4,
-                      "step_nosing": 2.0, "tondo_frame": 1.4, "crossing_blind_arch": 1.4}
+                      "step_nosing": 2.0, "tondo_frame": 1.4, "crossing_blind_arch": 1.4,
+                      # Round 11: the dome's coffers. At 1.0 the lowest ring's step walls (6.6 cm)
+                      # and treads (6.5-14 cm) were one or two texels (bake.dome_unwrap); at 3.0
+                      # a step wall gets 2-3 texels on every ring.
+                      "dome_coffers": 3.0}
 BAKE_HALL_X = 7.4                         # m: nothing beyond this behind the facade is seen
 BAKE_ISLAND_MAX = 2.5                     # m: longer surfaces are cut into islands this long
 BAKE_SKIP = ("ground_beyond",)            # not baked or exported: the web draws it (hall.json "groundBeyond")
