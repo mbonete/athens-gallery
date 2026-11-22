@@ -703,7 +703,7 @@ def factor_attribute(ob):
         c, n = mw @ p.center, (rot @ p.normal).normalized()
         for li in p.loop_indices:          # per corner: the underside shade varies across a face
             f = face_factor(c, n, ux=(mw @ me.vertices[me.loops[li].vertex_index].co).x)
-            if ob.name.startswith("vault_"):   # the front wall's ornament: the bake's light only
+            if ob.name.startswith(("vault_", "opening_archivolt_intrados")):   # the front wall's ornament, the soffit: the bake's light only
                 f = Vector((1.0, 1.0, 1.0))
             attr.data[li].color = (f.x, f.y, f.z, 1.0)
 

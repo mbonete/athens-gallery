@@ -942,8 +942,12 @@ def light(sun, world, raphael=True):
     # Nor do the vaults and the faces up under them take the sun; nor the facade's front (painted
     # at 147, darker than the frontal faces deeper in) and the drum (P.NO_SUN).
     no_sun = [ob.name for ob in meshes if ob.name.startswith(P.NO_SUN) and not ob.name.startswith("bay1")]
+    # The opening arch's intrados neither (Maria: the meander on the soffit, as painted): Raphael
+    # paints the soffit's meander as bright as the face's. It takes the sky and the bounce, and
+    # tools/lightmap_post.py brings its light to the arch face's level, keeping its own variation.
+    soffit = [ob.name for ob in meshes if ob.name.startswith("opening_archivolt_intrados")]
     sun.light_linking.receiver_collection = excluded(
-        "sun_not_received", vault + no_sun + [n for n in upper if n.startswith(("arch_front", "arch_back"))])
+        "sun_not_received", vault + no_sun + soffit + [n for n in upper if n.startswith(("arch_front", "arch_back"))])
     # The vault over bay 1 is painted as bright as a lit wall (191): a bounce card on bay 1's floor
     # standing for the sunlit pavement, lighting only that vault.
     card = bpy.data.lights.new("front_bounce", "AREA")

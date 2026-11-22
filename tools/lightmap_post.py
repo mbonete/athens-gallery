@@ -106,6 +106,21 @@ for f in sorted(OUT.glob("bake_*.npz")):
     # 1. denoise (on the filled atlas, so the search windows never meet black)
     e8 = np.clip(np.round(enc(fill_nearest(light, baked))), 0, 255).astype(np.uint8)
     den = cv2.fastNlMeansDenoisingColored(e8, None, H_NLM, H_NLM, 5, 15) if H_NLM > 0 else e8
+    if g == "front":
+        # The opening arch's intrados (bake light class 1 in this group: no sun, finish.light) at
+        # the arch face's light level: Raphael paints the soffit's meander as bright as the face's,
+        # so the band tile (divided by the face's light, make_detail.arch_light) shows as painted
+        # on both. Its own variation round the arch stays. Face: the archivolt's front.
+        lit_now = dec(den.astype(np.float32))
+        cls = d["light_class"] if "light_class" in d else np.zeros(cov.shape, np.int8)
+        nrm_g = d["normal"].astype(np.float32)
+        face = cov & (np.abs(d["position"][..., 1] - (P.ARCH_Y - P.ARCH_PROJ)) < 0.004) & (nrm_g[..., 1] < -0.99)
+        soff = cov & ((cls & 1) > 0) & (lit_now.max(-1) > DARK)
+        if face.sum() > 50 and soff.sum() > 50:
+            ratio = np.median(lit_now[face], axis=0) / np.maximum(np.median(lit_now[soff], axis=0), 1e-4)
+            lit_now[soff] *= ratio
+            den = np.clip(np.round(enc(lit_now)), 0, 255).astype(np.uint8)
+            print(f"[post] front: the intrados's light x {np.round(ratio, 3).tolist()} to the arch face's")
     factor = d["factor"].astype(np.float32)
     factor[d["position"][..., 2] > P.DRUM_Z1 + 0.005] = 1.0       # the dome takes no factor (bake.face_factor)
     groups[g] = dict(cov=cov, baked=baked, light=dec(den.astype(np.float32)), factor=factor,
