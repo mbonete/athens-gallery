@@ -269,11 +269,26 @@ def split_long(ob, step):
 
 
 def dome_unwrap(ob):
-    """The coffered dome as one island, by an azimuthal equidistant projection about its axis
-    (distance from the crown along the meridian, angle round the axis): nearly true to scale from
-    the springing to the oculus, no seams. Smart project collapsed its 10k stepped faces into
-    slivers (round 6), so every coffer read some other face's light. The step walls are radial,
-    so they project to lines: they take the light of the faces beside them."""
+    """The coffered dome's lightmap UVs, its coffers laid on the texel grid (round 11).
+    - Each ring of coffers is unrolled flat: round the ring R cos(phi_mid) theta (true to scale at
+      the ring's middle, within 3 % on the lowest ring and 9 % on the top one), up the meridian
+      R phi. Every coffer is then an upright rectangle in the atlas, its steps along the texel rows
+      and columns, so all 28 coffers of a ring take the light alike. The azimuthal projection used
+      before turned each column by its angle round the dome: the steps, a texel wide, crossed the
+      grid at that angle and baked as dashed, stepped lines, different in every coffer (Maria saw
+      them as dark wavy streaks along the lowest ring, 2026-11-22).
+    - Each ring is cut in two halves (theta 0 and pi, on a rib's middle line), one island each, so
+      no island is longer than half a ring; the plain band at the springing joins the lowest ring.
+      tools/lightmap_post.py stitches the light across the cuts, which lie on the plain rib.
+    - Inside a coffer every point is drawn in towards the coffer's middle by its depth (round 7:
+      each sunk level shrinks round the middle), so a step wall opens into a band about as wide as
+      it is deep between the levels it joins, and keeps its own texels.
+    - The smooth band from the top ring to the oculus' ring keeps the azimuthal equidistant
+      projection about the crown (no coffers there), as its own island.
+    The density is params.BAKE_DENSITY_SCALE["dome_coffers"]: at 16 px/m the lowest ring's step
+    walls (6.6 cm deep) and treads (6.5-14 cm) were one or two texels, so each texel mixed a
+    step's faces, and the up-facing step walls, which no visitor sees, darkened the treads beside
+    them. layout() leaves these islands unturned (GRID_ALIGNED)."""
     me = ob.data
     for uvl in [u for u in me.uv_layers if u.name not in ("detail", "lightmap")]:
         me.uv_layers.remove(uvl)
@@ -283,33 +298,50 @@ def dome_unwrap(ob):
     mw = ob.matrix_world
     c0 = Vector((0, (P.CROSS_Y0 + P.CROSS_Y1) / 2, P.DRUM_Z1))
     R = P.CROSS_HALF
-    # Round 7: the step walls get their own texels. Inside a coffer every point is drawn in
-    # towards the coffer's middle by its depth (each sunk level shrinks round the middle), so a
-    # radial step wall opens into a band as wide as it is deep, between the levels it joins.
     cols, rings = P.DOME_COFFER_COUNT, P.DOME_COFFER_RINGS
     dth = 2 * math.pi / cols
     phis = [P.DOME_BASE_BAND]
     for _ in range(rings):
         a = phis[-1]
         phis.append(a + dth * math.cos(a + dth * math.cos(a) / 2))
-    for li, loop in enumerate(me.loops):
-        w = mw @ me.vertices[loop.vertex_index].co - c0
-        el = math.atan2(w.z, math.hypot(w.x, w.y))
-        t = math.atan2(w.y, w.x)
-        rho = R * (math.pi / 2 - el)
-        x, y = rho * math.cos(t), rho * math.sin(t)
-        depth = w.length - R
-        if depth > 1e-4 and phis[0] < el < phis[-1]:
-            i = max(k for k in range(rings) if phis[k] <= el)
-            j = int((t % (2 * math.pi)) // dth)
-            tc, ec = (j + 0.5) * dth, (phis[i] + phis[i + 1]) / 2
-            rc = R * (math.pi / 2 - ec)
-            cx, cy = rc * math.cos(tc), rc * math.sin(tc)
-            half = 0.5 * min(R * math.cos(ec) * dth, R * (phis[i + 1] - phis[i]))
-            k = max(0.2, 1 - depth / half)
-            x, y = cx + (x - cx) * k, cy + (y - cy) * k
-        uv.data[li].uv = (0.5 + 0.5 * x / (R * math.pi / 2), 0.5 + 0.5 * y / (R * math.pi / 2))
+    halves = 2
+    per = cols // halves
+    tau = 2 * math.pi
+    for p in me.polygons:
+        cw = mw @ p.center - c0
+        ef = math.atan2(cw.z, math.hypot(cw.x, cw.y))
+        tf = math.atan2(cw.y, cw.x) % tau
+        loops = [(li, mw @ me.vertices[me.loops[li].vertex_index].co - c0) for li in p.loop_indices]
+        if ef > phis[-1]:
+            # the smooth band to the oculus: azimuthal equidistant about the crown, set apart
+            for li, w in loops:
+                rho = R * (math.pi / 2 - math.atan2(w.z, math.hypot(w.x, w.y)))
+                t = math.atan2(w.y, w.x)
+                uv.data[li].uv = (rho * math.cos(t), rho * math.sin(t) - 20.0)
+            continue
+        i = max((k for k in range(rings) if phis[k] <= ef), default=0)    # the springing's band: ring 0
+        j = min(int(tf // dth), cols - 1)
+        em = (phis[i] + phis[i + 1]) / 2
+        sc = R * math.cos(em)                                             # m per radian round the ring
+        s_mid, v_mid = sc * (j + 0.5) * dth, R * em
+        half = 0.5 * min(sc * dth, R * (phis[i + 1] - phis[i]))
+        lift = 10.0 * (i * halves + j // per)                            # each half ring its own island
+        for li, w in loops:
+            t = math.atan2(w.y, w.x)
+            t = tf + (t - tf + math.pi) % tau - math.pi                  # on the face's side of the cut at 0
+            s, v = sc * t, R * math.atan2(w.z, math.hypot(w.x, w.y))
+            depth = w.length - R
+            if depth > 1e-4:
+                k = max(0.2, 1 - depth / half)
+                s, v = s_mid + (s - s_mid) * k, v_mid + (v - v_mid) * k
+            uv.data[li].uv = (s, v + lift)
     return max(uv_coverage([ob]), 1e-4)
+
+
+# Objects whose lightmap islands are already laid along the texel grid (dome_unwrap): layout()
+# does not turn them to their mean edge angle (the drawn-in step walls' slanted corner edges
+# could tilt a half ring a little, and its rows would then cross the texel rows along its length).
+GRID_ALIGNED = ("dome_coffers",)
 
 
 def unwrap_one(ob):
@@ -421,7 +453,7 @@ def layout(objs):
                     sx += w3 * math.cos(t)
                     sy += w3 * math.sin(t)
             ang = math.atan2(sy, sx) / 4
-            if abs(ang) > 1e-4:
+            if abs(ang) > 1e-4 and ob.name not in GRID_ALIGNED:
                 ca, sa = math.cos(-ang), math.sin(-ang)
                 cx = sum(uv[i].uv.x for i in loops) / len(loops)
                 cy = sum(uv[i].uv.y for i in loops) / len(loops)
