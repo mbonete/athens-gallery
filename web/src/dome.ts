@@ -239,6 +239,7 @@ export function lookUp(opts: { push?: boolean } = {}) {
   t.to(go, { walk: 1, duration: dur(1.3), ease: "power2.inOut" }, 0);
   t.to(go, { gaze: 1, duration: dur(1.45), ease: "power1.inOut" }, dur(0.15));
   tl = t;
+  rig.kick();
 }
 
 /** Tilt back down to the walk's view where the visitor stands, then hand back to the walk. */
@@ -258,6 +259,7 @@ export function lookDown(opts: { pop?: boolean } = {}) {
       setState({ mode: "walk" });
     },
   });
+  rig.kick();
 }
 
 /** Escape and the browser's back button; a reload on #dome starts on the plain walk. */

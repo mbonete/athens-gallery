@@ -180,6 +180,7 @@ export function Keys({ stage }: { stage: RefObject<HTMLDivElement | null> }) {
   }, [mode, active]);
 
   const onFocus = (key: string) => {
+    rig.kick(); // a frame for KeyRing to put the button over its painting
     if (restoring || !walking() || !stage.current) return;
     const id = ++focusId;
     if (key === DOME_KEY) bringDome(stage.current, id).catch(() => {});
@@ -250,7 +251,12 @@ export function KeyRing() {
       if (!d.busy) {
         d.busy = true;
         domeBox(canvas, rig.camera, true).then(
-          (b) => { d.box = b; d.busy = false; },
+          (b) => {
+            // A frame to place it, when it moved (not for every read: the view may be at rest).
+            if (JSON.stringify(b) !== JSON.stringify(d.box)) rig.kick();
+            d.box = b;
+            d.busy = false;
+          },
           () => { d.busy = false; },
         );
       }
