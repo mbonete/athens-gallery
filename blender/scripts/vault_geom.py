@@ -77,3 +77,22 @@ def side_uv():
 
 TILE_B = (b(2 * HW), b(TEX_H / PPM))                # detail tile size, Blender metres
 ORIGIN_B = (b(XC - HW), b(Y0))                      # its lower left corner on the wall
+
+
+# The gilded rosette's boss stands 4.5-9.3 cm proud (finish2.vault_relief), its painted ring on the
+# roundel's face at 4.5 cm. Seen from Raphael's eye a boss on the roundel's axis sits 3-4 cm off
+# that ring's centre (parallax), so the boss stands on the sight line through the ring's centre:
+# its petals' middle height (h) lands on the ring's centre at the start.
+BOSS_H, RING_H = 0.083, 0.045          # Blender metres proud of the wall
+
+
+def boss_centre(side):
+    """The boss's (and its painted rosette's) centre on the wall plane, web metres."""
+    cx, cy = roundel_centre(side)
+    k = (PLANE - BOSS_H * S) / (PLANE - RING_H * S)
+    return cx * k, EYE + (cy - EYE) * k            # the eye is at x = 0, height EYE
+
+
+def boss_outline(phi):
+    """The boss's radius round its centre, a fraction of ROSETTE_R: eight petal lobes."""
+    return 0.80 + 0.20 * abs(math.cos(4 * phi)) ** 0.6

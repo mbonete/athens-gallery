@@ -671,6 +671,8 @@ def factor_attribute(ob):
         c, n = mw @ p.center, (rot @ p.normal).normalized()
         for li in p.loop_indices:          # per corner: the underside shade varies across a face
             f = face_factor(c, n, ux=(mw @ me.vertices[me.loops[li].vertex_index].co).x)
+            if ob.name.startswith("vault_"):   # the front wall's ornament: the bake's light only
+                f = Vector((1.0, 1.0, 1.0))
             attr.data[li].color = (f.x, f.y, f.z, 1.0)
 
 
@@ -802,7 +804,7 @@ for name, objs in groups.items():
     #    set-up of the scene active). Glossy is left out: the web draws no highlights.
     bake.use_pass_direct, bake.use_pass_indirect, bake.use_pass_color = True, True, False
     light = bpy.data.images.new(f"light_{name}", size, size_h, alpha=True, float_buffer=True)
-    scene.cycles.samples = CFG["samples"]
+    scene.cycles.samples = int(CFG["samples"] * getattr(P, "BAKE_GROUP_SAMPLES", {}).get(name, 1.0))
     bake_into(objs, light, "DIFFUSE")
     # 2. The per-face factors, as an emission bake of the factor attribute (1 sample is enough).
     fimg = bpy.data.images.new(f"factor_{name}", size, size_h, alpha=True, float_buffer=True)

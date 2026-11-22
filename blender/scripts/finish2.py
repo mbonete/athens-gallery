@@ -1175,15 +1175,18 @@ def vault_relief(M, wall):
     - the wall's face round the arch takes the ornament as its detail tile ("vault_front",
       tools/vault_ornament.py via make_detail.py), mapped once over it (bake "uv_origin"), so the
       bake's light falls across the paint and the marble's grain runs through it;
-    - in relief, plain mouldings in the wall's own cream marble (Maria: the painted cable and
-      grooved rim "look like mold"): the ribs, a half-round on a low fillet, 4.6 cm proud; the
-      roundels, a disc 4.5 cm proud under a smooth rounded rim; a thin border round each blue
-      field, 3.6 cm proud; and on each roundel a raised gilded rosette, 4.8 cm proud of it,
-      painted by the tile on its front (its sides take the tile's gold strip, bake "side_uv"). Every front face stands >= 3 cm before the face
+    - in relief, stucco on the wall (painted by the same tile on their fronts; their sides take
+      the tile's top strip, white, or gold for the rosettes, through bake "side_uv"):
+      the pale ribs, 4.6 cm proud with a cable torus on the axis; the roundels, a disc 4.5 cm
+      proud under a rounded rim, each with a raised gilded rosette 4.7 cm proud of it; a thin
+      frame round each blue field, 3.6 cm proud. Every front face stands >= 3 cm before the face
       it covers (R13: 2 cm in the web); they stand on the wall with no face of their own on or in
       it; ribs and borders stop 1 mm off the roundels' sides and run out at the wall's top and
       end (R1). The borders along the ribs
       rake with them (not "frames": the audit wants frames level or plumb).
+    The wall's face round the arch is its own object, "vault_wall", and every relief starts
+    "vault_": params.BAKE_DENSITY_SCALE gives them a denser lightmap, and bake.face_factor leaves
+    Raphael's right-side shade off them (it is for the hall's soffits, not the front wall).
     Design numbers: vault_geom.py (web metres; / SCALE for Blender)."""
     import vault_geom as G
     white = M["stone"].copy()
@@ -1194,7 +1197,6 @@ def vault_relief(M, wall):
     gold = white.copy()
     gold.name = "vault_front_gold"
     gold["side_uv"] = list(G.side_uv()[1])
-    stone = M["stone"]                  # the ribs, roundels and borders: the wall's own marble
     b = G.b
     xc, zc = b(G.XC), b(G.YC)
     x0, x1 = b(G.XC - G.HW), b(G.XC + G.HW)
@@ -1212,7 +1214,27 @@ def vault_relief(M, wall):
         c = poly.center
         if (poly.normal.y < -0.99 and abs(c.y - P.ARCH_Y) < 1e-3 and x0 < c.x < x1 and z0 < c.z < z1):
             poly.material_index = mi
-    objs = []
+    # That face becomes an object of its own, "vault_wall", so the bake gives it a denser lightmap
+    # (params.BAKE_DENSITY_SCALE): the reliefs' contact shade and cast shadows on it are a few cm
+    # wide, and at the wall's 16 px/m (rough) they smeared into dark stains (Maria: "mold").
+    bm = bmesh.new()
+    bm.from_mesh(wall.data)
+    faces = [f for f in bm.faces if f.material_index == mi]
+    nb = bmesh.new()
+    vmap = {}
+    for f in faces:
+        vs = []
+        for v in f.verts:
+            if v not in vmap:
+                vmap[v] = nb.verts.new(v.co)
+            vs.append(vmap[v])
+        nb.faces.new(vs)
+    bmesh.ops.delete(bm, geom=faces, context="FACES")
+    bm.to_mesh(wall.data)
+    bm.free()
+    vw = _obj("vault_wall", nb, "stone", [white])
+    vw.visible_shadow = False                      # as the wall it was cut from
+    objs = [vw]
     WALL_TOP, WALL_END = P.ARCH_WALL[1], P.ARCH_WALL[0]
     rr = b(G.ROUNDEL_R) - 0.005                     # the roundel's disc (5 mm inside the painted ring)
     rib_w, fw = b(G.RIB_W), b(G.FRAME_W)
@@ -1222,18 +1244,19 @@ def vault_relief(M, wall):
         into = lambda p, r=rr + 0.001: np.hypot(*(p - rc)) > r       # noqa: E731  (stops 1 mm off the roundel)
         below_top = lambda p: p[1] < WALL_TOP                         # noqa: E731
         inside_end = lambda p: abs(p[0]) < WALL_END                   # noqa: E731
-        # ribs: a plain rounded rib (Maria: no cable), a low fillet each side under a half-round
+        # ribs: a fascia with a chamfer each side and a cable torus on the axis
         hw = rib_w / 2
-        arc = [(hw * math.cos(a), 0.016 + 0.030 * math.sin(a)) for a in np.linspace(math.pi, 0, 17)]
-        prof = [(-hw, 0.0)] + arc + [(hw, 0.0)]
+        tor = [(0.034 * math.cos(a), 0.034 + 0.012 * math.sin(a)) for a in np.linspace(math.pi, 0, 13)]
+        prof = [(-hw, 0.0), (-hw, 0.030), (-hw + 0.012, 0.034), (-0.034, 0.034)] + tor[1:-1] + \
+               [(0.034, 0.034), (hw - 0.012, 0.034), (hw, 0.030), (hw, 0.0)]
         far = rc + e_s * 12.0
-        objs.append(_ribbon(f"vault_rib_{side}", [rc, far], prof, lambda p: n_up, stone, into, below_top))
+        objs.append(_ribbon(f"vault_rib_{side}", [rc, far], prof, lambda p: n_up, white, into, below_top))
         # the field's frame: a fillet and an ovolo, on the field's side of its edge
         fprof = [(0.0, 0.0), (0.0, 0.030), (0.010, 0.036), (0.022, 0.036),
                  (0.032, 0.034), (fw - 0.004, 0.031), (fw, 0.030), (fw, 0.0)]
         # (a) along the rib's lower edge, from the roundel to the wall's top
         edge = [rc - n_up * hw, rc - n_up * hw + e_s * 12.0]
-        objs.append(_ribbon(f"vault_field_border_rib_{side}", edge, fprof, lambda p: -n_up, stone, into, below_top))
+        objs.append(_ribbon(f"vault_field_border_rib_{side}", edge, fprof, lambda p: -n_up, white, into, below_top))
         # (b) along the band's outer edge down to the springing, then along it to the wall's end
         R, ys = b(G.RB), b(G.YS)
         th_end = math.acos((ys - zc) / R)                              # where the arc meets the springing
@@ -1241,18 +1264,18 @@ def vault_relief(M, wall):
         arc = [np.array([xc + side * R * math.sin(t), zc + R * math.cos(t)]) for t in ths]
         path = arc + [np.array([side * (WALL_END + 0.5), ys])]
         outward = lambda p: (p - np.array([xc, zc])) / np.hypot(*(p - np.array([xc, zc])))   # noqa: E731
-        objs.append(_ribbon(f"vault_field_border_arc_{side}", path, fprof, outward, stone, into, inside_end,
+        objs.append(_ribbon(f"vault_field_border_arc_{side}", path, fprof, outward, white, into, inside_end,
                             corner=len(arc) - 1, n=(90, 12)))
         # the roundel: disc under a rounded rim
         rim = [(rr - 0.015 + 0.015 * math.cos(a), 0.045 + 0.015 * math.sin(a)) for a in np.linspace(0, math.pi, 10)]
         rprof = ([(0.0, 0.045), (rr - 0.034, 0.045)] + rim[::-1][:-1] + [(rr, 0.045), (rr, 0.0)])
-        objs.append(_revolve_on_wall(f"vault_roundel_{side}", rc, rprof, stone))
+        objs.append(_revolve_on_wall(f"vault_roundel_{side}", rc, rprof, white))
         # the rosette: a gilded boss, its outline the painted rosette's eight petals, domed
         rb = b(G.ROSETTE_R)
         bprof = [(0.0, 0.093), (0.3, 0.092), (0.6, 0.089), (0.85, 0.083), (1.0, 0.075), (1.0, 0.045)]
         bprof = [(r * rb, h) for r, h in bprof]
-        objs.append(_revolve_on_wall(f"vault_boss_{side}", rc, bprof, gold,
-                                     outline=lambda phi: 0.80 + 0.20 * abs(math.cos(4 * phi)) ** 0.6))
+        bc = np.array([b(c) for c in G.boss_centre(side)])     # on the sight line through the ring's centre
+        objs.append(_revolve_on_wall(f"vault_boss_{side}", bc, bprof, gold, outline=G.boss_outline))
     for ob in objs:
         ob["oriented"] = True
     return objs
