@@ -153,7 +153,8 @@ for ob in meshes:
                     break
         # Ends no visitor can see: the facade's outer edges (outside every view from the walk)
         # and the far face of the end wall.
-        if (abs(c.x) > 12.0 and c.y < 15.6) or c.y > 55.99:
+        # The front wall's top edge (9 m) too: above every view (the vault ornament's ribs run out there).
+        if (abs(c.x) > 12.0 and c.y < 15.6) or c.y > 55.99 or (c.y < 5.3 and c.z > 8.99):
             hit = True
         if not hit:
             findings["open_ends"].append({"object": ob.name, "where": [round(v, 2) for v in c],

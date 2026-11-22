@@ -636,6 +636,13 @@ def detail_uvs(ob, tiles):
         ox, oy = (mat.get("origin", (0.0, 0.0)) if mat else (0.0, 0.0)) if key.startswith("floor") else (0.0, 0.0)
         uo = mat.get("uv_origin") if mat else None     # a tile mapped once over a panel (deco round)
         ux0, uz0 = (uo[0], uo[1]) if uo else (0.0, 0.0)
+        # Reliefs painted by a wall's tile (the vault ornament): faces not turned to the front
+        # take one point of the tile (its plain strip) instead of a planar smear of it.
+        side_uv = mat.get("side_uv") if mat else None
+        if side_uv and not (abs(n.y) >= abs(n.x) and abs(n.y) >= abs(n.z)):
+            for li in p.loop_indices:
+                uv.data[li].uv = tuple(side_uv)
+            continue
         c = mw @ p.center
         for li in p.loop_indices:
             w = mw @ me.vertices[me.loops[li].vertex_index].co
@@ -900,15 +907,14 @@ for name, objs in groups.items():
         raise RuntimeError(f"{ob.name}: UV layers {[u.name for u in me.uv_layers]}")
     me.uv_layers["detail"].active_render = True
     exported.append(ob)
-for name in P.BAKE_SKIP:                       # flat colour, unlit in the web (left as it was)
+# The flat ground beyond the end door is not exported: the web draws it (Scene.tsx, GroundBeyond,
+# from hall.json "groundBeyond"). Its 400 m stretched the GLB's one quantization grid (pack_hall.mjs,
+# quantizationVolume "scene") to 4.3 mm a step, and the opening arch's bands, 3.3 m from the eye,
+# showed every vertex's rounding as a wavy, toothed edge; over the hall alone a step is ~0.6 mm.
+for name in P.BAKE_SKIP:
     ob = bpy.data.objects.get(name)
     if ob:
-        m = bpy.data.materials.new(f"flat_{name}")
-        m.use_nodes = True
-        m.node_tree.nodes.get("Principled BSDF").inputs["Base Color"].default_value = (0.42, 0.42, 0.33, 1)
-        ob.data.materials.clear()
-        ob.data.materials.append(m)
-        exported.append(ob)
+        bpy.data.objects.remove(ob)
 k = P.SCALE
 for ob in exported:
     ob.data.transform(ob.matrix_world)

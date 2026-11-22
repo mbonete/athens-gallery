@@ -532,6 +532,13 @@ if "export" in VIEW_NAMES or "json" in VIEW_NAMES:
     # The crossing's closed side walls under the dome, and the far doorway.
     data["dome"] = {"wallX": round(P.CROSS_HALF * k, 4), "z": three(0, (P.CROSS_Y0 + P.CROSS_Y1) / 2, 0)[2],
                     "length": round((P.CROSS_Y1 - P.CROSS_Y0) * k, 3)}
+    # The flat ground beyond the end wall (build.py's ground_beyond), drawn by the web, not the GLB.
+    gb = bpy.data.objects["ground_beyond"]
+    gx = [(gb.matrix_world @ Vector(c)) for c in gb.bound_box]
+    data["groundBeyond"] = {"y": round(max(c.z for c in gx) * k, 4),
+                            "x": [round(min(c.x for c in gx) * k, 3), round(max(c.x for c in gx) * k, 3)],
+                            "z": [three(0, max(c.y for c in gx), 0)[2], three(0, min(c.y for c in gx), 0)[2]],
+                            "colour": list(P.GROUND_BEYOND_COLOUR)}
     data["door"] = {"z": three(0, P.ARM2_Y1, 0)[2], "width": round(2 * P.DOOR_HALF * k, 3),
                     "springZ": round((P.DOOR_SPRING) * k, 3)}
     (WEB / "src" / "data" / "hall.json").write_text(json.dumps(data, indent=2))

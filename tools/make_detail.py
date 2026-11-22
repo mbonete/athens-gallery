@@ -219,6 +219,50 @@ def arch_band(light):
     return img / light, gold_mask
 
 
+def wall_light():
+    """Median light on the front wall's face round the arch, outside its bands, inside the vault
+    ornament's tile (bake_front.npz): the ornament's gold is divided by it, so it shows as the
+    arch's gold does."""
+    import vault_geom as G
+    f = out_dir / "bake_front.npz"
+    if not f.exists():
+        return np.full(3, 0.734, np.float32)
+    d = np.load(f)
+    pos, nrm, L = d["position"], d["normal"].astype(np.float32), d["light"][..., :3].astype(np.float32)
+    x, z = pos[..., 0] * P.SCALE, pos[..., 2] * P.SCALE                  # web metres on the wall
+    rho = np.hypot(x - G.XC, z - G.YC)
+    on = (d["covered"] & (np.abs(pos[..., 1] - P.ARCH_Y) < 0.004) & (nrm[..., 1] < -0.99)
+          & (np.abs(x - G.XC) < G.HW) & (z > G.YS) & (z < G.Y1) & (rho > G.RB))
+    if on.sum() < 50:
+        return np.full(3, 0.734, np.float32)
+    return np.median(L[on], axis=0)
+
+
+_tiles = {}
+
+
+def textured_once(key, spec):
+    """One tile per key (its mottle is random): the wall and the ornament painted on it share it."""
+    if key not in _tiles:
+        _tiles[key] = textured(spec)
+    return _tiles[key]
+
+
+def stone_sampler(spec):
+    """The wall's stone tile as a function of Blender metres on a wall facing -Y (its detail UVs:
+    u = x / tile, v = z / tile; image rows run down from v = 1), so a tile painted over the stone
+    stays in phase with the wall round it."""
+    img = textured_once("stone", spec).astype(np.float32)
+    tw, th = spec["tile"]
+
+    def sample(X, Z):
+        mx = ((X / tw) % 1.0) * N - 0.5
+        my = (1.0 - (Z / th) % 1.0) * N - 0.5
+        return cv2.remap(img, mx.astype(np.float32), my.astype(np.float32), cv2.INTER_LINEAR,
+                         borderMode=cv2.BORDER_WRAP).astype(np.float64)
+    return sample
+
+
 made = {}
 for key, spec in specs.items():
     if key == "flat":
@@ -235,13 +279,19 @@ for key, spec in specs.items():
         sys.path.insert(0, str(ROOT / "tools"))
         import relief_scroll
         lin = relief_scroll.tile(spec, textured(spec))
+    elif key == "vault_front":     # the vault ornament painted on the front wall (tools/vault_ornament.py)
+        sys.path.insert(0, str(ROOT / "tools"))
+        import vault_ornament
+        wl = wall_light()
+        lin, alpha = vault_ornament.tile(stone_sampler(specs["stone"]), wl)
+        print(f"vault_front: light on the front wall round the arch (median, linear RGB) {np.round(wl, 3).tolist()}")
     elif key == "step_riser":
         r = np.array(P.ALBEDO["step_riser"], np.float32)
         lin = textured(specs["step"], dark=r * 0.92, light=r)
     else:
-        lin = textured(spec)
+        lin = textured_once(key, spec)
     path = out_dir / "detail" / f"{key}.png"
-    if key == "arch_band":   # alpha: the gold-leaf mask (Scene.tsx adds the sheen there)
+    if key in ("arch_band", "vault_front"):   # alpha: the gold-leaf mask (Scene.tsx adds the sheen there)
         a8 = np.clip(alpha * 255 + 0.5, 0, 255).astype(np.uint8)[..., None]
         cv2.imwrite(str(path), np.concatenate([to_srgb8(lin)[..., ::-1], a8], -1))
     else:

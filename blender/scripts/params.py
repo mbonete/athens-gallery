@@ -280,7 +280,8 @@ BAKE_DENSITY_SCALE = {"facade_shell": 4.0, "shell_": 4.0,     # deco round: the 
                       "step_nosing": 2.0, "tondo_frame": 1.4, "crossing_blind_arch": 1.4}
 BAKE_HALL_X = 7.4                         # m: nothing beyond this behind the facade is seen
 BAKE_ISLAND_MAX = 2.5                     # m: longer surfaces are cut into islands this long
-BAKE_SKIP = ("ground_beyond",)            # flat colour in the web, not baked
+BAKE_SKIP = ("ground_beyond",)            # not baked or exported: the web draws it (hall.json "groundBeyond")
+GROUND_BEYOND_COLOUR = (0.42, 0.42, 0.33)   # linear, flat and unlit in the web
 # Members cut on the lightmap grid even where flat (bake.keeps_flat_whole): their flat faces
 # follow plans with breaks and returns, so whole islands would leave the atlas mostly empty.
 BAKE_CUT_MEMBERS = ("entablature", "string_course", "capital", "base", "frame", "sill", "impost", "archivolt",

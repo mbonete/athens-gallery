@@ -1033,4 +1033,219 @@ def opening_arch(M):
         objs.append(sweep(f"opening_impost_{side}", imp, *plan_path(run, 1), "stone", stone))
     for ob in objs:
         ob.visible_shadow = False
+    # The vault ornament round the arch, on the wall and in relief (these cast their shadows).
+    objs += vault_relief(M, wall)
+    return objs
+
+
+# ================================================================ the vault ornament in relief
+def _wall_pt(x, z, h):
+    """Blender point on the front wall's plane (y = ARCH_Y) at (x, z), h metres proud of it."""
+    return Vector((x, P.ARCH_Y - h, z))
+
+
+def _offset_lines(path, profile, side_ref):
+    """For a 2D path in the wall plane (x, z) and a closed profile [(t, h)], one polyline per
+    profile point: the path offset by t along its mitred normal (the normal that points like
+    side_ref(p) at the first vertex)."""
+    path = np.asarray(path, float)
+    d = np.diff(path, axis=0)
+    d /= np.linalg.norm(d, axis=1, keepdims=True)
+    nseg = np.stack([-d[:, 1], d[:, 0]], 1)
+    if np.dot(nseg[0], side_ref(path[0])) < 0:
+        nseg = -nseg
+    nv = np.empty_like(path)
+    nv[0], nv[-1] = nseg[0], nseg[-1]
+    for i in range(1, len(path) - 1):                     # mitre
+        m = nseg[i - 1] + nseg[i]
+        m /= np.linalg.norm(m)
+        nv[i] = m / max(0.2, float(np.dot(m, nseg[i])))
+    return [(path + nv * t, h) for t, h in profile]
+
+
+def _trimmed(line, start=None, end=None, corner=None, n=(40, 40)):
+    """A polyline cut where it first satisfies start(p) and where it then first fails end(p)
+    (crossings found by bisection), resampled by length into n[0] points, or, with a corner
+    vertex index, n[0] up to the corner and n[1] after it: every line of a ribbon gets the same
+    count and its corner at the same index, so the quads stay whole."""
+    line = [np.asarray(q, float) for q in line]
+
+    def cross(a, b, f):
+        lo, hi = 0.0, 1.0
+        for _ in range(40):
+            mid = (lo + hi) / 2
+            if f(a + (b - a) * mid) == f(a):
+                lo = mid
+            else:
+                hi = mid
+        return a + (b - a) * hi
+    i0 = 0
+    pts = []
+    if start is not None:
+        i0 = next(k for k in range(len(line)) if start(line[k]))
+        if i0 > 0:
+            pts.append(cross(line[i0 - 1], line[i0], start))
+    i1 = len(line)
+    if end is not None:
+        k = next((k for k in range(i0, len(line)) if not end(line[k])), None)
+        if k is not None:
+            i1 = k
+    body = list(range(i0, i1))
+    pts += [line[k] for k in body]
+    if i1 < len(line):
+        pts.append(cross(line[i1 - 1], line[i1], end))
+    pts = np.array(pts)
+
+    def resample(q, m):
+        seg = np.linalg.norm(np.diff(q, axis=0), axis=1)
+        s = np.concatenate([[0.0], np.cumsum(seg)])
+        t = np.linspace(0, s[-1], m)
+        return np.stack([np.interp(t, s, q[:, 0]), np.interp(t, s, q[:, 1])], 1)
+    if corner is None or corner not in body:
+        return resample(pts, n[0])
+    c = (1 if (start is not None and i0 > 0) else 0) + body.index(corner)
+    return np.concatenate([resample(pts[:c + 1], n[0]), resample(pts[c:], n[1])[1:]])
+
+
+def _face_out(bm):
+    """Wind every face of an open surface standing on the wall so the surface faces out of it:
+    one winding throughout (as built), reversed if its frontmost face looks into the wall."""
+    front = max(bm.faces, key=lambda f: (-f.calc_center_median().y, f.calc_area()))
+    bm.normal_update()
+    if front.normal.y > 0:
+        bmesh.ops.reverse_faces(bm, faces=bm.faces[:])
+        bm.normal_update()
+
+
+def _ribbon(name, path, profile, side_ref, mat, start=None, end=None, corner=None, n=(40, 40)):
+    """A moulding on the front wall: the open profile [(t, h)] (from the wall, over, back to the
+    wall: no face on or in the wall) swept along the 2D path (mitred), each of its lines trimmed
+    at the start/end conditions, capped at both ends."""
+    lines = [(_trimmed(q, start, end, corner, n), h) for q, h in _offset_lines(path, profile, side_ref)]
+    bm = bmesh.new()
+    vs = [[bm.verts.new(_wall_pt(x, z, h)) for x, z in q] for q, h in lines]
+    nj, ni = len(vs), len(vs[0])
+    for j in range(nj - 1):
+        a, c = vs[j], vs[j + 1]
+        for i in range(ni - 1):
+            bm.faces.new((a[i], a[i + 1], c[i + 1], c[i]))
+    _face_out(bm)
+    mid = np.mean([q for q, h in lines], axis=0)                  # the ribbon's middle line
+    for idx, sgn in ((0, -1), (ni - 1, 1)):
+        cap = bm.faces.new([vs[j][idx] for j in range(nj)])
+        cap.normal_update()
+        k = min(max(idx, 1), ni - 1)
+        tang = mid[k] - mid[k - 1]
+        if (cap.normal.x * tang[0] + cap.normal.z * tang[1]) * sgn < 0:
+            cap.normal_flip()
+    return _obj(name, bm, "stone", [mat])
+
+
+def _revolve_on_wall(name, centre, prof, mat, outline=None, n=96):
+    """A body of revolution about the axis through centre (x, z) normal to the wall: the open
+    profile [(r, h)] from the axis out to the wall (or to the face it stands on); outline(phi)
+    scales r round it (1 = round)."""
+    bm = bmesh.new()
+    rings = []
+    for k in range(n):
+        phi = 2 * math.pi * k / n
+        s = outline(phi) if outline else 1.0
+        rings.append([bm.verts.new(_wall_pt(centre[0] + r * s * math.sin(phi), centre[1] + r * s * math.cos(phi), h))
+                      for r, h in prof])
+    m = len(prof)
+    for k in range(n):
+        a, c = rings[k], rings[(k + 1) % n]
+        for j in range(m - 1):
+            bm.faces.new((a[j], a[j + 1], c[j + 1], c[j]))
+    bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=1e-7)    # the axis: one vertex
+    bmesh.ops.dissolve_degenerate(bm, dist=1e-7, edges=bm.edges[:])
+    _face_out(bm)
+    return _obj(name, bm, "stone", [mat])
+
+
+def vault_relief(M, wall):
+    """The vault ornament made part of the front wall (first-arch idea 1, Maria: "too 2D"):
+    - the wall's face round the arch takes the ornament as its detail tile ("vault_front",
+      tools/vault_ornament.py via make_detail.py), mapped once over it (bake "uv_origin"), so the
+      bake's light falls across the paint and the marble's grain runs through it;
+    - in relief, stucco on the wall (painted by the same tile on their fronts; their sides take
+      the tile's top strip, white, or gold for the rosettes, through bake "side_uv"):
+      the pale ribs, 4.6 cm proud with a cable torus on the axis; the roundels, a disc 4.5 cm
+      proud under a rounded rim, each with a raised gilded rosette 4.7 cm proud of it; a thin
+      frame round each blue field, 3.6 cm proud. Every front face stands >= 3 cm before the face
+      it covers (R13: 2 cm in the web); they stand on the wall with no face of their own on or in
+      it; ribs and borders stop 1 mm off the roundels' sides and run out at the wall's top and
+      end (R1). The borders along the ribs
+      rake with them (not "frames": the audit wants frames level or plumb).
+    Design numbers: vault_geom.py (web metres; / SCALE for Blender)."""
+    import vault_geom as G
+    white = M["stone"].copy()
+    white.name = "vault_front"
+    white["detail"], white["tile"], white["uv_origin"] = "vault_front", list(G.TILE_B), list(G.ORIGIN_B)
+    white["tint"] = [1.0, 1.0, 1.0]
+    white["side_uv"] = list(G.side_uv()[0])
+    gold = white.copy()
+    gold.name = "vault_front_gold"
+    gold["side_uv"] = list(G.side_uv()[1])
+    b = G.b
+    xc, zc = b(G.XC), b(G.YC)
+    x0, x1 = b(G.XC - G.HW), b(G.XC + G.HW)
+    z0, z1 = b(G.Y0), b(G.Y1)
+    # 1. The wall's face inside the tile: cut on the tile's edges, given the ornament.
+    bm = bmesh.new()
+    bm.from_mesh(wall.data)
+    for co, no in (((x0, 0, 0), (1, 0, 0)), ((x1, 0, 0), (1, 0, 0)), ((0, 0, z0), (0, 0, 1)), ((0, 0, z1), (0, 0, 1))):
+        bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], plane_co=co, plane_no=no)
+    bm.to_mesh(wall.data)
+    bm.free()
+    wall.data.materials.append(white)
+    mi = len(wall.data.materials) - 1
+    for poly in wall.data.polygons:
+        c = poly.center
+        if (poly.normal.y < -0.99 and abs(c.y - P.ARCH_Y) < 1e-3 and x0 < c.x < x1 and z0 < c.z < z1):
+            poly.material_index = mi
+    objs = []
+    WALL_TOP, WALL_END = P.ARCH_WALL[1], P.ARCH_WALL[0]
+    rr = b(G.ROUNDEL_R) - 0.005                     # the roundel's disc (5 mm inside the painted ring)
+    rib_w, fw = b(G.RIB_W), b(G.FRAME_W)
+    for side in (-1, 1):
+        e_s, n_up = (np.array(v) for v in G.rib_axes(side))
+        rc = np.array([b(c) for c in G.roundel_centre(side)])
+        into = lambda p, r=rr + 0.001: np.hypot(*(p - rc)) > r       # noqa: E731  (stops 1 mm off the roundel)
+        below_top = lambda p: p[1] < WALL_TOP                         # noqa: E731
+        inside_end = lambda p: abs(p[0]) < WALL_END                   # noqa: E731
+        # ribs: a fascia with a chamfer each side and a cable torus on the axis
+        hw = rib_w / 2
+        tor = [(0.034 * math.cos(a), 0.034 + 0.012 * math.sin(a)) for a in np.linspace(math.pi, 0, 13)]
+        prof = [(-hw, 0.0), (-hw, 0.030), (-hw + 0.012, 0.034), (-0.034, 0.034)] + tor[1:-1] + \
+               [(0.034, 0.034), (hw - 0.012, 0.034), (hw, 0.030), (hw, 0.0)]
+        far = rc + e_s * 12.0
+        objs.append(_ribbon(f"vault_rib_{side}", [rc, far], prof, lambda p: n_up, white, into, below_top))
+        # the field's frame: a fillet and an ovolo, on the field's side of its edge
+        fprof = [(0.0, 0.0), (0.0, 0.030), (0.010, 0.036), (0.022, 0.036),
+                 (0.032, 0.034), (fw - 0.004, 0.031), (fw, 0.030), (fw, 0.0)]
+        # (a) along the rib's lower edge, from the roundel to the wall's top
+        edge = [rc - n_up * hw, rc - n_up * hw + e_s * 12.0]
+        objs.append(_ribbon(f"vault_field_border_rib_{side}", edge, fprof, lambda p: -n_up, white, into, below_top))
+        # (b) along the band's outer edge down to the springing, then along it to the wall's end
+        R, ys = b(G.RB), b(G.YS)
+        th_end = math.acos((ys - zc) / R)                              # where the arc meets the springing
+        ths = np.linspace(math.radians(G.RIB_DEG), th_end, 90)       # from inside the roundel
+        arc = [np.array([xc + side * R * math.sin(t), zc + R * math.cos(t)]) for t in ths]
+        path = arc + [np.array([side * (WALL_END + 0.5), ys])]
+        outward = lambda p: (p - np.array([xc, zc])) / np.hypot(*(p - np.array([xc, zc])))   # noqa: E731
+        objs.append(_ribbon(f"vault_field_border_arc_{side}", path, fprof, outward, white, into, inside_end,
+                            corner=len(arc) - 1, n=(90, 12)))
+        # the roundel: disc under a rounded rim
+        rim = [(rr - 0.015 + 0.015 * math.cos(a), 0.045 + 0.015 * math.sin(a)) for a in np.linspace(0, math.pi, 10)]
+        rprof = ([(0.0, 0.045), (rr - 0.034, 0.045)] + rim[::-1][:-1] + [(rr, 0.045), (rr, 0.0)])
+        objs.append(_revolve_on_wall(f"vault_roundel_{side}", rc, rprof, white))
+        # the rosette: a gilded boss, its outline the painted rosette's eight petals, domed
+        rb = b(G.ROSETTE_R)
+        bprof = [(0.0, 0.093), (0.3, 0.092), (0.6, 0.089), (0.85, 0.083), (1.0, 0.075), (1.0, 0.045)]
+        bprof = [(r * rb, h) for r, h in bprof]
+        objs.append(_revolve_on_wall(f"vault_boss_{side}", rc, bprof, gold,
+                                     outline=lambda phi: 0.80 + 0.20 * abs(math.cos(4 * phi)) ** 0.6))
+    for ob in objs:
+        ob["oriented"] = True
     return objs

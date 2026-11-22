@@ -1,37 +1,37 @@
-"""The vault ornament round the opening arch (first-arch idea 1, chosen by Maria from the 2D
-mock-ups in renders/first-arch-ideas): the painted vault of the Stanza della Segnatura as it
-shows in the fresco scan's margins, figure-free and redrawn clean as vectors.
+"""The vault ornament round the opening arch (first-arch idea 1, chosen by Maria): the painted
+vault of the Stanza della Segnatura as it shows in the fresco scan's margins, figure-free and
+redrawn clean as vectors, painted on the front wall itself.
 
-Outside the arch's dark red outer band, on the front wall:
+On the front wall, outside the arch's dark red outer band:
 - a band of gold interlace on blue following the arch (a chain of endless knots linked by
   figure-of-eight twists, the vault's knotwork borders);
 - a gilt rosette in a white roundel at +-50 degrees, where the vault's ribs meet the lunette frame;
-- a pale rib from each roundel out to the edge of the view (white, with a cable moulding);
+- a pale rib from each roundel out to the top of the wall (white, with a cable moulding);
 - under each rib a blue field framed in white with a gold fillet, holding a gold oak with acorns
-  (the della Rovere oak of the vault's triangles).
+  (the della Rovere oak of the vault's triangles) on a branching trunk.
 No figures, no faces, no animals. Nothing is copied from the scan: it was studied for the motifs,
 their proportions and the colours (the blue below is the scan's ultramarine).
 
-Geometry. The ornament is drawn on a plane 2 cm (web) in front of the front wall's face, facing
-Raphael's eye, so it is shaped in scan px through the camera solve like the arch itself
-(finish2.opening_arch): a point seen at scan px (u, v) lies on the plane at
-x = (u - CX) * K, y = EYE - (v - CY) * K with K = plane distance / F_PX (web metres). Its inner
-edge is the outer band's edge (ARCH_R outer, 1925 px), on the band's own sight lines: the plane
-meets the band's outer side there, 1 mm behind the band's front, so walking in the band always
-covers the ornament's edge and never opens a gap. It stops at the springing (the impost's top,
-ARCH_SPRING_V) and runs past the edges of the desktop start view.
+It is the front wall's own detail tile ("vault_front", make_detail.py calls tile()), mapped once
+over the wall round the arch (bake.detail_uvs, "uv_origin"), so the baked light falls across it
+and the wall's marble grain runs through the paint. The ribs, the roundels, the rosettes and the
+fields' frames are also built in relief (finish2.vault_relief, from blender/scripts/vault_geom.py,
+where the design's numbers live): the tile paints their fronts, its top strip their sides.
+The gold is modelled in paint, lit from the sun's side, as the meander's depth and the scroll's
+grisaille are; the tile's alpha marks the gold for the web's gold-leaf sheen (Scene.tsx).
 
-The design is symmetric about the arch's axis, so one texture holds the left half (the axis at
-its right edge) and the web mirrors it for the right half (web/src/VaultOrnament.tsx).
+Geometry: drawn in web metres on the wall's plane through the camera solve, like the arch
+(finish2.opening_arch): a point seen at scan px (u, v) lies at x = (u - CX) K,
+y = EYE - (v - CY) K, K = wall distance / F_PX. The design is symmetric about the arch's axis:
+the left half is drawn and mirrored; the painted light is not mirrored.
 
 Colours are paint (sRGB as under the hall's nominal light, the convention of
-params.ARCH_COLOURS); the web multiplies them by the light measured on the front wall.
+params.ARCH_COLOURS): the gold is matched to the arch's (divided by the wall's baked light, as the
+arch's band tile is by the arch's); the white and the blue keep the look Maria chose (the decal
+showed them at the wall's light, 0.734).
 
-Usage: python -I tools/vault_ornament.py
-Writes web/public/ornament/vault-front.png (RGBA, straight alpha, colour bled into the clear
-texels for clean mipmaps) and web/src/data/vaultOrnament.json (the plane, for the web).
+Usage: python -I tools/vault_ornament.py <preview.png>   (make_detail.py ships the real tile)
 """
-import json
 import math
 import sys
 from pathlib import Path
@@ -43,56 +43,26 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "blender" / "scripts"))
 import params as P  # noqa: E402
+import vault_geom as G  # noqa: E402
 
-OUT_PNG = ROOT / "web" / "public" / "ornament" / "vault-front.png"
-OUT_JSON = ROOT / "web" / "src" / "data" / "vaultOrnament.json"
-
-# ------------------------------------------------------------------ the plane (web metres)
-S = P.SCALE
-EYE = P.EYE_Z * S                 # 1.295: Raphael's eye; the walk keeps this height
-WALL = P.ARCH_Y * S               # 3.327: the front wall's face, ahead of the start
-OFFSET = 0.020                    # rule: never closer than 2 cm to a surface behind (the face
-                                  # measures 3.3276 in the web, so the plane is 2.05 cm off it)
-PLANE = WALL - OFFSET             # distance of the plane from the eye at the start
-K = PLANE / P.F_PX                # metres a scan px, on the plane
-
-
-def scan_to_plane(u, v):
-    return (u - P.CX) * K, EYE - (v - P.CY) * K
-
-
-XC, YC = scan_to_plane(*P.ARCH_C)              # the arch's centre (below the springing)
-R0 = P.ARCH_R["outer"] * K                     # outer edge of the dark red band
-YS = scan_to_plane(P.CX, P.ARCH_SPRING_V)[1]   # the springing: the impost's top
-R_IN = R0 - 0.002                              # the mesh runs 2 mm under the band (no seam)
-
-# The start view, desktop (walk.frustumFor): the horizontal half-angle is capped at 42 deg, so
-# from 16:10 up every screen shows the plane to tan 0.9004 each side (the frustum is shifted
-# 13.3 px of 1920 to the right). Measured from the arch's axis, the left edge is the nearer one.
+XC, YC, R0, YS, EYE = G.XC, G.YC, G.R0, G.YS, G.EYE
+R_IN = R0 - 0.002                  # the paint runs on 2 mm under the band
 HALF_TAN = math.tan(math.radians(42))
 SHIFT = (1933.3 - 1920) / 1920
-VIEW_LEFT = -(HALF_TAN + SHIFT * HALF_TAN) * PLANE - XC   # < 0, from the axis
-VIEW_TOP_169 = EYE + 0.676 * PLANE                        # top of a 16:9 view
+VIEW_LEFT = -(HALF_TAN + SHIFT * HALF_TAN) * G.PLANE - XC   # < 0, from the axis
+VIEW_TOP_169 = EYE + 0.676 * G.PLANE                        # top of a 16:9 view
 
-# Texture: the left half, axis at the right edge.
-HW = 3.10                          # half width, past the view's edge (2.97 m) on every desktop
-TEX_W, TEX_H = 2048, 1760
-PPM = TEX_W / HW                   # 661 px a metre (a 2560 px wide view shows ~430)
-Y0 = YS - 0.012                    # a little below the springing: the alpha edge stays inside
-Y1 = Y0 + TEX_H / PPM
+# The canvas: the left half, axis at the right edge.
+HW = G.HW
+PPM = G.PPM
+TEX_W, TEX_H = G.TEX_W // 2, G.TEX_H_DRAW
+Y0, Y1 = G.Y0, G.Y1
 XL = XC - HW
 SS = 4                             # supersampling for the drawn motifs
 
-# ------------------------------------------------------------------ the design (metres)
-BAND = dict(fil_in=0.012, line=0.0025, blue=0.110, fil_out=0.012)   # from R0 outwards
-RB_BLUE0 = R0 + BAND["fil_in"] + BAND["line"]
-RB_BLUE1 = RB_BLUE0 + BAND["blue"]
-RB = RB_BLUE1 + BAND["line"] + BAND["fil_out"]     # band's outer edge
-RIB_DEG = 50.0                     # the ribs' angle from the crown
-RIB_W = 0.10
-ROUNDEL_R = 0.135                  # touches the red band: centre at R0 + ROUNDEL_R
-FRAME_W = 0.032                    # the fields' white frame
-FILLET = (0.020, 0.0055)           # gold fillet inside the field: offset from the frame, width
+BAND = G.BAND
+RB_BLUE0, RB_BLUE1, RB = G.RB_BLUE0, G.RB_BLUE1, G.RB
+RIB_DEG, RIB_W, ROUNDEL_R, FRAME_W, FILLET = G.RIB_DEG, G.RIB_W, G.ROUNDEL_R, G.FRAME_W, G.FILLET
 LINE_W = 0.0025                    # grey drawing lines
 KNOT_STROKE = 0.0064               # gold interlace
 
@@ -109,6 +79,7 @@ GOLD = tuple(P.ARCH_COLOURS["gold"])          # (194, 150, 62), the arch's gold 
 GOLD_SHADE = tuple(P.ARCH_COLOURS["gold_shade"])
 GOLD_LIGHT = (228, 192, 112)
 GOLD_CUP = (166, 124, 48)            # the acorns' cups, between the gold and its shade
+GOLDS = {GOLD, GOLD_SHADE, GOLD_LIGHT, GOLD_CUP}
 
 # ------------------------------------------------------------------ rasterising
 ix = (np.arange(TEX_W) + 0.5) / PPM + XL
@@ -142,16 +113,18 @@ LUMA = np.array([0.2126, 0.7152, 0.0722])
 BLUE = tuple(int(c) for c in srgb8(lin(SCAN_BLUE) * (lin(WHITE) @ LUMA) / (lin(SCAN_WHITE) @ LUMA)))
 
 
-# Premultiplied, linear accumulation.
+# Premultiplied, linear accumulation; GOLDM: where the paint is gold leaf.
 ACC = np.zeros((TEX_H, TEX_W, 3))
 ALPHA = np.zeros((TEX_H, TEX_W))
+GOLDM = np.zeros((TEX_H, TEX_W))
 
 
 def over(colour, c):
-    global ACC, ALPHA
+    global ACC, ALPHA, GOLDM
     c = np.clip(c, 0, 1)
     ACC = ACC * (1 - c[..., None]) + lin(colour) * c[..., None]
     ALPHA = ALPHA * (1 - c) + c
+    GOLDM = GOLDM * (1 - c) + c * (1.0 if tuple(colour) in GOLDS else 0.0)
 
 
 class Pen:
@@ -234,8 +207,8 @@ class Painter:
         self.dr.ellipse((x - rp, y - rp, x + rp, y + rp), fill=col)
         self.da.ellipse((x - rp, y - rp, x + rp, y + rp), fill=255)
 
-    def lay(self, clip=None):
-        global ACC, ALPHA
+    def lay(self, clip=None, gold=True):
+        global ACC, ALPHA, GOLDM
         ss = self.ss
         a = np.asarray(self.a, np.float64) / 255.0
         rgb = lin(np.asarray(self.rgb)) * a[..., None]
@@ -248,6 +221,7 @@ class Painter:
             al = al * clip[sl]
         ACC[sl] = ACC[sl] * (1 - al[..., None]) + pre
         ALPHA[sl] = ALPHA[sl] * (1 - al) + al
+        GOLDM[sl] = GOLDM[sl] * (1 - al) + al * (1.0 if gold else 0.0)
 
 
 def bezier(p0, p1, p2, p3, n=24):
@@ -478,34 +452,41 @@ def _acorn(base, ang, s):
 
 
 def oak_design():
-    """The della Rovere oak of the vault's triangles, redrawn: a trunk on clawed roots that opens
-    into a ring and closes again; seven boughs fan out of the ring into an oval crown, each with
-    lobed leaves along it and three at its tip, acorns between. The field under the rib is tall
-    and narrow, so the crown is taller than the painted ones. Tree units: about 1 high, root
-    crown at the origin."""
+    """The della Rovere oak of the vault's triangles, redrawn: a trunk on clawed roots that divides
+    as a tree does, into a leader and two limbs, which divide again into seven boughs fanning into
+    an oval crown, each with lobed leaves along it and three at its tip, acorns between. The field
+    under the rib is tall and narrow, so the crown is taller than the painted ones. Tree units:
+    about 1 high, root crown at the origin."""
     wood, bark, shine, leaves, acorns = [], [], [], [], []
-    trunk = bezier((0.0, 0.02), (0.022, 0.11), (-0.022, 0.20), (0.0, 0.30), 40)
-    wood.append(taper(trunk, 0.09, 0.064))
-    bark.append(bezier((-0.014, 0.05), (0.006, 0.12), (-0.026, 0.19), (-0.01, 0.27), 30))
-    shine.append(bezier((0.02, 0.05), (0.036, 0.11), (0.004, 0.19), (0.016, 0.27), 30))
+    trunk = bezier((0.0, 0.02), (0.018, 0.11), (-0.016, 0.20), (0.0, 0.30), 40)
+    wood.append(taper(trunk, 0.092, 0.066))
+    bark.append(bezier((-0.014, 0.05), (0.004, 0.12), (-0.022, 0.19), (-0.010, 0.27), 30))
+    shine.append(bezier((0.020, 0.05), (0.032, 0.11), (0.006, 0.19), (0.016, 0.27), 30))
     for p0, p1, p2, p3, w in [((-0.026, 0.05), (-0.07, 0.025), (-0.11, 0.005), (-0.17, -0.04), 0.044),
                               ((-0.018, 0.03), (-0.045, -0.015), (-0.06, -0.04), (-0.095, -0.08), 0.036),
                               ((0.0, 0.03), (0.005, -0.02), (-0.004, -0.055), (0.007, -0.095), 0.032),
                               ((0.018, 0.03), (0.045, -0.015), (0.062, -0.038), (0.10, -0.075), 0.036),
                               ((0.026, 0.05), (0.07, 0.028), (0.11, 0.01), (0.17, -0.035), 0.044)]:
         wood.append(taper(bezier(p0, p1, p2, p3, 30), w, 0.006))
-    limbL = bezier((-0.02, 0.28), (-0.10, 0.33), (-0.095, 0.45), (-0.008, 0.50), 40)
-    limbR = bezier((0.02, 0.28), (0.10, 0.33), (0.095, 0.45), (0.008, 0.50), 40)
-    wood.append(taper(limbL, 0.05, 0.036))
-    wood.append(taper(limbR, 0.05, 0.036))
-    shine.append(limbL[5:28] + np.array([-0.011, 0.0]))
-    boughs = [((0.0, 0.50), (0.015, 0.62), (-0.015, 0.74), (0.0, 0.84), 0.032, 0.011),
-              ((-0.03, 0.50), (-0.07, 0.60), (-0.11, 0.70), (-0.15, 0.80), 0.030, 0.010),
-              ((0.03, 0.50), (0.07, 0.61), (0.11, 0.71), (0.15, 0.82), 0.030, 0.010),
-              ((-0.09, 0.45), (-0.15, 0.50), (-0.19, 0.56), (-0.23, 0.64), 0.028, 0.010),
-              ((0.09, 0.45), (0.15, 0.51), (0.19, 0.57), (0.23, 0.66), 0.028, 0.010),
-              ((-0.10, 0.36), (-0.16, 0.38), (-0.20, 0.40), (-0.24, 0.45), 0.026, 0.009),
-              ((0.10, 0.36), (0.16, 0.39), (0.20, 0.41), (0.24, 0.47), 0.026, 0.009)]
+    # the fork: a leader straight on, a limb to each side, each starting inside the trunk's top
+    leader = bezier((0.0, 0.27), (0.008, 0.38), (-0.010, 0.48), (0.0, 0.60), 40)
+    limbL = bezier((-0.008, 0.27), (-0.05, 0.34), (-0.095, 0.39), (-0.135, 0.47), 40)
+    limbR = bezier((0.008, 0.27), (0.05, 0.35), (0.10, 0.41), (0.135, 0.50), 40)
+    wood.append(taper(leader, 0.050, 0.030))
+    wood.append(taper(limbL, 0.044, 0.026))
+    wood.append(taper(limbR, 0.044, 0.026))
+    bark.append(leader[4:30] + np.array([-0.007, 0.0]))
+    shine.append(limbL[4:26] + np.array([0.0, 0.009]))
+    shine.append(limbR[4:26] + np.array([0.0, 0.009]))
+    shine.append(leader[4:30] + np.array([0.009, 0.0]))
+    # seven boughs, each growing out of the leader or a limb (their starts lie on them)
+    boughs = [(tuple(leader[-2]), (0.012, 0.69), (-0.012, 0.77), (0.0, 0.85), 0.030, 0.011),
+              (tuple(leader[22]), (-0.05, 0.58), (-0.10, 0.69), (-0.15, 0.80), 0.028, 0.010),
+              (tuple(leader[26]), (0.05, 0.61), (0.10, 0.71), (0.15, 0.82), 0.028, 0.010),
+              (tuple(limbL[-2]), (-0.17, 0.52), (-0.20, 0.58), (-0.23, 0.65), 0.026, 0.010),
+              (tuple(limbR[-2]), (0.17, 0.55), (0.20, 0.60), (0.23, 0.67), 0.026, 0.010),
+              (tuple(limbL[22]), (-0.13, 0.40), (-0.19, 0.41), (-0.24, 0.45), 0.024, 0.009),
+              (tuple(limbR[22]), (0.13, 0.42), (0.19, 0.43), (0.24, 0.47), 0.024, 0.009)]
     rng = np.random.default_rng(11)
     for bi, (p0, p1, p2, p3, w0, w1) in enumerate(boughs):
         path = bezier(p0, p1, p2, p3, 40)
@@ -610,57 +591,79 @@ def oak():
 
 
 # ------------------------------------------------------------------ output
-def bleed(rgb, a):
-    """Fill the clear texels with the colour of the nearest painted ones (push-pull), so
-    bilinear filtering and mipmaps never pull in black at the edges."""
-    levels = [(rgb * a[..., None], a)]
-    while min(levels[-1][1].shape) > 2:
-        c, w = levels[-1]
-        h2, w2 = (c.shape[0] + 1) // 2, (c.shape[1] + 1) // 2
-        levels.append((cv2.resize(c, (w2, h2), interpolation=cv2.INTER_AREA),
-                       cv2.resize(w, (w2, h2), interpolation=cv2.INTER_AREA)))
-    c, w = levels[-1]
-    fill = c / np.maximum(w, 1e-8)[..., None]
-    for c, w in reversed(levels[:-1]):
-        up = cv2.resize(fill, (c.shape[1], c.shape[0]), interpolation=cv2.INTER_LINEAR)
-        mine = c / np.maximum(w, 1e-8)[..., None]
-        fill = np.where((w > 1e-4)[..., None], mine, up)
-    return np.where((a > 1e-4)[..., None], rgb, fill)
-
-
-def main():
+def paint():
+    """Draw the left half; return the full width (mirrored): linear paint colour, its coverage,
+    the gold mask. Nothing below the springing (the impost stands there)."""
     band()
-    knots = knot_chain()
+    knot_chain()
     field()
-    origin, scale = oak()
+    oak()
     rib()
     roundel()
-    # Nothing below the springing: there the impost stands, and past its end the bare wall.
     keep = cov(Y - YS)
     a = np.clip(ALPHA * keep, 0, 1)
     rgb = ACC * keep[..., None] / np.maximum(a, 1e-8)[..., None]
-    rgb = bleed(rgb, a)
-    out = np.dstack([srgb8(rgb), np.clip(np.round(a * 255), 0, 255).astype(np.uint8)])
-    OUT_PNG.parent.mkdir(parents=True, exist_ok=True)
-    Image.fromarray(out, "RGBA").save(OUT_PNG, optimize=True, compress_level=9)
-    plane = dict(
-        note="Written by tools/vault_ornament.py: the vault ornament's plane (web metres). "
-             "Texture = the left half, the arch's axis at its right edge; the right half mirrors it.",
-        z=round(-PLANE, 5), xc=round(XC, 5), yc=round(YC, 5), rIn=round(R_IN, 5),
-        x0=round(XL, 5), y0=round(Y0, 5), y1=round(Y1, 5), halfWidth=HW,
-        texture="/ornament/vault-front.png", px=[TEX_W, TEX_H])
-    OUT_JSON.write_text(json.dumps(plane, indent=2) + "\n")
-    kb = OUT_PNG.stat().st_size / 1024
-    print(f"plane z {-PLANE:.4f} (wall {-WALL:.4f}), K {K * 1000:.4f} mm/px, centre ({XC:.4f}, {YC:.4f}), "
-          f"R0 {R0:.4f}, band to {RB:.4f}, springing {YS:.4f}")
-    print(f"view left from the axis {VIEW_LEFT:.3f}, 16:9 top {VIEW_TOP_169:.3f}")
-    print(f"knot a {knots['a'] * 1000:.1f} mm, pitch {knots['pitch'] * 1000:.1f} mm; roundel centre "
-          f"({ROUNDEL_C[0]:.3f}, {ROUNDEL_C[1]:.3f}); oak at ({origin[0]:.3f}, {origin[1]:.3f}) x {scale:.2f} m")
-    wall = 0.734    # VaultOrnament.tsx, WALL_LIGHT: the front wall's light (cream 218,209,183 -> 190,182,159)
-    for name, c in (("white", WHITE), ("blue", BLUE), ("gold", GOLD), ("line", LINE)):
-        print(f"{name:5s} paint {c} -> on the wall {tuple(int(v) for v in srgb8(lin(c) * wall))}")
-    print(f"wrote {OUT_PNG.relative_to(ROOT)} {TEX_W}x{TEX_H}, {kb:.0f} KB; {OUT_JSON.relative_to(ROOT)}")
+    gm = np.clip(GOLDM * keep / np.maximum(ALPHA, 1e-8), 0, 1) * (a > 1e-4)
+    full = lambda x: np.concatenate([x, x[:, ::-1]], axis=1)  # noqa: E731
+    return full(rgb), full(a), full(gm)
+
+
+def gold_modelling(gm):
+    """The gold's painted relief: a height field from the gold's shapes (rounded over 6 mm in from
+    their edges), lit from the hall's sun (params SUN_AZIMUTH, SUN_ELEVATION): on the front wall
+    it comes from the right, above, and grazing. Returns a factor, 1 on the flat."""
+    el, az = math.radians(P.SUN_ELEVATION), math.radians(P.SUN_AZIMUTH)
+    L = np.array([math.cos(el) * math.cos(az), math.sin(el), math.cos(el) * math.sin(az)])  # u, v, out
+    L /= np.linalg.norm(L)
+    m = (gm > 0.5).astype(np.uint8)
+    d = cv2.distanceTransform(m, cv2.DIST_L2, cv2.DIST_MASK_PRECISE) / PPM     # metres to the edge
+    h = 0.004 * np.sqrt(np.clip(d / 0.006, 0, 1))                             # up to 4 mm of relief
+    h = cv2.GaussianBlur(h, (0, 0), 0.9)
+    gy, gx = np.gradient(h * PPM)                  # per metre; rows run down
+    n = np.dstack([-gx, gy, np.ones_like(h)])
+    n /= np.linalg.norm(n, axis=2, keepdims=True)
+    f = 1.0 + 1.1 * (n @ L - L[2])
+    return np.clip(f, 0.62, 1.35)
+
+
+DECAL_LIGHT = 0.734    # the light the decal showed its white and blue at (VaultOrnament.tsx, WALL_LIGHT)
+
+
+def tile(stone, wall_light, grain_gain=1.6):
+    """The detail tile (linear RGB, alpha = gold leaf), TEX_W x (STRIP + drawing):
+    - stone(x, z): the wall's own stone tile sampled at Blender metres on the wall (in phase with
+      the wall round it), shown where nothing is painted and multiplied into the paint;
+    - wall_light: the front wall's baked light (linear RGB, median round the arch).
+    The top STRIP rows: plain white (left half) and gold (right half) for the reliefs' sides."""
+    rgb, a, gm = paint()
+    H, W = a.shape
+    shade = gold_modelling(gm)
+    wl = np.asarray(wall_light, np.float64)
+    k = gm[..., None] / wl + (1 - gm[..., None]) * DECAL_LIGHT / wl
+    paint_alb = rgb * k * (1 + (shade[..., None] - 1) * gm[..., None])
+    # Blender metres of every texel on the wall
+    xs = G.b(XC - HW + (np.arange(W) + 0.5) / PPM)
+    zs = G.b(Y1 - (np.arange(H) + 0.5) / PPM)
+    X, Z = np.meshgrid(xs, zs)
+    ground = stone(X, Z)
+    lum = ground @ LUMA
+    grain = 1 + grain_gain * (lum / lum.mean() - 1)
+    out = a[..., None] * paint_alb * grain[..., None] + (1 - a[..., None]) * ground
+    alpha = gm * a
+    white = lin(WHITE) * DECAL_LIGHT / wl
+    gold = lin(GOLD) / wl
+    strip = np.zeros((G.STRIP, W, 3))
+    strip[:, : W // 2] = white
+    strip[:, W // 2:] = gold
+    salpha = np.zeros((G.STRIP, W))
+    salpha[:, W // 2:] = 1.0
+    return np.clip(np.concatenate([strip, out]), 0, 1), np.concatenate([salpha, alpha])
 
 
 if __name__ == "__main__":
-    main()
+    out = Path(sys.argv[1] if len(sys.argv) > 1 else "vault_front_preview.png")
+    alb = np.array(P.ALBEDO["stone"])
+    rgb, al = tile(lambda X, Z: np.broadcast_to(alb, X.shape + (3,)), np.array([DECAL_LIGHT] * 3))
+    cv2.imwrite(str(out), srgb8(rgb * DECAL_LIGHT)[..., ::-1])
+    print(f"wrote {out} {rgb.shape[1]}x{rgb.shape[0]} (shown at the wall's light {DECAL_LIGHT}); "
+          f"gold {al.mean():.3f} of the tile")

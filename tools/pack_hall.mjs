@@ -53,7 +53,7 @@ for (const tex of doc.getRoot().listTextures()) {
 const lightTex = {};
 for (const mat of doc.getRoot().listMaterials()) {
   const info = materials[mat.getName()];
-  if (!info) continue;   // e.g. the flat ground beyond the door
+  if (!info) continue;
   const g = info.group;
   if (!lightTex[g]) {
     lightTex[g] = doc.createTexture(`lightmap_${g}`).setImage(ktx2(path.join(dir, `lightmap_${g}.png`), `lightmap_${g}`, "uastc"))
@@ -69,7 +69,8 @@ for (const mat of doc.getRoot().listMaterials()) {
 // Positions on one grid for the whole hall (quantizationVolume "scene"): with a grid per mesh, an
 // edge shared by two meshes (the nave wall and the crossing arch's leg, in one plane) rounded
 // differently on each side and opened a sub-pixel slit that flickered as a 1 px line at grazing
-// angles (Maria, 2026-11-21). 16 bits over the hall: about 0.7 mm.
+// angles (Maria, 2026-11-21). 16 bits over the hall: about 0.6 mm (the ground beyond the door,
+// 400 m long, is drawn by the web, not packed here: with it a step was 4.3 mm, bake.py).
 await doc.transform(dedup(), prune(), meshopt({
   encoder: MeshoptEncoder, level: "medium", quantizeTexcoord: 16, quantizePosition: 16, quantizationVolume: "scene",
 }));

@@ -935,8 +935,8 @@ def light(sun, world, raphael=True):
     upper = [ob.name for ob in meshes if ob.name.startswith(("pendentives", "drum", "tondo", "facade", "arch_front",
                                                                "arch_back", "crossing_blind"))]
     floors = ("floor", "platform", "step", "podium", "pedestal", "ground")
-    right = [ob.name for ob in meshes if not ob.name.startswith(floors)
-             and min((ob.matrix_world @ Vector(c)).x for c in ob.bound_box) > 0.5]
+    right = [ob.name for ob in meshes if not ob.name.startswith(floors + ("vault_",))   # the vault ornament's
+             and min((ob.matrix_world @ Vector(c)).x for c in ob.bound_box) > 0.5]          # reliefs: both sides alike
     jambs = [ob.name for ob in meshes if ob.name.startswith("crossing_jambs")]
     sun.light_linking.blocker_collection = excluded("sun_not_blocking", vault + upper + right + jambs)
     # Nor do the vaults and the faces up under them take the sun; nor the facade's front (painted

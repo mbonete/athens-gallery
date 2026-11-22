@@ -15,7 +15,6 @@ import { DomePicking } from "./DomeControls";
 import { frustumFor, poseAt, progressNear, SHIFT_X, STATIONS, TOTAL } from "./walk";
 import { Sky } from "./Sky";
 import { Banners } from "./Banners";
-import { VaultOrnament } from "./VaultOrnament";
 import { GOLD_SHEEN, GOLD_SHININESS, SUN_DIR } from "./goldLeaf";
 
 export function Scene() {
@@ -101,7 +100,7 @@ export function Scene() {
       <Sky />
       <Hall />
       <Banners />
-      <VaultOrnament />
+      <GroundBeyond />
       <DomePicking />
       {STATIONS.map((st) => (
         <HungPainting key={st.painting.slug} painting={st.painting} side={st.side} z={st.z} wallX={st.wallX} room={st.room} />
@@ -154,6 +153,26 @@ function lightmapBicubic(mat: THREE.MeshBasicMaterial) {
       .replace("texture2D( lightMap, vLightMapUv )", "lmBicubic( lightMap, vLightMapUv )");
   };
   mat.customProgramCacheKey = () => "lm-bicubic";
+}
+
+/** The flat ground beyond the end door, seen through it (build.py's ground_beyond, hall.json):
+ * drawn here rather than packed in the GLB, whose single quantization grid it would stretch to
+ * 4.3 mm a step (bake.py). Flat and unlit, dimmed with the hall. */
+function GroundBeyond() {
+  const g = (hall as unknown as { groundBeyond?: { y: number; x: number[]; z: number[]; colour: number[] } }).groundBeyond;
+  const base = useMemo(() => new THREE.Color().setRGB(...((g?.colour ?? [0.42, 0.42, 0.33]) as [number, number, number])), [g]);
+  const mat = useMemo(() => new THREE.MeshBasicMaterial({ color: base.clone(), toneMapped: false }), [base]);
+  useFrame(() => {
+    mat.color.copy(base).multiplyScalar(rig.light);
+  });
+  if (!g) return null;
+  const [x0, x1] = g.x;
+  const [z0, z1] = g.z;
+  return (
+    <mesh position={[(x0 + x1) / 2, g.y, (z0 + z1) / 2]} rotation={[-Math.PI / 2, 0, 0]} material={mat}>
+      <planeGeometry args={[x1 - x0, Math.abs(z1 - z0)]} />
+    </mesh>
+  );
 }
 
 /** The opening arch's gold leaf (Maria, round 10: clean, smooth, with a sheen). The band tile's
@@ -227,7 +246,9 @@ function Hall() {
         toneMapped: false,
       });
       lightmapBicubic(mat);
-      if (old.name.split("|")[1] === "arch_band") goldLeaf(mat);
+      // The gold leaf: the opening arch's bands and the vault ornament painted on the front wall
+      // (detail tiles whose alpha marks the gold; no other wall carries the sheen).
+      if (["arch_band", "vault_front"].includes(old.name.split("|")[1])) goldLeaf(mat);
       mesh.material = mat;
       old.dispose();
       hallMaterials.push({ mat, base: mat.color.clone() });
