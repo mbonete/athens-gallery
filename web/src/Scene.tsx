@@ -1,10 +1,12 @@
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { PaintingTextureLoader } from "./paintingTexture";
 import hall from "./data/hall.json";
 import { displayH, displayW, type Painting } from "./paintings";
 import { rig } from "./rig";
@@ -211,13 +213,39 @@ function goldLeaf(mat: THREE.MeshBasicMaterial) {
   mat.customProgramCacheKey = () => (LM_BICUBIC ? "lm-bicubic" : "lm") + "|gold-leaf";
 }
 
+/** Before the hall is first drawn: link every program the scene needs in the background
+ * (KHR_parallel_shader_compile) and meanwhile upload the textures not on the GPU yet, so the first
+ * frame waits for neither. The scene is hidden until then (Hall); compile() reads the lights of the
+ * visible scene. */
+async function warmUp(gl: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera) {
+  scene.visible = true;
+  const linked = gl.compileAsync(scene, camera);
+  scene.visible = false;
+  scene.traverse((o) => {
+    const m = (o as THREE.Mesh).material;
+    for (const mat of m ? [m].flat() : []) {
+      const uniforms = Object.values((mat as THREE.ShaderMaterial).uniforms ?? {}).map((u) => u.value);
+      for (const v of [...Object.values(mat), ...uniforms]) if (v instanceof THREE.Texture) gl.initTexture(v);
+    }
+  });
+  await linked;
+}
+
 function Hall() {
-  const { gl } = useThree();
+  const { gl, scene, invalidate, get } = useThree();
   const gltf = useLoader(GLTFLoader, "/models/hall.glb", (loader) => {
     const ktx2 = new KTX2Loader().setTranscoderPath("/basis/").detectSupport(gl);
+    // Fetch the transcoder beside hall.glb, not once the GLB has arrived.
+    ktx2.init().catch(() => {});
     loader.setKTX2Loader(ktx2);
     loader.setMeshoptDecoder(MeshoptDecoder);
   });
+  // Hidden from this commit until warmUp is done, so no frame draws the hall before its materials,
+  // the camera and the environment are set: the canvas stays as it was behind the loading line.
+  useLayoutEffect(() => {
+    scene.visible = false;
+    return () => void (scene.visible = true);
+  }, [scene]);
   useEffect(() => {
     hallMaterials.length = 0;
     const aniso = Math.min(8, gl.capabilities.getMaxAnisotropy());
@@ -255,8 +283,20 @@ function Hall() {
       mesh.castShadow = false;
       mesh.receiveShadow = false;
     });
-    setState({ ready: true });
-  }, [gltf, gl]);
+    // After this commit's other effects: Scene's sets the camera and the environment the frames
+    // reflect, which their programs depend on.
+    let live = true;
+    queueMicrotask(() => {
+      if (!live) return;
+      warmUp(gl, scene, rig.camera ?? get().camera).catch(() => {}).then(() => {
+        if (!live) return;
+        scene.visible = true;
+        setState({ ready: true });
+        invalidate();
+      });
+    });
+    return () => void (live = false);
+  }, [gltf, gl, scene, invalidate, get]);
   useFrame(() => {
     for (const { mat, base } of hallMaterials) mat.color.copy(base).multiplyScalar(rig.light);
   });
@@ -268,10 +308,8 @@ function Hall() {
 function HungPainting({ painting, side, z, wallX, room }: {
   painting: Painting; side: number; z: number; wallX: number; room: number;
 }) {
-  const tex = useLoader(THREE.TextureLoader, painting.texture);
   const { gl } = useThree();
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = gl.capabilities.getMaxAnisotropy();
+  const tex = useLoader(PaintingTextureLoader, painting.texture, (l) => void (l.renderer = gl));
   const w = displayW(painting);
   const h = displayH(painting);
   const floor = hall.floor[hall.floor.length - 1][1];
@@ -282,6 +320,14 @@ function HungPainting({ painting, side, z, wallX, room }: {
   const rotY = inDoor ? 0 : side < 0 ? Math.PI / 2 : -Math.PI / 2;
   const frame = 0.06;
   const label = useMemo(() => labelTexture(painting), [painting]);
+  // The frame's four sides as one geometry: one draw call instead of four.
+  const frameGeo = useMemo(() => mergeGeometries([
+    [0, h / 2 + frame / 2, w + 2 * frame, frame],
+    [0, -h / 2 - frame / 2, w + 2 * frame, frame],
+    [-w / 2 - frame / 2, 0, frame, h],
+    [w / 2 + frame / 2, 0, frame, h],
+  ].map(([fx, fy, fw, fh]) => new THREE.BoxGeometry(fw, fh, 0.04).translate(fx, fy, 0))), [w, h]);
+  useEffect(() => () => frameGeo.dispose(), [frameGeo]);
   // Label: on the base's front face for the doorway piece; beside a wall piece when it fits
   // in the bay (5 cm clear of the pilaster), otherwise under its bottom-right corner.
   const besideFits = w / 2 + 0.47 <= room / 2 - 0.05;
@@ -308,17 +354,9 @@ function HungPainting({ painting, side, z, wallX, room }: {
         <meshBasicMaterial map={tex} toneMapped={false} />
       </mesh>
       {/* The doorway piece's stone base is part of the baked hall (params.BOSCH_BASE). */}
-      {[
-        [0, h / 2 + frame / 2, w + 2 * frame, frame],
-        [0, -h / 2 - frame / 2, w + 2 * frame, frame],
-        [-w / 2 - frame / 2, 0, frame, h],
-        [w / 2 + frame / 2, 0, frame, h],
-      ].map(([fx, fy, fw, fh], i) => (
-        <mesh key={i} position={[fx, fy, 0.02]}>
-          <boxGeometry args={[fw, fh, 0.04]} />
-          <meshStandardMaterial color="#5a4630" roughness={0.6} />
-        </mesh>
-      ))}
+      <mesh geometry={frameGeo} position={[0, 0, 0.02]}>
+        <meshStandardMaterial color="#5a4630" roughness={0.6} />
+      </mesh>
       <mesh ref={plaque} position={labelPos}>
         <planeGeometry args={[0.3, 0.2]} />
         <meshBasicMaterial map={label} toneMapped={false} transparent />
