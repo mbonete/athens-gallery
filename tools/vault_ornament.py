@@ -249,8 +249,9 @@ ROUNDEL_C = np.array([XC, YC]) + RC * E_S
 T_RIB = (X - XC) * N_UP[0] + (Y - YC) * N_UP[1]      # across the rib (> 0 crown side)
 S_RIB = (X - XC) * E_S[0] + (Y - YC) * E_S[1]        # along it from the arch's centre
 
-# The field under the rib: outside the band, below the rib, above the springing.
-D_FIELD = np.minimum.reduce([RHO - RB, -T_RIB - RIB_W / 2, Y - YS])
+# The field under the rib: outside the band, below the rib, above the springing (the cornice's
+# top), inside its vertical edge; beyond that edge the wall is bare.
+D_FIELD = np.minimum.reduce([RHO - RB, -T_RIB - RIB_W / 2, Y - YS, X - (XC - G.FIELD_EDGE)])
 
 
 def band():
@@ -534,7 +535,7 @@ def place_oak(design):
     GX, GY = np.meshgrid(gx, gy)
     rho = np.hypot(GX - XC, GY - YC)
     t = (GX - XC) * N_UP[0] + (GY - YC) * N_UP[1]
-    d = np.minimum.reduce([rho - RB, -t - RIB_W / 2, GY - YS])
+    d = np.minimum.reduce([rho - RB, -t - RIB_W / 2, GY - YS, GX - (XC - G.FIELD_EDGE)])
     margin = FRAME_W + FILLET[0] + FILLET[1] + 0.014
     ok = (d > margin) & (GX - XC > VIEW_LEFT + 0.04) & (GY < VIEW_TOP_169 - 0.05)
     ok &= np.hypot(GX - ROUNDEL_C[0], GY - ROUNDEL_C[1]) > ROUNDEL_R + 0.03
