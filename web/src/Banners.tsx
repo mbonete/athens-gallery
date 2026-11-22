@@ -5,6 +5,7 @@ import { PAINTINGS } from "./paintings";
 import { rig } from "./rig";
 import { useStore } from "./store";
 import { bannerUniforms, baseGeometry, litBanner, measureLight, shadowDecals, type Metal } from "./bannerLight";
+import { PaintingTextureLoader } from "./paintingTexture";
 
 /** The exhibition's banners (Maria, 2026-11-21: exhibition banners at the entrance, as in
  * museums; then "move the banners closer to the user, next to the first step of stairs
@@ -55,7 +56,7 @@ function wrap(g: CanvasRenderingContext2D, text: string, x: number, y: number, m
 }
 
 /** A banner's canvas: the painting detail on top, the words below on a dark ground. */
-function drawBanner(g: CanvasRenderingContext2D, img: HTMLImageElement, d: Detail, side: "left" | "right") {
+function drawBanner(g: CanvasRenderingContext2D, img: ImageBitmap, d: Detail, side: "left" | "right") {
   const cw = W * PX;
   const ch = H * PX;
   const pad = 70;
@@ -64,7 +65,12 @@ function drawBanner(g: CanvasRenderingContext2D, img: HTMLImageElement, d: Detai
   const [sx, sy, sw, sh] = d.crop;
   const iw = cw - 2 * pad;
   const ih = Math.round((iw * sh) / sw);
-  g.drawImage(img, sx, sy, sw, sh, pad, pad, iw, ih);
+  // The bitmap's rows run bottom-up (PaintingTextureLoader): take the crop from there and draw it
+  // flipped back.
+  g.save();
+  g.setTransform(1, 0, 0, -1, 0, 2 * pad + ih);
+  g.drawImage(img, sx, img.height - sy - sh, sw, sh, pad, pad, iw, ih);
+  g.restore();
   const p = PAINTINGS.find((q) => q.slug === d.slug)!;
   g.fillStyle = MUTED;
   g.font = `italic 26px ${FACE}`;
@@ -105,7 +111,8 @@ function drawBanner(g: CanvasRenderingContext2D, img: HTMLImageElement, d: Detai
 
 function useBannerTexture(d: Detail, side: "left" | "right") {
   const p = PAINTINGS.find((q) => q.slug === d.slug)!;
-  const art = useLoader(THREE.TextureLoader, p.texture);
+  const gl = useThree((s) => s.gl);
+  const art = useLoader(PaintingTextureLoader, p.texture, (l) => void (l.renderer = gl));
   return useMemo(() => {
     const c = document.createElement("canvas");
     c.width = W * PX;
@@ -115,7 +122,7 @@ function useBannerTexture(d: Detail, side: "left" | "right") {
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 8;
     const draw = () => {
-      drawBanner(g, art.image as HTMLImageElement, d, side);
+      drawBanner(g, art.image as ImageBitmap, d, side);
       t.needsUpdate = true;
     };
     draw();
