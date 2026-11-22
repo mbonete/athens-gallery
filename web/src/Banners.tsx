@@ -19,8 +19,6 @@ import { PaintingTextureLoader } from "./paintingTexture";
  * is built as an object: a cloth 3 mm thick whose foot goes down into a slot in a cast bronze base
  * with rounded edges, and whose hem wraps a gilt rod with ball ends. It takes the bake's sun and
  * sky face by face and casts its shadow and occlusion on the floor and the steps (bannerLight.ts). */
-export const BANNERS = new URLSearchParams(window.location.search).get("intro") !== "bottom";
-
 const TOUCH = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
 const W = 0.85; // metres (web): the cloth
 const H = 2.1;
@@ -234,7 +232,6 @@ function Banner({ side }: { side: "left" | "right" }) {
 }
 
 export function Banners() {
-  if (!BANNERS) return null;
   return (
     <>
       <Banner side="left" />

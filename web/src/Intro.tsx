@@ -1,12 +1,6 @@
-import { useEffect, useState } from "react";
-import { rig } from "./rig";
-import { useStore } from "./store";
-import { BANNERS } from "./Banners";
-
 const TOUCH = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
 
-/** How to visit, for the device in hand, set like a painting's panel (Technique, Size, ...).
- * No word on the detail dots until a painting has some. */
+/** How to visit, for the device in hand: the same words as the right banner (Banners.tsx). */
 const HOW: [string, string][] = TOUCH
   ? [
       ["Walk", "Spread two fingers; pinch to walk back"],
@@ -20,48 +14,20 @@ const HOW: [string, string][] = TOUCH
       ["Keys", "Arrows to walk; Tab and Enter open a painting"],
     ];
 
-/** Walk progress beyond which the visitor has left the entrance (about 15 cm), and where they are
- * back at it. Two thresholds, so it doesn't flicker at the edge. */
-const LEAVE = 0.004;
-const BACK = 0.0005;
-
-/** The exhibition's title at the entrance, as a banner across the bottom of the start view (Maria,
- * 2026-11-21: this distribution, without tracked capitals or a fog; portrait: the title on the
- * wall above the arch, how to visit at the bottom). It steps aside with the first step and is
- * there again whenever the visitor is back at the start. It never takes a click or a tap. */
+/** The exhibition's title and how to visit, as text for screen readers. Sighted visitors read
+ * them on the two banners in the hall (Banners.tsx), which are drawn into the 3D scene; the old
+ * bottom banner over the start view is gone (Maria, 2026-11-22: "drop the old bottom banner"). */
 export function Intro() {
-  const ready = useStore((s) => s.ready);
-  const mode = useStore((s) => s.mode);
-  const [atStart, setAtStart] = useState(true);
-
-  useEffect(() => {
-    let id = 0;
-    let at = true;
-    const tick = () => {
-      const p = rig.drive === "scroll" ? Math.max(rig.progress, rig.target) : 1;
-      const next = at ? p < LEAVE : p < BACK;
-      if (next !== at) setAtStart((at = next));
-      id = requestAnimationFrame(tick);
-    };
-    id = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(id);
-  }, []);
-
   return (
-    // With the banners in the hall (Banners.tsx) this stays for screen readers only; ?intro=bottom shows it.
-    <header className={BANNERS ? "visually-hidden" : `intro ${ready && mode === "walk" && atStart ? "show" : ""}`}>
-      <div className="intro-title">
-        <h1>Studiolo</h1>
-        <p className="intro-line">
-          Nine favourite paintings, chosen by Maria Bonete, hung in the architecture of
-          Raphael’s <cite>School of Athens</cite>.
-        </p>
-        <p className="intro-note">
-          The hall is rebuilt in 3D from the fresco (<span className="nowrap">Vatican, 1509–1511</span>). Each painting hangs at its true size.
-        </p>
-      </div>
-      <h2 className="visually-hidden">How to visit</h2>
-      <dl className="intro-how">
+    <header className="visually-hidden">
+      <h1>Studiolo</h1>
+      <p>
+        Nine favourite paintings, chosen by Maria Bonete, hung in the architecture of Raphael’s{" "}
+        <cite>School of Athens</cite>.
+      </p>
+      <p>The hall is rebuilt in 3D from the fresco (Vatican, 1509–1511). Each painting hangs at its true size.</p>
+      <h2>How to visit</h2>
+      <dl>
         {HOW.map(([k, v]) => (
           <div key={k}>
             <dt>{k}</dt>
