@@ -275,6 +275,7 @@ BAKE_GROUPS = [("front", -999, 15.0), ("facade", 15.0, 19.0), ("nave", 19.0, 33.
                ("crossing", 33.0, 46.9), ("arm2", 46.9, 999)]
 # Density factors by object name prefix (first match): mouldings change light across a few cm.
 BAKE_DENSITY_SCALE = {"vault_wall": 4.0, "vault_": 8.0,        # the vault ornament: the wall round it and its reliefs
+                      "opening_archivolt": 12.0,              # the opening arch's bands: their 2 cm steps were a third of a texel at 16 px/m (Maria's smeared strip, 2026-11-22)
                       "facade_shell": 4.0, "shell_": 4.0,     # deco round: the shells' flutes (first: prefix match)
                       "floor_lower_sides": 0.6, "facade": 0.8, "entablature": 1.6, "string_course": 1.6,
                       "nave_pilaster_capital": 2.0, "arm2_pilaster_capital": 2.0, "nave_pilaster_base": 1.6,
