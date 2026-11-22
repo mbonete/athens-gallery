@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { PAINTINGS } from "./paintings";
 import { rig } from "./rig";
 import { useStore } from "./store";
-import { bannerUniforms, baseGeometry, litBanner, shadowDecals, type Metal } from "./bannerLight";
+import { bannerUniforms, baseGeometry, litBanner, measureLight, shadowDecals, type Metal } from "./bannerLight";
 
 /** The exhibition's banners (Maria, 2026-11-21: exhibition banners at the entrance, as in
  * museums; then "move the banners closer to the user, next to the first step of stairs
@@ -181,16 +181,23 @@ function Banner({ side }: { side: "left" | "right" }) {
   // Its shadow and occlusion on the hall, once the hall's lightmaps are on (Scene.tsx). The region
   // holds the cloth's shadow (the sun is low and to the right: its top lands 2.5 m to the left and
   // 0.9 m back, on the second tread) and the occlusion round the base.
-  const { scene } = useThree();
+  const { gl, scene } = useThree();
   const ready = useStore((s) => s.ready);
   const [decals, setDecals] = useState<THREE.Mesh[]>([]);
   useEffect(() => {
     if (!ready) return;
+    // The bake's light here, read from its lightmap (bannerLight.ts): it follows every rebake.
+    const m = measureLight(gl, scene, light.bnAt.value, light.bnBase.value);
+    if (m) {
+      light.bnSky.value = m.sky;
+      light.bnSunE.value = m.sun;
+    }
+    if (import.meta.env.DEV) ((window as unknown as { __bannerLight?: Record<string, unknown> }).__bannerLight ??= {})[side] = m;
     const region = new THREE.Box3(new THREE.Vector3(x - 3.45, -0.02, Z - 1.45), new THREE.Vector3(x + 0.85, 0.75, Z + 0.55));
     const made = shadowDecals(scene, region, light);
     setDecals(made);
     return () => made.forEach((m) => (m.geometry.dispose(), (m.material as THREE.Material).dispose()));
-  }, [ready, scene, light, x]);
+  }, [ready, gl, scene, light, x, side]);
   const base = useMemo(() => Object.values(mats).map((m) => [m, m.color.clone()] as const), [mats]);
   useFrame(() => {
     // Dim with the hall around an open painting: copy the base colours and scale them, like the
