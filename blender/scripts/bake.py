@@ -622,8 +622,7 @@ def detail_uvs(ob, tiles):
     rot = mw.to_3x3()
     cyl = next((v for k, v in CYL.items() if k in ob.name), None)
     if ob.name.startswith("opening_archivolt"):
-        arch_uvs(ob, uv)
-        return
+        arch_uvs(ob, uv)     # the bands' fronts; their steps' sides are plain stone, mapped below
     if ob.name.startswith("dome"):
         dome_uvs(ob, uv, tiles)
         return
@@ -632,6 +631,8 @@ def detail_uvs(ob, tiles):
         mat = me.materials[p.material_index] if p.material_index < len(me.materials) else None
         n = (rot @ p.normal).normalized()
         key, _ = detail_of(mat, n)
+        if key == "arch_band":
+            continue                                   # arch_uvs
         tw, th = tiles.get(key, (1.0, 1.0))
         ox, oy = (mat.get("origin", (0.0, 0.0)) if mat else (0.0, 0.0)) if key.startswith("floor") else (0.0, 0.0)
         uo = mat.get("uv_origin") if mat else None     # a tile mapped once over a panel (deco round)

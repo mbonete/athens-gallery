@@ -915,9 +915,11 @@ def eye_point(u, v, y):
     return Vector(((u - P.CX) * k, y, P.EYE_Z - (v - P.CY) * k))
 
 
-def _eye_strip(name, outer, inner, y0, y1, kind, mats):
+def _eye_strip(name, outer, inner, y0, y1, kind, mats, side_mat=None):
     """A solid between two px polylines (outer and inner edge, same length), from depth y0 to y1:
-    every edge runs along a sight line, so from Raphael's eye only its front shows."""
+    every edge runs along a sight line, so from Raphael's eye only its front shows. With side_mat,
+    every face but the front takes it (the steps' sides read as plain stone edges as the visitor
+    walks in, instead of one row of the front's tile stretched across them)."""
     bm = bmesh.new()
     fo = [bm.verts.new(eye_point(u, v, y0)) for u, v in outer]
     fi = [bm.verts.new(eye_point(u, v, y0)) for u, v in inner]
@@ -932,6 +934,11 @@ def _eye_strip(name, outer, inner, y0, y1, kind, mats):
         bm.faces.new((fi[i], fi[j], bi[j], bi[i]))     # inner side
     bm.faces.new((fo[0], fi[0], bi[0], bo[0]))
     bm.faces.new((fo[-1], bo[-1], bi[-1], fi[-1]))
+    if side_mat is not None:
+        front = set(fo + fi)
+        for f in bm.faces:
+            f.material_index = 0 if all(v in front for v in f.verts) else 1
+        mats = list(mats) + [side_mat]
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     return _obj(name, bm, kind, mats)
 
@@ -984,9 +991,9 @@ def opening_arch(M):
     # Their backs lie on the wall's face, not inside it: an embedded strip would lie on the
     # soffit's plane, coplanar with it (R13).
     objs.append(_eye_strip("opening_archivolt", _arc_px(R["fillet"], ve, n), _arc_px(R["inner"], ve, n),
-                           Y - P.ARCH_PROJ, Y, "stone", band))
+                           Y - P.ARCH_PROJ, Y, "stone", band, side_mat=M["stone"]))
     objs.append(_eye_strip("opening_archivolt_bands", _arc_px(R["outer"], ve, n), _arc_px(R["fillet"], ve, n),
-                           Y - P.ARCH_BAND_PROJ, Y, "stone", band))
+                           Y - P.ARCH_BAND_PROJ, Y, "stone", band, side_mat=M["stone"]))
     # The front wall, with the opening cut along the sight lines (arch above, jambs below).
     W, H = P.ARCH_WALL
     wall = box("opening_wall", -W, W, Y, Y + D, 0.0, H, "stone", stone)
@@ -1168,11 +1175,11 @@ def vault_relief(M, wall):
     - the wall's face round the arch takes the ornament as its detail tile ("vault_front",
       tools/vault_ornament.py via make_detail.py), mapped once over it (bake "uv_origin"), so the
       bake's light falls across the paint and the marble's grain runs through it;
-    - in relief, stucco on the wall (painted by the same tile on their fronts; their sides take
-      the tile's top strip, white, or gold for the rosettes, through bake "side_uv"):
-      the pale ribs, 4.6 cm proud with a cable torus on the axis; the roundels, a disc 4.5 cm
-      proud under a rounded rim, each with a raised gilded rosette 4.7 cm proud of it; a thin
-      frame round each blue field, 3.6 cm proud. Every front face stands >= 3 cm before the face
+    - in relief, plain mouldings in the wall's own cream marble (Maria: the painted cable and
+      grooved rim "look like mold"): the ribs, a half-round on a low fillet, 4.6 cm proud; the
+      roundels, a disc 4.5 cm proud under a smooth rounded rim; a thin border round each blue
+      field, 3.6 cm proud; and on each roundel a raised gilded rosette, 4.8 cm proud of it,
+      painted by the tile on its front (its sides take the tile's gold strip, bake "side_uv"). Every front face stands >= 3 cm before the face
       it covers (R13: 2 cm in the web); they stand on the wall with no face of their own on or in
       it; ribs and borders stop 1 mm off the roundels' sides and run out at the wall's top and
       end (R1). The borders along the ribs
@@ -1187,6 +1194,7 @@ def vault_relief(M, wall):
     gold = white.copy()
     gold.name = "vault_front_gold"
     gold["side_uv"] = list(G.side_uv()[1])
+    stone = M["stone"]                  # the ribs, roundels and borders: the wall's own marble
     b = G.b
     xc, zc = b(G.XC), b(G.YC)
     x0, x1 = b(G.XC - G.HW), b(G.XC + G.HW)
@@ -1214,19 +1222,18 @@ def vault_relief(M, wall):
         into = lambda p, r=rr + 0.001: np.hypot(*(p - rc)) > r       # noqa: E731  (stops 1 mm off the roundel)
         below_top = lambda p: p[1] < WALL_TOP                         # noqa: E731
         inside_end = lambda p: abs(p[0]) < WALL_END                   # noqa: E731
-        # ribs: a fascia with a chamfer each side and a cable torus on the axis
+        # ribs: a plain rounded rib (Maria: no cable), a low fillet each side under a half-round
         hw = rib_w / 2
-        tor = [(0.034 * math.cos(a), 0.034 + 0.012 * math.sin(a)) for a in np.linspace(math.pi, 0, 13)]
-        prof = [(-hw, 0.0), (-hw, 0.030), (-hw + 0.012, 0.034), (-0.034, 0.034)] + tor[1:-1] + \
-               [(0.034, 0.034), (hw - 0.012, 0.034), (hw, 0.030), (hw, 0.0)]
+        arc = [(hw * math.cos(a), 0.016 + 0.030 * math.sin(a)) for a in np.linspace(math.pi, 0, 17)]
+        prof = [(-hw, 0.0)] + arc + [(hw, 0.0)]
         far = rc + e_s * 12.0
-        objs.append(_ribbon(f"vault_rib_{side}", [rc, far], prof, lambda p: n_up, white, into, below_top))
+        objs.append(_ribbon(f"vault_rib_{side}", [rc, far], prof, lambda p: n_up, stone, into, below_top))
         # the field's frame: a fillet and an ovolo, on the field's side of its edge
         fprof = [(0.0, 0.0), (0.0, 0.030), (0.010, 0.036), (0.022, 0.036),
                  (0.032, 0.034), (fw - 0.004, 0.031), (fw, 0.030), (fw, 0.0)]
         # (a) along the rib's lower edge, from the roundel to the wall's top
         edge = [rc - n_up * hw, rc - n_up * hw + e_s * 12.0]
-        objs.append(_ribbon(f"vault_field_border_rib_{side}", edge, fprof, lambda p: -n_up, white, into, below_top))
+        objs.append(_ribbon(f"vault_field_border_rib_{side}", edge, fprof, lambda p: -n_up, stone, into, below_top))
         # (b) along the band's outer edge down to the springing, then along it to the wall's end
         R, ys = b(G.RB), b(G.YS)
         th_end = math.acos((ys - zc) / R)                              # where the arc meets the springing
@@ -1234,12 +1241,12 @@ def vault_relief(M, wall):
         arc = [np.array([xc + side * R * math.sin(t), zc + R * math.cos(t)]) for t in ths]
         path = arc + [np.array([side * (WALL_END + 0.5), ys])]
         outward = lambda p: (p - np.array([xc, zc])) / np.hypot(*(p - np.array([xc, zc])))   # noqa: E731
-        objs.append(_ribbon(f"vault_field_border_arc_{side}", path, fprof, outward, white, into, inside_end,
+        objs.append(_ribbon(f"vault_field_border_arc_{side}", path, fprof, outward, stone, into, inside_end,
                             corner=len(arc) - 1, n=(90, 12)))
         # the roundel: disc under a rounded rim
         rim = [(rr - 0.015 + 0.015 * math.cos(a), 0.045 + 0.015 * math.sin(a)) for a in np.linspace(0, math.pi, 10)]
         rprof = ([(0.0, 0.045), (rr - 0.034, 0.045)] + rim[::-1][:-1] + [(rr, 0.045), (rr, 0.0)])
-        objs.append(_revolve_on_wall(f"vault_roundel_{side}", rc, rprof, white))
+        objs.append(_revolve_on_wall(f"vault_roundel_{side}", rc, rprof, stone))
         # the rosette: a gilded boss, its outline the painted rosette's eight petals, domed
         rb = b(G.ROSETTE_R)
         bprof = [(0.0, 0.093), (0.3, 0.092), (0.6, 0.089), (0.85, 0.083), (1.0, 0.075), (1.0, 0.045)]

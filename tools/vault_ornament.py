@@ -5,18 +5,21 @@ redrawn clean as vectors, painted on the front wall itself.
 On the front wall, outside the arch's dark red outer band:
 - a band of gold interlace on blue following the arch (a chain of endless knots linked by
   figure-of-eight twists, the vault's knotwork borders);
-- a gilt rosette in a white roundel at +-50 degrees, where the vault's ribs meet the lunette frame;
-- a pale rib from each roundel out to the top of the wall (white, with a cable moulding);
-- under each rib a blue field framed in white with a gold fillet, holding a gold oak with acorns
+- a gilt rosette on a roundel at +-50 degrees, where the vault's ribs meet the lunette frame;
+- a rib from each roundel out to the top of the wall;
+- under each rib a blue field inside a border, with a gold fillet, holding a gold oak with acorns
   (the della Rovere oak of the vault's triangles) on a branching trunk.
+The rib, the roundel and the field's border are plain stone mouldings in relief (finish2), in the
+hall's cream marble: not painted (Maria: the painted cable and grooved rim "look like mold").
 No figures, no faces, no animals. Nothing is copied from the scan: it was studied for the motifs,
 their proportions and the colours (the blue below is the scan's ultramarine).
 
 It is the front wall's own detail tile ("vault_front", make_detail.py calls tile()), mapped once
 over the wall round the arch (bake.detail_uvs, "uv_origin"), so the baked light falls across it
 and the wall's marble grain runs through the paint. The ribs, the roundels, the rosettes and the
-fields' frames are also built in relief (finish2.vault_relief, from blender/scripts/vault_geom.py,
-where the design's numbers live): the tile paints their fronts, its top strip their sides.
+fields' borders are built in relief (finish2.vault_relief, from blender/scripts/vault_geom.py,
+where the design's numbers live), in the wall's own stone; the rosettes' bosses take this tile
+(their sides its top strip's gold).
 The gold is modelled in paint, lit from the sun's side, as the meander's depth and the scroll's
 grisaille are; the tile's alpha marks the gold for the web's gold-leaf sheen (Scene.tsx).
 
@@ -307,8 +310,7 @@ def knot_chain():
 
 
 def field():
-    over(WHITE, cov(D_FIELD))
-    over(LINE, ring(D_FIELD, FRAME_W - LINE_W, FRAME_W))
+    """The blue field inside its border (the border is a plain stone moulding: not painted)."""
     over(BLUE, cov(D_FIELD - FRAME_W))
     f0 = FRAME_W + FILLET[0]
     over(GOLD, ring(D_FIELD, f0, f0 + FILLET[1]))
@@ -337,38 +339,13 @@ def rib():
 
 
 def roundel():
-    """White ring with a leaf-and-tongue moulding, gold fillet, blue ground, gilt rosette."""
+    """The roundel is a plain stone disc in relief (Maria: no grooved rim); only the gilt rosette
+    is painted, on a gold ground the size of the raised boss that carries it, so the boss reads
+    gold to its edge and nothing painted round it can slip against it."""
     cx, cy = ROUNDEL_C
     rr = np.hypot(X - cx, Y - cy)
-    ang = np.arctan2(X - cx, Y - cy)
-    R = ROUNDEL_R
-    r_blue = 0.083
-    over(WHITE, cov(R - rr))
-    over(LINE, ring(rr, R - LINE_W, R))
-    over(LINE, ring(rr, r_blue + 0.0055, r_blue + 0.0055 + LINE_W))
-    over(GOLD, ring(rr, r_blue, r_blue + 0.0055))
-    over(BLUE, cov(r_blue - rr))
-    # leaf-and-tongue: 24 leaves (U outlines, tips inwards) with a dart between each pair
-    n = 24
-    pen = Pen()
-    r_in, r_out = r_blue + 0.0115, R - 0.0065
-    for k in range(n):
-        phi = (k + 0.5) * 2 * math.pi / n
-        e_r = np.array([math.sin(phi), math.cos(phi)])
-        e_t = np.array([math.cos(phi), -math.sin(phi)])
-        rho = 0.34 * 2 * math.pi * (r_in + r_out) / 2 / n          # the leaf's half width
-        tip = r_in + rho
-        side = np.linspace(r_out, tip, 8)[:, None]
-        b = np.linspace(0, math.pi, 16)[:, None]
-        u = np.concatenate([c0 + side * e_r - rho * e_t for c0 in [np.array([cx, cy])]] +
-                           [np.array([cx, cy]) + tip * e_r - rho * np.cos(b) * e_t - rho * np.sin(b) * e_r] +
-                           [np.array([cx, cy]) + side[::-1] * e_r + rho * e_t])
-        pen.line(u, 0.0019, caps=False)
-        dphi = phi + math.pi / n
-        d_r = np.array([math.sin(dphi), math.cos(dphi)])
-        pen.line(np.array([cx, cy]) + np.array([[r_out], [r_out - 0.015]]) * d_r, 0.0016)
-    over(LINE, pen.cov() * ring(rr, r_blue + 0.0055 + LINE_W, R - LINE_W) * 0.8)
-    rosette(np.array([cx, cy]), 0.0755)
+    over(GOLD_SHADE, cov(G.ROSETTE_R - rr))          # the boss between its petals: the gold in shade
+    rosette(np.array([cx, cy]), G.ROSETTE_R * 0.97)
 
 
 def rosette(c, R):
@@ -598,7 +575,6 @@ def paint():
     knot_chain()
     field()
     oak()
-    rib()
     roundel()
     keep = cov(Y - YS)
     a = np.clip(ALPHA * keep, 0, 1)
