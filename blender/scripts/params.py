@@ -342,7 +342,13 @@ ARCH_R = dict(inner=1619.0, meander=(1631.0, 1717.0), pattern=(1638.0, 1711.0), 
               beads=(1765.0, 1797.0), egg=(1826.0, 1868.0), outer=1925.0)
 ARCH_PROJ = 0.05                # the archivolt (inner band, meander, fillet) stands proud of the wall
 ARCH_BAND_PROJ = 0.03           # the outer bands (grey with beads, egg-and-dart, red); R13: >= 2 cm (web)
-ARCH_DEPTH = 0.10               # front wall thickness: 7 cm in the web, its opening cut square (arch piers, P3; was 0.40 with sides on the sight lines)
+# The opening arch's intrados (Maria: "the gold-leaf border on the intrados, as in the painting"):
+# the meander is the soffit seen in perspective. At the wall's face the opening takes the meander's
+# outer edge (ARCH_R meander[1]); the soffit runs back ARCH_DEPTH, so its back edge lands, seen from
+# Raphael's eye, on the band's inner edge (ARCH_R inner): D = ARCH_Y (1717 / 1619 - 1). Its axis is
+# the sight line through the arch's centre (6.2 deg down, ARCH_INTRADOS_TILT): the back circle then
+# projects concentric with the front, and the band keeps its painted width all round.
+ARCH_DEPTH = round(ARCH_Y * (ARCH_R["meander"][1] / ARCH_R["inner"] - 1), 4)   # 0.2877: also the front wall's thickness
 ARCH_PILASTER_W = 0.255         # painted pilasters: u 165-300 and 3510-3620 (0.28 and 0.23 m), mean
 ARCH_PILASTER_D = 0.05
 ARCH_IMPOST_H = 0.12            # painted impost and the block under it: v 1770-1830 at the face

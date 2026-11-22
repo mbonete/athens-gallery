@@ -915,7 +915,7 @@ def eye_point(u, v, y):
     return Vector(((u - P.CX) * k, y, P.EYE_Z - (v - P.CY) * k))
 
 
-def _eye_strip(name, outer, inner, y0, y1, kind, mats, side_mat=None):
+def _eye_strip(name, outer, inner, y0, y1, kind, mats, side_mat=None, inner_side=True):
     """A solid between two px polylines (outer and inner edge, same length), from depth y0 to y1:
     every edge runs along a sight line, so from Raphael's eye only its front shows. With side_mat,
     every face but the front takes it (the steps' sides read as plain stone edges as the visitor
@@ -931,15 +931,23 @@ def _eye_strip(name, outer, inner, y0, y1, kind, mats, side_mat=None):
         bm.faces.new((fo[i], fo[j], fi[j], fi[i]))     # front
         bm.faces.new((bo[i], bi[i], bi[j], bo[j]))     # back
         bm.faces.new((fo[i], bo[i], bo[j], fo[j]))     # outer side
-        bm.faces.new((fi[i], fi[j], bi[j], bi[i]))     # inner side
+        if inner_side:
+            bm.faces.new((fi[i], fi[j], bi[j], bi[i]))     # inner side
     bm.faces.new((fo[0], fi[0], bi[0], bo[0]))
     bm.faces.new((fo[-1], bo[-1], bi[-1], fi[-1]))
+    if not inner_side:                                 # open: wind it so the front faces -y
+        bm.normal_update()
+        bm.faces.ensure_lookup_table()
+        if bm.faces[0].normal.y > 0:
+            bmesh.ops.reverse_faces(bm, faces=bm.faces[:])
+        bm.normal_update()
     if side_mat is not None:
         front = set(fo + fi)
         for f in bm.faces:
             f.material_index = 0 if all(v in front for v in f.verts) else 1
         mats = list(mats) + [side_mat]
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    if inner_side:
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     return _obj(name, bm, kind, mats)
 
 
@@ -981,9 +989,10 @@ def opening_arch(M):
     """The fresco's lunette frame as the hall's opening arch, in front of Raphael's eye.
     - Face plane y = ARCH_Y (4.75 m), where the fresco's bottom edge meets the floor; every member
       is placed from scan px at its own depth (eye_point), so its edges land on the painted ones.
-    - Archivolt (inner plain band, meander between dark lines, light fillet) 3 cm proud; the outer
-      bands (grey with two bead strings, egg-and-dart, red) 1 cm proud. Both are textured by the
-      vector-drawn band tile (make_detail.py, key arch_band) along the arc.
+    - The meander (inner plain band, dark lines, meander) is on the intrados, the soffit seen in
+      perspective as in the fresco (ARCH_DEPTH); the archivolt's light fillet 5 cm proud; the outer
+      bands (grey with two bead strings, egg-and-dart, red) 3 cm proud. All are textured by the
+      vector-drawn band tile (make_detail.py: arch_band, and arch_soffit on the intrados).
     - Arch piers (Maria, from the banners' close views): a thin front wall (ARCH_DEPTH), its
       opening cut square through it on the old face outline; one cornice at the springing with
       the impost's profile, round each half of the wall; square pilasters on plinths.
@@ -1004,55 +1013,76 @@ def opening_arch(M):
     ve = vs + 1.5
     # Their backs lie on the wall's face, not inside it: an embedded strip would lie on the
     # soffit's plane, coplanar with it (R13).
-    objs.append(_eye_strip("opening_archivolt", _arc_px(R["fillet"], ve, n), _arc_px(R["inner"], ve, n),
+    # The archivolt's front keeps the fillet only (1717-1733); the meander is on the intrados.
+    objs.append(_eye_strip("opening_archivolt", _arc_px(R["fillet"], ve, n), _arc_px(R["meander"][1], ve, n),
                            Y - P.ARCH_PROJ, Y, "stone", band, side_mat=M["stone"]))
+    # (the bands' inner side lies on the fillet's outer side, inside it: not built, R13)
     objs.append(_eye_strip("opening_archivolt_bands", _arc_px(R["outer"], ve, n), _arc_px(R["fillet"], ve, n),
-                           Y - P.ARCH_BAND_PROJ, Y, "stone", band, side_mat=M["stone"]))
-    # The front wall (arch piers, fix P3): a thin wall, its opening cut square to it, the face
-    # outline exactly the old one (the arch's inner edge on the fresco's line) extruded straight
-    # back. Seen from Raphael's eye the square sides and underside show as slivers inside that
-    # edge (~10 px at 1440 x 900); from the banners' close views they read as a thin arch. The
-    # whole wall is thin: nothing else met its back face (the old impost's return is gone).
+                           Y - P.ARCH_BAND_PROJ, Y, "stone", band, side_mat=M["stone"], inner_side=False))
+    # The front wall, D thick, and the opening (Maria: the meander on the intrados, resting on the
+    # piers as in the fresco). The intrados: a cylinder of the meander's outer radius at the face
+    # (1717 px), its axis the sight line through the arch's centre, D deep: seen from Raphael's eye
+    # its back edge lands on the band's inner edge (1619 px) all round, so the soffit shows exactly
+    # the painted band. It ends on the cornice's top (the springing, zs); below, the jambs go
+    # straight down from where it meets zs at each depth (they splay < 1 deg; square in practice),
+    # one surface with it along the springing line. The cut is the wall's own: no stacked faces.
     W, H = P.ARCH_WALL
     wall = box("opening_wall", -W, W, Y, Y + D, 0.0, H, "stone", stone)
-    v_low = P.CY + (P.EYE_Z + 1.0) * P.F_PX / (Y - 0.3)            # below the floor at every depth
-    arc = _arc_px(R["inner"], vs, n)
-    outline = [eye_point(u, v, Y) for u, v in [(arc[0][0], v_low)] + arc + [(arc[-1][0], v_low)]]
-    boolean(wall, cutter_prism([Vector((q.x, Y - 0.3, q.z)) for q in outline],
-                               [Vector((q.x, Y + D + 0.3, q.z)) for q in outline]))
-    # The opening's square sides and underside: their own object, "opening_reveal" (a denser
-    # lightmap: params.BAKE_DENSITY_SCALE).
-    xj_abs = abs(eye_point(arc[0][0], vs, Y).x - eye_point(cu, vs, Y).x)
-    crown = eye_point(cu, cv - R["inner"], Y).z
-    xa = eye_point(cu, vs, Y).x
+    zs = eye_point(cu, vs, Y).z
+    Rw = R["meander"][1] * Y / P.F_PX                                  # world radius of the intrados
+    centre = lambda y: eye_point(cu, cv, y)                            # noqa: E731  (on the sight line)
+    z_low = -0.5
+
+    def outline(y):
+        c = centre(y)
+        half = math.sqrt(Rw ** 2 - (zs - c.z) ** 2)                    # where the circle meets zs
+        t0 = math.atan2(zs - c.z, half)
+        ts = np.linspace(math.pi - t0, t0, n)
+        pts = [Vector((c.x - half, y, z_low))]
+        pts += [Vector((c.x + Rw * math.cos(t), y, c.z + Rw * math.sin(t))) for t in ts]
+        pts += [Vector((c.x + half, y, z_low))]
+        return pts
+    boolean(wall, cutter_prism(outline(Y - 0.3), outline(Y + D + 0.3)))
+    # Split the opening's faces off the wall: the intrados (above zs) takes the band tile, mapped
+    # from Raphael's eye so it lands on the fresco's band (bake.arch_uvs); its light is the face's
+    # (finish.light, tools/lightmap_post.py); the jambs are plain stone, opening_reveal.
     bm = bmesh.new()
     bm.from_mesh(wall.data)
-    sides = [f for f in bm.faces if abs(f.normal.y) < 0.5 and abs(f.calc_center_median().x - xa) < xj_abs + 0.01
-             and f.calc_center_median().z < crown + 0.01 and Y - 1e-4 < f.calc_center_median().y < Y + D + 1e-4]
-    nb = bmesh.new()
-    vmap = {}
-    for f in sides:
-        vv = []
-        for v in f.verts:
-            if v not in vmap:
-                vmap[v] = nb.verts.new(v.co)
-            vv.append(vmap[v])
-        nb.faces.new(vv)
-    bmesh.ops.delete(bm, geom=sides, context="FACES")
+    xa = centre(Y).x
+    cut = [f for f in bm.faces if abs(f.normal.y) < 0.5 and Y - 1e-4 < f.calc_center_median().y < Y + D + 1e-4
+           and abs(f.calc_center_median().x - xa) < Rw + 0.02 and f.calc_center_median().z < centre(Y).z + Rw + 0.02
+           and f.calc_center_median().z > -0.4]
+    soffit = [f for f in cut if f.calc_center_median().z > zs + 1e-4]
+    jambs = [f for f in cut if f.calc_center_median().z <= zs + 1e-4]
+
+    def split(faces, name, mats):
+        nb = bmesh.new()
+        vmap = {}
+        for f in faces:
+            vv = []
+            for v in f.verts:
+                if v not in vmap:
+                    vmap[v] = nb.verts.new(v.co)
+                vv.append(vmap[v])
+            nb.faces.new(vv)
+        nb.normal_update()
+        for f in nb.faces:                     # they face the opening's axis
+            c = f.calc_center_median()
+            ax = centre(c.y)
+            if f.normal.x * (ax.x - c.x) + f.normal.z * (ax.z - c.z) < 0:
+                f.normal_flip()
+        return _obj(name, nb, "stone", mats)
+    intrados = split(soffit, "opening_archivolt_intrados", band)   # the band tile, mapped from the eye (bake.arch_uvs)
+    reveal = split(jambs, "opening_reveal", stone)
+    bmesh.ops.delete(bm, geom=cut, context="FACES")
     bm.to_mesh(wall.data)
     bm.free()
-    bmesh.ops.recalc_face_normals(nb, faces=nb.faces[:])
-    nb.normal_update()
-    for f in nb.faces:                         # they face the opening's middle
-        c = f.calc_center_median()
-        if f.normal.x * (xa - c.x) + f.normal.z * (eye_point(cu, cv, Y).z - c.z) < 0:
-            f.normal_flip()
-    reveal = _obj("opening_reveal", nb, "stone", stone)
-    objs += [wall, reveal]
-    # Pilasters (square boxes on the wall's face, their front on the painted pilaster: their inner
-    # face projects on the fresco's jamb line, which puts it 3.5 cm inside the wall's square jamb),
-    # plinths (projecting 3 cm on the front and 2 cm each side), and one cornice at the springing.
-    zs = eye_point(cu, vs, Y).z
+    objs += [wall, intrados, reveal]
+    arc = _arc_px(R["meander"][1], vs, n)
+    # Pilasters on the pier's front, as the fresco's wide panel (their front inner edge projects on
+    # the meander's outer edge: 1.8 cm proud of the jamb face, which is the fresco's narrow panel),
+    # plinths (3 cm on the front, 2 cm each side), and one cornice at the springing, round the pier
+    # at the new depth: front, the D-deep jamb, back; the intrados lands on its top.
     k = Y / P.F_PX
     pw_px = P.ARCH_PILASTER_W / k
     zi = zs - P.ARCH_IMPOST_H
@@ -1072,8 +1102,10 @@ def opening_arch(M):
         # A. The cornice: the impost's profile run round this half of the thin wall at the
         # springing, front, the opening's square side, back and the wall's far end: one closed,
         # mitred loop, no ends (R1); everything at the springing lands on it (R4).
-        xj = eye_point(uj, vs, Y).x
-        loop = [(side * W, Y), (xj, Y), (xj, Y + D), (side * W, Y + D)]
+        def jamb_x(y):
+            c = centre(y)
+            return c.x + side * math.sqrt(Rw ** 2 - (zs - c.z) ** 2)
+        loop = [(side * W, Y), (jamb_x(Y), Y), (jamb_x(Y + D), Y + D), (side * W, Y + D)]
         objs.append(sweep(f"opening_impost_{side}", imp, *plan_loop(loop), "stone", stone, closed=True))
     for ob in objs:
         ob.visible_shadow = False
