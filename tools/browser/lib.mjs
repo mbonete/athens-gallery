@@ -28,7 +28,8 @@ export async function waitMode(page, m, ms = 12000) {
 
 /** Walk to depth z (web metres along the walk, 0 at the start, negative going in), settled. */
 export async function walkTo(page, z) {
-  await page.evaluate((z) => { const r = window.__gallery.rig; r.target = Math.min(1, Math.max(0, -z / window.__gallery.TOTAL)); }, z);
+  // The canvas draws on demand (rig.kick): a target set by script needs a kick, as real input gives.
+  await page.evaluate((z) => { const r = window.__gallery.rig; r.target = Math.min(1, Math.max(0, -z / window.__gallery.TOTAL)); r.kick?.(); }, z);
   await page.waitForFunction(() => Math.abs(window.__gallery.rig.progress - window.__gallery.rig.target) < 1e-5, null, { timeout: 20000 });
   await page.waitForTimeout(400);
 }
