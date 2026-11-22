@@ -47,6 +47,9 @@ ROUNDEL_R = 0.135
 FRAME_W = 0.032
 FILLET = (0.020, 0.0055)
 RC = R0 + ROUNDEL_R
+# Each blue field is closed on its outer side by a vertical framed edge (arch piers, fix B): its
+# outer edge 1 cm inside the tile's painted extent (HW), outside a 16:10 start view (2.97).
+FIELD_EDGE = HW - 0.010
 ROSETTE_R = 0.0755
 
 

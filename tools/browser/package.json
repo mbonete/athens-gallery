@@ -1,0 +1,13 @@
+{
+  "name": "studiolo-browser-checks",
+  "private": true,
+  "type": "module",
+  "description": "Browser checks and review shots of the hall on a running dev server (GALLERY_URL). Chrome, headless, Metal.",
+  "scripts": {
+    "smoke": "node smoke.mjs",
+    "shots": "node shots.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.65.1"
+  }
+}

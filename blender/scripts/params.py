@@ -276,6 +276,8 @@ BAKE_GROUPS = [("front", -999, 15.0), ("facade", 15.0, 19.0), ("nave", 19.0, 33.
 # Density factors by object name prefix (first match): mouldings change light across a few cm.
 BAKE_DENSITY_SCALE = {"vault_wall": 4.0, "vault_": 8.0,        # the vault ornament: the wall round it and its reliefs
                       "opening_archivolt": 12.0,              # the opening arch's bands: their 2 cm steps were a third of a texel at 16 px/m (Maria's smeared strip, 2026-11-22)
+                      "opening_reveal": 8.0, "opening_impost": 6.0,   # arch piers: the thin wall's square sides and underside, the cornice
+                      "opening_pilaster": 4.0,                        # the pilasters and their plinths
                       "facade_shell": 4.0, "shell_": 4.0,     # deco round: the shells' flutes (first: prefix match)
                       "floor_lower_sides": 0.6, "facade": 0.8, "entablature": 1.6, "string_course": 1.6,
                       "nave_pilaster_capital": 2.0, "arm2_pilaster_capital": 2.0, "nave_pilaster_base": 1.6,
@@ -340,7 +342,7 @@ ARCH_R = dict(inner=1619.0, meander=(1631.0, 1717.0), pattern=(1638.0, 1711.0), 
               beads=(1765.0, 1797.0), egg=(1826.0, 1868.0), outer=1925.0)
 ARCH_PROJ = 0.05                # the archivolt (inner band, meander, fillet) stands proud of the wall
 ARCH_BAND_PROJ = 0.03           # the outer bands (grey with beads, egg-and-dart, red); R13: >= 2 cm (web)
-ARCH_DEPTH = 0.40               # front wall thickness (designed)
+ARCH_DEPTH = 0.10               # front wall thickness: 7 cm in the web, its opening cut square (arch piers, P3; was 0.40 with sides on the sight lines)
 ARCH_PILASTER_W = 0.255         # painted pilasters: u 165-300 and 3510-3620 (0.28 and 0.23 m), mean
 ARCH_PILASTER_D = 0.05
 ARCH_IMPOST_H = 0.12            # painted impost and the block under it: v 1770-1830 at the face

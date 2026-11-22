@@ -964,6 +964,19 @@ def _band_material():
     return m
 
 
+def plan_loop(pts):
+    """Mitred outward frame round a closed plan polygon (x, y): points, outward vectors scaled for
+    the mitre at every corner, up vectors (finish.plan_path for a closed run)."""
+    P2 = [Vector((x, y, 0.0)) for x, y in pts]
+    n = len(P2)
+    area = sum(P2[i].x * P2[(i + 1) % n].y - P2[(i + 1) % n].x * P2[i].y for i in range(n))
+    sgn = 1 if area > 0 else -1                 # counter-clockwise: the outside is on the right
+    segs = [(P2[(i + 1) % n] - P2[i]).normalized() for i in range(n)]
+    nrm = [Vector((t.y, -t.x, 0.0)) * sgn for t in segs]
+    outs = [(nrm[i - 1] + nrm[i]) / (1.0 + nrm[i - 1].dot(nrm[i])) for i in range(n)]
+    return P2, outs, [Vector((0, 0, 1))] * n
+
+
 def opening_arch(M):
     """The fresco's lunette frame as the hall's opening arch, in front of Raphael's eye.
     - Face plane y = ARCH_Y (4.75 m), where the fresco's bottom edge meets the floor; every member
@@ -971,11 +984,12 @@ def opening_arch(M):
     - Archivolt (inner plain band, meander between dark lines, light fillet) 3 cm proud; the outer
       bands (grey with two bead strings, egg-and-dart, red) 1 cm proud. Both are textured by the
       vector-drawn band tile (make_detail.py, key arch_band) along the arc.
-    - The fresco shows no soffit inside the plain inner band: the soffit and the jambs follow
-      Raphael's sight lines (splayed), plain stone, through a 0.40 m front wall.
-    - Joint rules: archivolt and bands land on the impost, which is wider and projects further
-      (R4); the impost returns along the splayed jamb and round the back of the pier, ending in
-      the wall (R1, R2); pilasters stand on plinths, flush with the jamb (R10).
+    - Arch piers (Maria, from the banners' close views): a thin front wall (ARCH_DEPTH), its
+      opening cut square through it on the old face outline; one cornice at the springing with
+      the impost's profile, round each half of the wall; square pilasters on plinths.
+    - Joint rules: archivolt, bands, the vault ornament's band and borders land on the cornice
+      (R4); the cornice is a closed loop, mitred at every corner (R1, R2); pilasters stand on
+      plinths under it (R10).
     - Plain stone pilasters where the painted ones stand (no grotesques); the wall round the arch
       is plain stone (designed). None of it casts shadows: in the fresco the light still comes in."""
     stone = [M["stone"]]
@@ -994,50 +1008,73 @@ def opening_arch(M):
                            Y - P.ARCH_PROJ, Y, "stone", band, side_mat=M["stone"]))
     objs.append(_eye_strip("opening_archivolt_bands", _arc_px(R["outer"], ve, n), _arc_px(R["fillet"], ve, n),
                            Y - P.ARCH_BAND_PROJ, Y, "stone", band, side_mat=M["stone"]))
-    # The front wall, with the opening cut along the sight lines (arch above, jambs below).
+    # The front wall (arch piers, fix P3): a thin wall, its opening cut square to it, the face
+    # outline exactly the old one (the arch's inner edge on the fresco's line) extruded straight
+    # back. Seen from Raphael's eye the square sides and underside show as slivers inside that
+    # edge (~10 px at 1440 x 900); from the banners' close views they read as a thin arch. The
+    # whole wall is thin: nothing else met its back face (the old impost's return is gone).
     W, H = P.ARCH_WALL
     wall = box("opening_wall", -W, W, Y, Y + D, 0.0, H, "stone", stone)
     v_low = P.CY + (P.EYE_Z + 1.0) * P.F_PX / (Y - 0.3)            # below the floor at every depth
     arc = _arc_px(R["inner"], vs, n)
-    outline = [(arc[0][0], v_low)] + arc + [(arc[-1][0], v_low)]
-    boolean(wall, cutter_prism([eye_point(u, v, Y - 0.3) for u, v in outline],
-                               [eye_point(u, v, Y + D + 0.3) for u, v in outline]))
-    objs.append(wall)
-    # Pilasters (flush with the jamb), plinths, imposts.
+    outline = [eye_point(u, v, Y) for u, v in [(arc[0][0], v_low)] + arc + [(arc[-1][0], v_low)]]
+    boolean(wall, cutter_prism([Vector((q.x, Y - 0.3, q.z)) for q in outline],
+                               [Vector((q.x, Y + D + 0.3, q.z)) for q in outline]))
+    # The opening's square sides and underside: their own object, "opening_reveal" (a denser
+    # lightmap: params.BAKE_DENSITY_SCALE).
+    xj_abs = abs(eye_point(arc[0][0], vs, Y).x - eye_point(cu, vs, Y).x)
+    crown = eye_point(cu, cv - R["inner"], Y).z
+    xa = eye_point(cu, vs, Y).x
+    bm = bmesh.new()
+    bm.from_mesh(wall.data)
+    sides = [f for f in bm.faces if abs(f.normal.y) < 0.5 and abs(f.calc_center_median().x - xa) < xj_abs + 0.01
+             and f.calc_center_median().z < crown + 0.01 and Y - 1e-4 < f.calc_center_median().y < Y + D + 1e-4]
+    nb = bmesh.new()
+    vmap = {}
+    for f in sides:
+        vv = []
+        for v in f.verts:
+            if v not in vmap:
+                vmap[v] = nb.verts.new(v.co)
+            vv.append(vmap[v])
+        nb.faces.new(vv)
+    bmesh.ops.delete(bm, geom=sides, context="FACES")
+    bm.to_mesh(wall.data)
+    bm.free()
+    bmesh.ops.recalc_face_normals(nb, faces=nb.faces[:])
+    nb.normal_update()
+    for f in nb.faces:                         # they face the opening's middle
+        c = f.calc_center_median()
+        if f.normal.x * (xa - c.x) + f.normal.z * (eye_point(cu, cv, Y).z - c.z) < 0:
+            f.normal_flip()
+    reveal = _obj("opening_reveal", nb, "stone", stone)
+    objs += [wall, reveal]
+    # Pilasters (square boxes on the wall's face, their front on the painted pilaster: their inner
+    # face projects on the fresco's jamb line, which puts it 3.5 cm inside the wall's square jamb),
+    # plinths (projecting 3 cm on the front and 2 cm each side), and one cornice at the springing.
     zs = eye_point(cu, vs, Y).z
     k = Y / P.F_PX
     pw_px = P.ARCH_PILASTER_W / k
     zi = zs - P.ARCH_IMPOST_H
-    v_imp = P.CY - (zi - P.EYE_Z) * P.F_PX / (Y - P.ARCH_PILASTER_D)       # shaft ends under the impost
     imp = Profile(zi, n=4)
     imp.h(P.ARCH_PILASTER_D + 0.012).v(0.05).cyma_reversa(0.025, 0.035).h(0.012)
     imp.v(zs - imp.q)
     imp = imp.closed()
+    yf = Y - P.ARCH_PILASTER_D
+    yp = yf - 0.03
     for side in (-1, 1):
         uj = arc[0][0] if side < 0 else arc[-1][0]                  # jamb, px
         uo = uj + side * pw_px
-        yf, yb = Y - P.ARCH_PILASTER_D, Y
-        a, b = sorted((uo, uj))
-        # R13: the shaft runs from the plinth's top to the impost's underside, not through them.
-        v_plinth = P.CY - (0.15 - P.EYE_Z) * P.F_PX / yf
-        objs.append(_eye_strip(f"opening_pilaster_{side}", [(a, v_imp), (a, v_plinth)], [(b, v_imp), (b, v_plinth)],
-                               yf, yb, "stone", stone))
-        # plinth: 3 cm proud of the pilaster, 0.15 m high, sunk 1 cm into the floor
-        yp = yf - 0.03
-        vp_top = P.CY - (0.15 - P.EYE_Z) * P.F_PX / yp
-        vp_bot = P.CY + (P.EYE_Z + 0.01) * P.F_PX / yp
-        pa, pb = (a - 0.02 / k, b) if side < 0 else (a, b + 0.02 / k)
-        objs.append(_eye_strip(f"opening_pilaster_base_{side}", [(pa, vp_top), (pa, vp_bot)], [(pb, vp_top), (pb, vp_bot)],
-                               yp, yb, "stone", stone))
-        # impost: across the pier's front from beyond the outer band, back along the splayed jamb,
-        # round the back of the pier, returning into the wall at both ends
+        xi, xo_ = eye_point(uj, vs, yf).x, eye_point(uo, vs, yf).x
+        objs.append(box(f"opening_pilaster_{side}", xi, xo_, yf, Y, 0.15, zi, "stone", stone))
+        pi_, po_ = xi - side * 0.02, xo_ + side * 0.02
+        objs.append(box(f"opening_pilaster_base_{side}", pi_, po_, yp, Y, -0.01, 0.15, "stone", stone))
+        # A. The cornice: the impost's profile run round this half of the thin wall at the
+        # springing, front, the opening's square side, back and the wall's far end: one closed,
+        # mitred loop, no ends (R1); everything at the springing lands on it (R4).
         xj = eye_point(uj, vs, Y).x
-        xo = eye_point(cu + side * math.sqrt(R["outer"] ** 2 - (cv - vs) ** 2), vs, Y).x + side * 0.06
-        xjb = xj * (Y + D) / Y
-        run = [(xo, Y + 0.3), (xo, Y), (xj, Y), (xjb, Y + D), (xjb - (xj - xo), Y + D), (xjb - (xj - xo), Y + D - 0.3)]
-        if side > 0:
-            run = run[::-1]
-        objs.append(sweep(f"opening_impost_{side}", imp, *plan_path(run, 1), "stone", stone))
+        loop = [(side * W, Y), (xj, Y), (xj, Y + D), (side * W, Y + D)]
+        objs.append(sweep(f"opening_impost_{side}", imp, *plan_loop(loop), "stone", stone, closed=True))
     for ob in objs:
         ob.visible_shadow = False
     # The vault ornament round the arch, on the wall and in relief (these cast their shadows).
@@ -1235,7 +1272,7 @@ def vault_relief(M, wall):
     vw = _obj("vault_wall", nb, "stone", [white])
     vw.visible_shadow = False                      # as the wall it was cut from
     objs = [vw]
-    WALL_TOP, WALL_END = P.ARCH_WALL[1], P.ARCH_WALL[0]
+    WALL_TOP = P.ARCH_WALL[1]
     rr = b(G.ROUNDEL_R) - 0.005                     # the roundel's disc (5 mm inside the painted ring)
     rib_w, fw = b(G.RIB_W), b(G.FRAME_W)
     for side in (-1, 1):
@@ -1243,7 +1280,6 @@ def vault_relief(M, wall):
         rc = np.array([b(c) for c in G.roundel_centre(side)])
         into = lambda p, r=rr + 0.001: np.hypot(*(p - rc)) > r       # noqa: E731  (stops 1 mm off the roundel)
         below_top = lambda p: p[1] < WALL_TOP                         # noqa: E731
-        inside_end = lambda p: abs(p[0]) < WALL_END                   # noqa: E731
         # ribs: a fascia with a chamfer each side and a cable torus on the axis
         hw = rib_w / 2
         tor = [(0.034 * math.cos(a), 0.034 + 0.012 * math.sin(a)) for a in np.linspace(math.pi, 0, 13)]
@@ -1254,18 +1290,23 @@ def vault_relief(M, wall):
         # the field's frame: a fillet and an ovolo, on the field's side of its edge
         fprof = [(0.0, 0.0), (0.0, 0.030), (0.010, 0.036), (0.022, 0.036),
                  (0.032, 0.034), (fw - 0.004, 0.031), (fw, 0.030), (fw, 0.0)]
-        # (a) along the rib's lower edge, from the roundel to the wall's top
-        edge = [rc - n_up * hw, rc - n_up * hw + e_s * 12.0]
-        objs.append(_ribbon(f"vault_field_border_rib_{side}", edge, fprof, lambda p: -n_up, white, into, below_top))
-        # (b) along the band's outer edge down to the springing, then along it to the wall's end
+        # (a) along the rib's lower edge from the roundel to the field's vertical edge, mitred, and
+        # down that edge (fix B: the field closed, 1 cm inside the tile's painted extent) to the
+        # cornice at the springing, on which it stands (R4)
         R, ys = b(G.RB), b(G.YS)
+        on_cornice = lambda p: p[1] > ys                              # noqa: E731
+        xe = b(G.XC + side * G.FIELD_EDGE)
+        e0 = rc - n_up * hw
+        corner = e0 + e_s * ((xe - e0[0]) / e_s[0])
+        edge = [e0, corner, np.array([xe, ys - 0.5])]
+        objs.append(_ribbon(f"vault_field_border_rib_{side}", edge, fprof, lambda p: -n_up, white, into, on_cornice,
+                            corner=1, n=(24, 24)))
+        # (b) along the band's outer edge, down to the cornice
         th_end = math.acos((ys - zc) / R)                              # where the arc meets the springing
-        ths = np.linspace(math.radians(G.RIB_DEG), th_end, 90)       # from inside the roundel
+        ths = np.linspace(math.radians(G.RIB_DEG), th_end + 0.02, 90)  # from inside the roundel to below it
         arc = [np.array([xc + side * R * math.sin(t), zc + R * math.cos(t)]) for t in ths]
-        path = arc + [np.array([side * (WALL_END + 0.5), ys])]
         outward = lambda p: (p - np.array([xc, zc])) / np.hypot(*(p - np.array([xc, zc])))   # noqa: E731
-        objs.append(_ribbon(f"vault_field_border_arc_{side}", path, fprof, outward, white, into, inside_end,
-                            corner=len(arc) - 1, n=(90, 12)))
+        objs.append(_ribbon(f"vault_field_border_arc_{side}", arc, fprof, outward, white, into, on_cornice, n=(90, 1)))
         # the roundel: disc under a rounded rim
         rim = [(rr - 0.015 + 0.015 * math.cos(a), 0.045 + 0.015 * math.sin(a)) for a in np.linspace(0, math.pi, 10)]
         rprof = ([(0.0, 0.045), (rr - 0.034, 0.045)] + rim[::-1][:-1] + [(rr, 0.045), (rr, 0.0)])
