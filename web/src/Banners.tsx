@@ -1,8 +1,10 @@
-import { useFrame, useLoader } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useFrame, useLoader, useThree } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { PAINTINGS } from "./paintings";
 import { rig } from "./rig";
+import { useStore } from "./store";
+import { bannerUniforms, baseGeometry, litBanner, shadowDecals, type Metal } from "./bannerLight";
 
 /** The exhibition's banners (Maria, 2026-11-21: exhibition banners at the entrance, as in
  * museums; then "move the banners closer to the user, next to the first step of stairs
@@ -11,11 +13,15 @@ import { rig } from "./rig";
  * left, how to visit on the right, each under a detail of one of the nine paintings (Klimt's gold,
  * Hokusai's wave). They stand on a low bronze base, facing the entrance. From the start they are
  * seen whole through the arch, outside the first bay's paintings and clear of the axis (the far
- * door, the Bosch). A click or a tap walks up to one to read it (banner.ts). */
+ * door, the Bosch). A click or a tap walks up to one to read it (banner.ts).
+ * Maria, 2026-11-22: "more realistic ... its foot has a 2D feeling, no shadows or dimensions". Each
+ * is built as an object: a cloth 3 mm thick whose foot goes down into a slot in a cast bronze base
+ * with rounded edges, and whose hem wraps a gilt rod with ball ends. It takes the bake's sun and
+ * sky face by face and casts its shadow and occlusion on the floor and the steps (bannerLight.ts). */
 export const BANNERS = new URLSearchParams(window.location.search).get("intro") !== "bottom";
 
 const TOUCH = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
-const W = 0.85; // metres (web): a roll-up banner's cloth
+const W = 0.85; // metres (web): the cloth
 const H = 2.1;
 const PX = 1000; // canvas px per metre
 // From the start (eye at z 0), x / |z| of the cloth's edges is 0.40 to 0.58: outside the first
@@ -119,39 +125,95 @@ function useBannerTexture(d: Detail, side: "left" | "right") {
   }, [art, d, side]);
 }
 
+const T = 0.003; // the cloth's thickness
+const BASE_W = W + 0.08;
+const BASE_D = 0.24;
+const SLOT = 0.012; // the slot's width under its rounded lips
+const FOOT = 0.08; // how far the cloth goes down into the base
+const R_SLEEVE = 0.0135; // the cloth's hem, wrapped round the rod
+const R_ROD = 0.0075;
+const R_KNOB = 0.013;
+const Y_ROD = BASE_H + H - 0.002;
+// Albedos (sRGB); the light is the bake's (bannerLight.ts).
+const BRONZE = "#3b2e22"; // patinated bronze: dark, with a warm reflection
+const GILT = "#8e6e30";
+const BRONZE_METAL: Metal = { f0: new THREE.Color(0.16, 0.105, 0.055), fresnel: 0.12, shine: 48 };
+const GILT_METAL: Metal = { f0: new THREE.Color(0.5, 0.36, 0.12), fresnel: 0.3, shine: 30 };
+
 function Banner({ side }: { side: "left" | "right" }) {
   const tex = useBannerTexture(side === "left" ? LEFT : RIGHT, side);
   const cloth = useRef<THREE.Mesh>(null!);
-  const mats = useMemo(() => ({
-    cloth: new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }),
-    gold: new THREE.MeshBasicMaterial({ color: "#a8823a", toneMapped: false }),
-    bronze: new THREE.MeshBasicMaterial({ color: "#4a3e30", toneMapped: false }),
-  }), [tex]);
+  const x = side === "left" ? -X : X;
+  const light = useMemo(() => bannerUniforms(
+    new THREE.Vector3(x, 0, Z), side,
+    new THREE.Vector3(W / 2, BASE_H, Y_ROD + R_SLEEVE), new THREE.Vector3(BASE_W / 2, BASE_H, BASE_D / 2),
+  ), [x, side]);
+  const { mats, dims } = useMemo(() => {
+    const mats = {
+      front: new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }),
+      back: new THREE.MeshBasicMaterial({ color: GROUND, toneMapped: false }),
+      bronze: new THREE.MeshBasicMaterial({ color: BRONZE, toneMapped: false }),
+      gilt: new THREE.MeshBasicMaterial({ color: GILT, toneMapped: false }),
+    };
+    const dims = [
+      litBanner(mats.front, light, "cloth", undefined, SLOT / 2),
+      litBanner(mats.back, light, "cloth", undefined, SLOT / 2),
+      litBanner(mats.bronze, light, "bronze", BRONZE_METAL, SLOT / 2),
+      litBanner(mats.gilt, light, "gilt", GILT_METAL),
+    ].map((u) => u.bnDim);
+    return { mats, dims };
+  }, [tex, light]);
   useEffect(() => () => Object.values(mats).forEach((m) => m.dispose()), [mats]);
+  const geo = useMemo(() => ({
+    cloth: new THREE.BoxGeometry(W, H, T),
+    foot: new THREE.BoxGeometry(W, FOOT, T * 0.9),
+    sleeve: new THREE.CylinderGeometry(R_SLEEVE, R_SLEEVE, W, 32).rotateZ(Math.PI / 2),
+    rod: new THREE.CylinderGeometry(R_ROD, R_ROD, W + 0.04, 16).rotateZ(Math.PI / 2),
+    knob: new THREE.SphereGeometry(R_KNOB, 20, 14),
+    base: baseGeometry(BASE_W, BASE_H, BASE_D, W + 0.01, SLOT),
+  }), []);
+  useEffect(() => () => Object.values(geo).forEach((g) => g.dispose()), [geo]);
   useEffect(() => {
     cloth.current.userData = { w: W, h: H };
     rig.banners.set(side, cloth.current);
     return () => void rig.banners.delete(side);
   }, [side]);
+  // Its shadow and occlusion on the hall, once the hall's lightmaps are on (Scene.tsx). The region
+  // holds the cloth's shadow (the sun is low and to the right: its top lands 2.5 m to the left and
+  // 0.9 m back, on the second tread) and the occlusion round the base.
+  const { scene } = useThree();
+  const ready = useStore((s) => s.ready);
+  const [decals, setDecals] = useState<THREE.Mesh[]>([]);
+  useEffect(() => {
+    if (!ready) return;
+    const region = new THREE.Box3(new THREE.Vector3(x - 3.45, -0.02, Z - 1.45), new THREE.Vector3(x + 0.85, 0.75, Z + 0.55));
+    const made = shadowDecals(scene, region, light);
+    setDecals(made);
+    return () => made.forEach((m) => (m.geometry.dispose(), (m.material as THREE.Material).dispose()));
+  }, [ready, scene, light, x]);
   const base = useMemo(() => Object.values(mats).map((m) => [m, m.color.clone()] as const), [mats]);
   useFrame(() => {
-    // Dim with the hall around an open painting, like the hall's own materials.
+    // Dim with the hall around an open painting: copy the base colours and scale them, like the
+    // hall's own materials (the metals' reflections too).
     for (const [m, c] of base) m.color.copy(c).multiplyScalar(rig.light);
+    for (const d of dims) d.value = rig.light;
   });
-  const x = side === "left" ? -X : X;
-  const yc = BASE_H + H / 2; // the lower floor is y 0
+  // Box faces: +x, -x, +y, -y, +z (the canvas), -z.
+  const clothMats = [mats.back, mats.back, mats.back, mats.back, mats.front, mats.back];
   return (
-    <group position={[x, yc, Z]}>
-      <mesh ref={cloth} material={mats.cloth}>
-        <planeGeometry args={[W, H]} />
-      </mesh>
-      <mesh position={[0, H / 2 + 0.012, 0.012]} rotation={[0, 0, Math.PI / 2]} material={mats.gold}>
-        <cylinderGeometry args={[0.014, 0.014, W + 0.04, 12]} />
-      </mesh>
-      <mesh position={[0, -H / 2 - BASE_H / 2, 0]} material={mats.bronze}>
-        <boxGeometry args={[W + 0.08, BASE_H, 0.24]} />
-      </mesh>
-    </group>
+    <>
+      <group position={[x, 0, Z]}>
+        <mesh ref={cloth} position={[0, BASE_H + H / 2, 0]} geometry={geo.cloth} material={clothMats} />
+        <mesh position={[0, BASE_H - FOOT / 2, 0]} geometry={geo.foot} material={mats.back} />
+        <mesh position={[0, Y_ROD, 0]} geometry={geo.sleeve} material={mats.back} />
+        <mesh position={[0, Y_ROD, 0]} geometry={geo.rod} material={mats.gilt} />
+        {[-1, 1].map((s) => (
+          <mesh key={s} position={[s * (W / 2 + 0.028), Y_ROD, 0]} geometry={geo.knob} material={mats.gilt} />
+        ))}
+        <mesh geometry={geo.base} material={mats.bronze} />
+      </group>
+      {decals.map((m) => <primitive key={m.uuid} object={m} />)}
+    </>
   );
 }
 
