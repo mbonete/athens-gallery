@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import hall from "./data/hall.json";
 import { displayH, displayW, type Painting } from "./paintings";
 import { rig } from "./rig";
@@ -284,6 +285,14 @@ function HungPainting({ painting, side, z, wallX, room }: {
   const rotY = inDoor ? 0 : side < 0 ? Math.PI / 2 : -Math.PI / 2;
   const frame = 0.06;
   const label = useMemo(() => labelTexture(painting), [painting]);
+  // The frame's four sides as one geometry: one draw call instead of four.
+  const frameGeo = useMemo(() => mergeGeometries([
+    [0, h / 2 + frame / 2, w + 2 * frame, frame],
+    [0, -h / 2 - frame / 2, w + 2 * frame, frame],
+    [-w / 2 - frame / 2, 0, frame, h],
+    [w / 2 + frame / 2, 0, frame, h],
+  ].map(([fx, fy, fw, fh]) => new THREE.BoxGeometry(fw, fh, 0.04).translate(fx, fy, 0))), [w, h]);
+  useEffect(() => () => frameGeo.dispose(), [frameGeo]);
   // Label: on the base's front face for the doorway piece; beside a wall piece when it fits
   // in the bay (5 cm clear of the pilaster), otherwise under its bottom-right corner.
   const besideFits = w / 2 + 0.47 <= room / 2 - 0.05;
@@ -310,17 +319,9 @@ function HungPainting({ painting, side, z, wallX, room }: {
         <meshBasicMaterial map={tex} toneMapped={false} />
       </mesh>
       {/* The doorway piece's stone base is part of the baked hall (params.BOSCH_BASE). */}
-      {[
-        [0, h / 2 + frame / 2, w + 2 * frame, frame],
-        [0, -h / 2 - frame / 2, w + 2 * frame, frame],
-        [-w / 2 - frame / 2, 0, frame, h],
-        [w / 2 + frame / 2, 0, frame, h],
-      ].map(([fx, fy, fw, fh], i) => (
-        <mesh key={i} position={[fx, fy, 0.02]}>
-          <boxGeometry args={[fw, fh, 0.04]} />
-          <meshStandardMaterial color="#5a4630" roughness={0.6} />
-        </mesh>
-      ))}
+      <mesh geometry={frameGeo} position={[0, 0, 0.02]}>
+        <meshStandardMaterial color="#5a4630" roughness={0.6} />
+      </mesh>
       <mesh ref={plaque} position={labelPos}>
         <planeGeometry args={[0.3, 0.2]} />
         <meshBasicMaterial map={label} toneMapped={false} transparent />
