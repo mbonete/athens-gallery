@@ -60,17 +60,22 @@ export function App() {
     const st = STATIONS.find((s) => s.painting === p)!;
     const prog = progressNear(st);
     rig.progress = rig.target = prog;
+    rig.kick();
     setTimeout(() => enter(p, { push: false }), 600);
   }, [ready]);
 
   return (
     <>
       <div ref={stage} className={`stage ${FRESCO_FRAME ? "fresco-frame" : ""}`}>
+        {/* Draws only when something changes (rig.kick, rig.ts): nothing while the visitor stands
+            still, looks at an open painting or up into the dome. */}
         <Canvas
+          frameloop="demand"
           dpr={[1, 2]}
           gl={{ antialias: true, toneMapping: THREE.AgXToneMapping, toneMappingExposure: 1.0 }}
           onCreated={({ gl }) => {
             gl.setClearColor("#c9d4e2");
+            gl.domElement.addEventListener("webglcontextrestored", () => rig.kick());
             // Each painting and the dome also have a button (Keys.tsx); the canvas is the picture.
             gl.domElement.setAttribute("role", "img");
             gl.domElement.setAttribute("aria-label", CANVAS_LABEL);

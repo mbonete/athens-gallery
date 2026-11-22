@@ -44,6 +44,7 @@ export function viewBanner(side: string, opts: { push?: boolean } = {}) {
     ...closePose(mesh), duration: dur(1.3), ease: "power2.inOut",
     onComplete: () => void (getState().mode === "banner-in" && setState({ mode: "banner" })),
   });
+  rig.kick();
 }
 
 export function leaveBanner(opts: { pop?: boolean } = {}) {
@@ -61,6 +62,7 @@ export function leaveBanner(opts: { pop?: boolean } = {}) {
       setState({ mode: "walk" });
     },
   });
+  rig.kick();
 }
 
 /** Escape and the browser's back button; a reload on #banner starts on the plain walk. */

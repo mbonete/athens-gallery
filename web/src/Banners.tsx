@@ -117,6 +117,7 @@ function useBannerTexture(d: Detail, side: "left" | "right") {
     const draw = () => {
       drawBanner(g, art.image as HTMLImageElement, d, side);
       t.needsUpdate = true;
+      rig.kick();
     };
     draw();
     // A canvas can't wait for a web font: draw again once Cardo is in.
@@ -191,6 +192,7 @@ function Banner({ side }: { side: "left" | "right" }) {
     if (m) {
       light.bnSky.value = m.sky;
       light.bnSunE.value = m.sun;
+      rig.kick();
     }
     if (import.meta.env.DEV) ((window as unknown as { __bannerLight?: Record<string, unknown> }).__bannerLight ??= {})[side] = m;
     const region = new THREE.Box3(new THREE.Vector3(x - 3.45, -0.02, Z - 1.45), new THREE.Vector3(x + 0.85, 0.75, Z + 0.55));

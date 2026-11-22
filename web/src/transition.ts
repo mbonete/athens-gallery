@@ -180,6 +180,7 @@ export function enter(p: Painting, opts: { push?: boolean } = {}) {
   }, [], dur(1.1));
   tl.to(clipNow, { ...end, duration: dur(0.4), ease: "power3.out", onUpdate: clipPanel }, dur(1.1));
   tl.call(() => myVisit === visit && openZoom(p, rect, myVisit), [], dur(1.3));
+  rig.kick();
 }
 
 /** The painting's own rect on screen at the end of the walk-up: walkUpPose fits it into `rect`
@@ -336,6 +337,7 @@ export function leave(opts: { pop?: boolean } = {}) {
     }, [], dur(0.25));
     tl.to(rig.pose, { ...back, duration: dur(1.2), ease: "power2.inOut" }, dur(0.2));
     tl.to(rig, { light: 1, duration: dur(1.0), ease: "power1.inOut" }, dur(0.25));
+    rig.kick();
   };
 
   if (viewer && mode === "detail") {

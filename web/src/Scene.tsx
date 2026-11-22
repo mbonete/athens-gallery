@@ -7,7 +7,7 @@ import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.j
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import hall from "./data/hall.json";
 import { displayH, displayW, type Painting } from "./paintings";
-import { rig } from "./rig";
+import { moving, rig } from "./rig";
 import { ShiftCamera } from "./ShiftCamera";
 import { getState, setState } from "./store";
 import { glide } from "./input";
@@ -71,10 +71,13 @@ export function Scene() {
 
   useEffect(() => {
     camera.aspect = size.width / size.height;
+    rig.kick();
   }, [camera, size]);
 
+  const wasMoving = useRef(false);
   useFrame((_, dt) => {
-    glide(Math.min(dt, 0.1));
+    // After a rest, dt spans the whole rest: the glide starts with one frame's step.
+    glide(Math.min(dt, wasMoving.current ? 0.1 : 1 / 60));
     const pose = rig.drive === "scroll" ? poseAt(rig.progress) : rig.pose;
     if (rig.drive === "scroll") rig.pose = { ...pose };
     camera.position.set(pose.x, pose.y, pose.z);
@@ -89,6 +92,11 @@ export function Scene() {
     hemi.current.intensity = 0.9 * rig.light;
     sun.current.intensity = 2.8 * rig.light;
     scene.environmentIntensity = 0.35 * rig.light;
+    // Demand rendering (App.tsx): the next frame while the view moves, and one more after it
+    // stops, so the last frame drawn holds the end values.
+    const now = moving();
+    if (now || wasMoving.current) rig.kick();
+    wasMoving.current = now;
   });
 
   return (
@@ -255,6 +263,7 @@ function Hall() {
       mesh.castShadow = false;
       mesh.receiveShadow = false;
     });
+    rig.kick(); // the baked materials are on: draw them
     setState({ ready: true });
   }, [gltf, gl]);
   useFrame(() => {
@@ -353,6 +362,7 @@ function labelTexture(p: Painting) {
     g.fillText(`${p.medium}, ${p.dimensions}`, 36, 300);
     g.fillText("Tap to look closer", 36, 356);
     t.needsUpdate = true;
+    rig.kick();
   };
   draw();
   // A canvas can't wait for a web font: draw again once Cardo is in.

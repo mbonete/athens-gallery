@@ -26,6 +26,7 @@ const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matc
 function walk(metres: number) {
   if (!walking()) return;
   rig.target = clamp01(rig.target + metres / TOTAL);
+  rig.kick(); // the glide keeps the frames coming until it settles (Scene.tsx)
 }
 
 /** Walk to a point of the walk on the visitor's behalf (a painting got keyboard focus): the
@@ -34,6 +35,7 @@ export function walkTo(progress: number) {
   if (!walking()) return;
   rig.target = clamp01(progress);
   if (reduced()) rig.progress = rig.target;
+  rig.kick();
 }
 
 /** Keys that a focused control handles itself. */
