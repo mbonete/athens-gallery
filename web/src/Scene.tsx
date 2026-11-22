@@ -215,6 +215,8 @@ function Hall() {
   const { gl } = useThree();
   const gltf = useLoader(GLTFLoader, "/models/hall.glb", (loader) => {
     const ktx2 = new KTX2Loader().setTranscoderPath("/basis/").detectSupport(gl);
+    // Fetch the transcoder beside hall.glb, not once the GLB has arrived.
+    ktx2.init().catch(() => {});
     loader.setKTX2Loader(ktx2);
     loader.setMeshoptDecoder(MeshoptDecoder);
   });
