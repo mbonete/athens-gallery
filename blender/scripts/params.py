@@ -275,6 +275,7 @@ BAKE_GROUPS = [("front", -999, 15.0), ("facade", 15.0, 19.0), ("nave", 19.0, 33.
                ("crossing", 33.0, 46.9), ("arm2", 46.9, 999)]
 # Density factors by object name prefix (first match): mouldings change light across a few cm.
 BAKE_DENSITY_SCALE = {"vault_wall": 4.0, "vault_": 8.0,        # the vault ornament: the wall round it and its reliefs
+                      "opening_archivolt_intrados": 8.0,      # the meander's soffit: one strip along the arc, 10.3 m x 0.29 m (1310 x 37 px rough, 2300 x 64 final)
                       "opening_archivolt": 12.0,              # the opening arch's bands: their 2 cm steps were a third of a texel at 16 px/m (Maria's smeared strip, 2026-11-22)
                       "opening_reveal": 8.0, "opening_impost": 6.0,   # arch piers: the thin wall's square sides and underside, the cornice
                       "opening_pilaster": 4.0,                        # the pilasters and their plinths

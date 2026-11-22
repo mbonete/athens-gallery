@@ -248,7 +248,7 @@ for k, idx in bins.items():
     idx = np.array(idx)
     if len(np.unique(OBJ[idx])) < 2:
         continue
-    n = N[idx].mean(0)
+    n = np.array(k, float)   # the bin's own direction: depths must not shift with whatever else shares the bin
     n /= np.linalg.norm(n)
     u, v = basis(n)
     d = C[idx] @ n

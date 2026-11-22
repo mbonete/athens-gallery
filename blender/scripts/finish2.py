@@ -1074,6 +1074,30 @@ def opening_arch(M):
         return _obj(name, nb, "stone", mats)
     intrados = split(soffit, "opening_archivolt_intrados", band)   # the band tile, mapped from the eye (bake.arch_uvs)
     reveal = split(jambs, "opening_reveal", stone)
+    # One continuous surface for the paint and the light (Maria's "joining edges"): the cut's
+    # faces each ran the full depth, so the band, mapped from the eye per vertex, was bent
+    # differently on the two triangles of each (v is projective in depth), and the bake's grid
+    # cut (split_long) broke it into islands whose light and pattern stepped at the cut. Here:
+    # - every front-to-back edge of the intrados and the jambs is divided into 8 (the same
+    #   points on both, so no T-junction at the springing): the paint follows the eye's mapping
+    #   to within a fraction of a scan px;
+    # - the intrados's lightmap is one strip along the whole arc ("lightmap_sweep": u the arc
+    #   length, v the depth; bake.unwrap_one lays it out as is, uncut).
+    rows = 8
+    for ob in (intrados, reveal):
+        gb = bmesh.new()
+        gb.from_mesh(ob.data)
+        long = [e for e in gb.edges if abs(e.verts[0].co.y - e.verts[1].co.y) > D * 0.5]
+        bmesh.ops.subdivide_edges(gb, edges=long, cuts=rows - 1, use_grid_fill=True)
+        gb.to_mesh(ob.data)
+        gb.free()
+    me = intrados.data
+    uvl = me.uv_layers.new(name="lightmap_sweep")
+    for loop in me.loops:
+        q = me.vertices[loop.vertex_index].co
+        c = centre(q.y)
+        th = math.atan2(q.z - c.z, q.x - c.x)
+        uvl.data[loop.index].uv = (Rw * (math.pi - th), q.y - Y)
     bmesh.ops.delete(bm, geom=cut, context="FACES")
     bm.to_mesh(wall.data)
     bm.free()
