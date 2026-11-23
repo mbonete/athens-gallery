@@ -8,6 +8,7 @@
 // - Mouse wheel / two-finger trackpad scroll: down walks forward (for mice without a pinch).
 // - Keyboard: ArrowUp/ArrowDown, PageUp/PageDown, Space/Shift+Space, Home/End. Space is left to a
 //   focused button (it opens the painting; see Keys.tsx).
+import { recentre } from "./look";
 import { rig } from "./rig";
 import { getState } from "./store";
 import { TOTAL } from "./walk";
@@ -25,7 +26,9 @@ const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matc
 
 function walk(metres: number) {
   if (!walking()) return;
-  rig.target = clamp01(rig.target + metres / TOTAL);
+  const t = clamp01(rig.target + metres / TOTAL);
+  if (t !== rig.target) recentre(); // the walk goes along the hall: the view comes back to it (look.ts)
+  rig.target = t;
   rig.kick(); // the glide keeps the frames coming until it settles (Scene.tsx)
 }
 
@@ -33,7 +36,9 @@ function walk(metres: number) {
  * same glide as walking, or a cut under reduced motion. */
 export function walkTo(progress: number) {
   if (!walking()) return;
-  rig.target = clamp01(progress);
+  const t = clamp01(progress);
+  if (t !== rig.target) recentre();
+  rig.target = t;
   if (reduced()) rig.progress = rig.target;
   rig.kick();
 }

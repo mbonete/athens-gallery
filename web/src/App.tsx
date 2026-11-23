@@ -11,6 +11,7 @@ import { Scene } from "./Scene";
 import { getState, useStore } from "./store";
 import { attachWalkInput } from "./input";
 import { attachPicking } from "./pick";
+import { attachLook } from "./look";
 import { enter, leave, loadZoom } from "./transition";
 import { progressNear, STATIONS } from "./walk";
 
@@ -26,7 +27,8 @@ export function App() {
   useEffect(() => {
     const offWalk = attachWalkInput(stage.current!);
     const offPick = attachPicking(stage.current!);
-    return () => (offWalk(), offPick());
+    const offLook = attachLook(stage.current!);
+    return () => (offWalk(), offPick(), offLook());
   }, []);
 
   useEffect(() => {

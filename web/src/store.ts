@@ -13,8 +13,6 @@ export const setState = (patch: Partial<State>) => {
   state = { ...state, ...patch };
   listeners.forEach((l) => l());
 };
-export const useStore = <T,>(select: (s: State) => T) =>
-  useSyncExternalStore(
-    (l) => (listeners.add(l), () => listeners.delete(l)),
-    () => select(state),
-  );
+/** Call `l` after every change; returns the unsubscribe. */
+export const subscribe = (l: () => void) => (listeners.add(l), () => void listeners.delete(l));
+export const useStore = <T,>(select: (s: State) => T) => useSyncExternalStore(subscribe, () => select(state));

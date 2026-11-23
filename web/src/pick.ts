@@ -10,6 +10,7 @@ import { getState } from "./store";
 import { enter } from "./transition";
 import { hoverDome, lookDown, tapDome } from "./dome";
 import { leaveBanner, viewBanner } from "./banner";
+import { secondary, turnedThisPress, turning } from "./look";
 
 const MIN_PX = 48; // a target is never smaller than this on screen
 const MARGIN_PX = 12;
@@ -71,11 +72,12 @@ export function attachPicking(el: HTMLElement) {
   // Looking up into the dome or reading a banner: a tap anywhere goes back.
   const lookingUp = () => getState().mode === "dome" || getState().mode === "banner";
   const onDown = (e: PointerEvent) => {
-    down = e.isPrimary ? { x: e.clientX, y: e.clientY, t: performance.now(), up: lookingUp() } : null;
+    // The left button (or a touch) only: the right one turns the view (look.ts).
+    down = e.isPrimary && e.button === 0 && !secondary(e) ? { x: e.clientX, y: e.clientY, t: performance.now(), up: lookingUp() } : null;
   };
   const onUp = (e: PointerEvent) => {
-    // A tap, not the end of a pinch or a drag.
-    if (!down || !e.isPrimary || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10) return;
+    // A tap, not the end of a pinch, a drag or a turn (Shift + drag, look.ts).
+    if (!down || !e.isPrimary || turnedThisPress() || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10) return;
     // Looking up into the dome, a tap anywhere goes back (only one that starts and ends there:
     // taps during the tilts do nothing).
     if (down.up && lookingUp()) {
@@ -93,7 +95,7 @@ export function attachPicking(el: HTMLElement) {
   };
   const onCancel = () => (down = null);
   const onMove = (e: PointerEvent) => {
-    if (e.pointerType !== "mouse") return;
+    if (e.pointerType !== "mouse" || turning()) return; // look.ts shows the grabbing hand meanwhile
     const up = lookingUp(); // a click anywhere goes back
     const p = up ? null : pickBanner(e.clientX, e.clientY, el) ?? pickAt(e.clientX, e.clientY, el);
     el.style.cursor = p || up ? "pointer" : "";

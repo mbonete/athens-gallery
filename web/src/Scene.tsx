@@ -13,6 +13,7 @@ import { moving, rig } from "./rig";
 import { ShiftCamera } from "./ShiftCamera";
 import { getState, setState } from "./store";
 import { glide } from "./input";
+import { looked } from "./look";
 import { DomePicking } from "./DomeControls";
 import { frustumFor, poseAt, progressNear, SHIFT_X, STATIONS, TOTAL } from "./walk";
 import { Sky } from "./Sky";
@@ -83,12 +84,14 @@ export function Scene() {
     const pose = rig.drive === "scroll" ? poseAt(rig.progress) : rig.pose;
     if (rig.drive === "scroll") rig.pose = { ...pose };
     camera.position.set(pose.x, pose.y, pose.z);
-    camera.rotation.set(pose.pitch ?? 0, pose.yaw, 0, "YXZ");
+    // The visitor's turn (look.ts) on top of the pose; with none, the pose's own values.
     const f = frustumFor(camera.aspect);
+    const view = looked(pose, f);
+    camera.rotation.set(view.pitch, view.yaw, 0, "YXZ");
     const mid = (f.up + f.down) / 2;
-    camera.tanUp = f.up + (mid - f.up) * pose.sym;
-    camera.tanDown = f.down + (mid - f.down) * pose.sym;
-    camera.shiftX = SHIFT_X * (1 - pose.sym);
+    camera.tanUp = f.up + (mid - f.up) * view.sym;
+    camera.tanDown = f.down + (mid - f.down) * view.sym;
+    camera.shiftX = SHIFT_X * (1 - view.sym);
     camera.updateProjectionMatrix();
     // Hall light (the paintings are unlit, so they keep their colours while it dims).
     hemi.current.intensity = 0.9 * rig.light;
