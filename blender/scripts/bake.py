@@ -33,6 +33,7 @@ from mathutils import Matrix, Vector
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import params as P  # noqa: E402
+import vault_geom  # noqa: E402
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 OUT = Path(argv[0]) if argv else HERE.parent / "build" / "bake"
@@ -195,7 +196,7 @@ def centre_y(ob):
 groups = {name: [] for name, _, _ in P.BAKE_GROUPS}
 for ob in meshes:
     y = centre_y(ob)
-    name = next(n for n, y0, y1 in P.BAKE_GROUPS if y0 <= y < y1)
+    name = ob.get("bake_group") or next(n for n, y0, y1 in P.BAKE_GROUPS if y0 <= y < y1)
     groups[name].append(ob)
 
 
@@ -798,6 +799,12 @@ def detail_uvs(ob, tiles):
         ux0, uz0 = (uo[0], uo[1]) if uo else (0.0, 0.0)
         # Reliefs painted by a wall's tile (the vault ornament): faces not turned to the front
         # take one point of the tile (its plain strip) instead of a planar smear of it.
+        rib = mat.get("rib_strip") if mat else None    # the ribs' fronts past the tile: along the rib
+        if rib:
+            for li in p.loop_indices:
+                w = mw @ me.vertices[me.loops[li].vertex_index].co
+                uv.data[li].uv = vault_geom.rib_strip_uv(int(rib), w.x, w.z)
+            continue
         side_uv = mat.get("side_uv") if mat else None
         if side_uv and not (abs(n.y) >= abs(n.x) and abs(n.y) >= abs(n.z)):
             for li in p.loop_indices:

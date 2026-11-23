@@ -285,6 +285,10 @@ for key, spec in specs.items():
         wl = wall_light()
         lin, alpha = vault_ornament.tile(stone_sampler(specs["stone"]), wl)
         print(f"vault_front: light on the front wall round the arch (median, linear RGB) {np.round(wl, 3).tolist()}")
+    elif key == "vault_rib":       # the ribs' paint continued past the tile (vault_ornament.rib_strip)
+        sys.path.insert(0, str(ROOT / "tools"))
+        import vault_ornament
+        lin = vault_ornament.rib_strip(stone_sampler(specs["stone"]), wall_light())
     elif key == "step_riser":
         r = np.array(P.ALBEDO["step_riser"], np.float32)
         lin = textured(specs["step"], dark=r * 0.92, light=r)

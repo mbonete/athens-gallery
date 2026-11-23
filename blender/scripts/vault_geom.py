@@ -34,7 +34,12 @@ PPM = 495.5                        # tile px a web metre: 3072 px across
 TEX_W = int(round(2 * HW * PPM / 4)) * 4
 TEX_H_DRAW = int(round((Y1 - Y0) * PPM / 4)) * 4
 STRIP = 64                         # px over the top: plain white and gold for the reliefs' sides
-TEX_H = TEX_H_DRAW + STRIP
+# Between the drawing and the strip, the wall's stone continued (in phase with the wall above):
+# the wall face's top edge (Y1) was the drawing's top row, so filtering and the mipmaps read the
+# strip's white and gold (and its gold-leaf alpha) along it, a hairline across the bare wall seen
+# when the view turns up (Maria's "taller" round, 2026-11-23). 64 rows: clear to mip level 6.
+PAD = 64
+TEX_H = TEX_H_DRAW + PAD + STRIP
 
 # The design, web metres (tools/vault_ornament.py draws it; see there)
 BAND = dict(fil_in=0.012, line=0.0025, blue=0.110, fil_out=0.012)
@@ -99,3 +104,30 @@ def boss_centre(side):
 def boss_outline(phi):
     """The boss's radius round its centre, a fraction of ROSETTE_R: eight petal lobes."""
     return 0.80 + 0.20 * abs(math.cos(4 * phi)) ** 0.6
+
+
+# The ribs' painted strip ("vault_rib" detail tile, tools/vault_ornament.rib_strip): the rib runs
+# on past the tile's edge to the wall's end (finish2.vault_relief), so its front takes the same
+# paint and grain from a strip laid along it, from inside the tile (where the two show the same
+# texels' worth of paint, so the change of texture can't be seen) to past the wall's end. One row
+# per rib (left below, right above), at the tile's own texel density.
+RIB_S0 = 3.40                      # web metres along the rib from the arch's centre (the roundel ends at 3.09)
+RIB_SWITCH = 3.60                  # rib fronts wholly past this take the strip; the rest stay in the tile (to 4.0)
+RIB_TEX_W, RIB_ROW_PX = 3840, 64   # px along the strip; px across each row
+RIB_TEX_H = 2 * RIB_ROW_PX
+RIB_L = RIB_TEX_W / PPM            # 7.75 m: to s 11.15, past the wall's end (11.0 at most)
+RIB_ROW = RIB_ROW_PX / PPM         # 0.129 m across a row: the rib (0.10) and 1.5 cm of wall each side
+RIB_TILE_B = (b(RIB_L), b(2 * RIB_ROW))
+
+
+def rib_strip_st(side, x, z):
+    """(s, t) of a point (x, z) on the wall, web metres: along the rib from the arch's centre, and
+    across it (> 0 on the crown's side)."""
+    e_s, n_up = rib_axes(side)
+    return (x - XC) * e_s[0] + (z - YC) * e_s[1], (x - XC) * n_up[0] + (z - YC) * n_up[1]
+
+
+def rib_strip_uv(side, xb, zb):
+    """Detail UV (Blender convention, v up) of a point on the wall, Blender metres, in side's row."""
+    s, t = rib_strip_st(side, xb * S, zb * S)
+    return (s - RIB_S0) / RIB_L, (0.5 if side > 0 else 0.0) + (t + RIB_ROW / 2) / (2 * RIB_ROW)

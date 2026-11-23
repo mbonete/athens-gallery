@@ -315,26 +315,33 @@ def field():
     over(GOLD, ring(D_FIELD, f0, f0 + FILLET[1]))
 
 
-def rib():
-    """The rib: white, outlined, with a cable moulding between two fillets (the twisted torus that
-    frames the vault's fields): slanting strands, each shaded towards the next as it turns away."""
-    beyond = cov(S_RIB - RC)
-    t = np.abs(T_RIB)
-    over(WHITE, cov(RIB_W / 2 - t) * beyond)
-    over(LINE, ring(t, RIB_W / 2 - LINE_W, RIB_W / 2) * beyond)
+def rib_layers(S, T):
+    """The rib's paint at (S along it from the arch's centre, T across it), web metres: the layers
+    (colour, coverage) in painter's order. White, outlined, with a cable moulding between two
+    fillets (the twisted torus that frames the vault's fields): slanting strands, each shaded
+    towards the next as it turns away."""
+    beyond = cov(S - RC)
+    t = np.abs(T)
+    layers = [(WHITE, cov(RIB_W / 2 - t) * beyond), (LINE, ring(t, RIB_W / 2 - LINE_W, RIB_W / 2) * beyond)]
     cw = 0.024                                           # the cable's half width
-    over(LINE, ring(t, cw, cw + 0.0018) * beyond)
+    layers.append((LINE, ring(t, cw, cw + 0.0018) * beyond))
     pitch = 0.030
-    ph = (S_RIB - RC) / pitch
-    tt = np.clip(T_RIB / cw, -1, 1)
+    ph = (S - RC) / pitch
+    tt = np.clip(T / cw, -1, 1)
     q = ph - 0.85 * np.sin(np.pi / 2 * tt)               # strand edges: s = s_k + 0.85 pitch sin(pi/2 t/cw)
     frac = q - np.floor(q)
     slope = np.hypot(1.0, 0.85 * pitch * np.pi / 2 / cw * np.cos(np.pi / 2 * tt))
     dist = np.minimum(frac, 1 - frac) * pitch / slope    # to the nearest strand edge, across it
     inside = cov(cw - t) * beyond
     roll = 0.55 + 0.45 * np.cos(np.pi / 2 * tt)          # the torus turns away at its sides
-    over(LINE, (0.30 * frac ** 2 + 0.12 * (1 - roll)) * inside)
-    over(LINE, cov(0.0009 - dist) * inside * 0.9)
+    layers.append((LINE, (0.30 * frac ** 2 + 0.12 * (1 - roll)) * inside))
+    layers.append((LINE, cov(0.0009 - dist) * inside * 0.9))
+    return layers
+
+
+def rib():
+    for colour, c in rib_layers(S_RIB, T_RIB):
+        over(colour, c)
 
 
 def roundel():
@@ -637,12 +644,52 @@ def gold_modelling(gm):
 DECAL_LIGHT = 0.734    # the light the decal showed its white and blue at (VaultOrnament.tsx, WALL_LIGHT)
 
 
+def _ground(stone):
+    """The wall's stone over the tile's texels and its mean luminance (the grain's reference)."""
+    xs = G.b(XC - HW + (np.arange(2 * TEX_W) + 0.5) / PPM)
+    zs = G.b(Y1 - (np.arange(TEX_H) + 0.5) / PPM)
+    X_, Z_ = np.meshgrid(xs, zs)
+    ground = stone(X_, Z_)
+    return ground, float((ground @ LUMA).mean())
+
+
+def rib_strip(stone, wall_light, grain_gain=1.6):
+    """The ribs' strip ("vault_rib", vault_geom.RIB_STRIP): each rib's paint continued along it past
+    the tile's edge, over the wall's stone at the rib's own place on the wall, lit and grained as
+    tile() does it (the same reference mean): where the strip and the tile overlap they show the
+    same paint. Rows: the left rib below, the right above; s along each row, t across it."""
+    W, Hr = G.RIB_TEX_W, G.RIB_ROW_PX
+    _, lum_mean = _ground(stone)
+    wl = np.asarray(wall_light, np.float64)
+    rows = []
+    for side in (1, -1):                                  # image rows run down: the right rib's row on top
+        s = G.RIB_S0 + (np.arange(W) + 0.5) / PPM
+        t = G.RIB_ROW / 2 - (np.arange(Hr) + 0.5) / PPM   # down the image: from the crown's side
+        S_, T_ = np.meshgrid(s, t)
+        acc, alpha = np.zeros(S_.shape + (3,)), np.zeros(S_.shape)
+        for colour, c in rib_layers(S_, T_):              # the same paint as the tile (mirrored on the right, as there)
+            c = np.clip(c, 0, 1)
+            acc = acc * (1 - c[..., None]) + lin(colour) * c[..., None]
+            alpha = alpha * (1 - c) + c
+        rgb = acc / np.maximum(alpha, 1e-8)[..., None]
+        e_s, n_up = G.rib_axes(side)
+        xw = XC + S_ * e_s[0] + T_ * n_up[0]
+        zw = YC + S_ * e_s[1] + T_ * n_up[1]
+        ground = stone(G.b(xw), G.b(zw))
+        grain = 1 + grain_gain * ((ground @ LUMA) / lum_mean - 1)
+        paint_alb = rgb * DECAL_LIGHT / wl
+        rows.append(alpha[..., None] * paint_alb * grain[..., None] + (1 - alpha[..., None]) * ground)
+    return np.clip(np.concatenate(rows), 0, 1)
+
+
 def tile(stone, wall_light, grain_gain=1.6):
     """The detail tile (linear RGB, alpha = gold leaf), TEX_W x (STRIP + drawing):
     - stone(x, z): the wall's own stone tile sampled at Blender metres on the wall (in phase with
       the wall round it), shown where nothing is painted and multiplied into the paint;
     - wall_light: the front wall's baked light (linear RGB, median round the arch).
-    The top STRIP rows: plain white (left half) and gold (right half) for the reliefs' sides."""
+    The top STRIP rows: plain white (left half) and gold (right half) for the reliefs' sides; under
+    them PAD rows of the wall's stone carried on above the drawing, so nothing of the strip reaches
+    the wall face's top edge through filtering."""
     rgb, a, gm = paint()
     H, W = a.shape
     shade = gold_modelling(gm)
@@ -665,7 +712,10 @@ def tile(stone, wall_light, grain_gain=1.6):
     strip[:, W // 2:] = gold
     salpha = np.zeros((G.STRIP, W))
     salpha[:, W // 2:] = 1.0
-    return np.clip(np.concatenate([strip, out]), 0, 1), np.concatenate([salpha, alpha])
+    zp = G.b(Y1 + G.PAD / PPM - (np.arange(G.PAD) + 0.5) / PPM)
+    pad = stone(*np.meshgrid(xs, zp))
+    return (np.clip(np.concatenate([strip, pad, out]), 0, 1),
+            np.concatenate([salpha, np.zeros((G.PAD, W)), alpha]))
 
 
 if __name__ == "__main__":

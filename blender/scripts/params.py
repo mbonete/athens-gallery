@@ -269,10 +269,11 @@ BAKE = {
 BAKE_QUALITY = os.environ.get("BAKE", "rough")
 # Samples per group, a multiple of the quality's: the front wall's small reliefs (the vault
 # ornament) in a rough bake were noisy enough for the denoiser to blotch them.
-BAKE_GROUP_SAMPLES = {"front": 2.0}
+BAKE_GROUP_SAMPLES = {"front": 2.0, "walltop": 2.0}
 # Groups baked into one atlas each, by the object's centre along Y (metres, 100 %).
 BAKE_GROUPS = [("front", -999, 15.0), ("facade", 15.0, 19.0), ("nave", 19.0, 33.0),
-               ("crossing", 33.0, 46.9), ("arm2", 46.9, 999)]
+               ("crossing", 33.0, 46.9), ("arm2", 46.9, 999),
+               ("walltop", 999, 999)]   # by name only (an object's "bake_group"): the front wall above 9 m
 # Density factors by object name prefix (first match): mouldings change light across a few cm.
 BAKE_DENSITY_SCALE = {"vault_wall": 4.0, "vault_": 8.0,        # the vault ornament: the wall round it and its reliefs
                       "opening_archivolt_intrados": 8.0,      # the meander's soffit: one strip along the arc, 10.3 m x 0.29 m (1310 x 37 px rough, 2300 x 64 final)
@@ -365,6 +366,11 @@ ARCH_PILASTER_W = 0.255         # painted pilasters: u 165-300 and 3510-3620 (0.
 ARCH_PILASTER_D = 0.05
 ARCH_IMPOST_H = 0.12            # painted impost and the block under it: v 1770-1830 at the face
 ARCH_WALL = (12.0, 9.0)         # front wall: half-width and height (designed; covers the start view on portrait phones, to 8.3 m)
+# The front wall rises on to the nave's crown (Maria, 2026-11-23: "taller"; turned up at the
+# entrance she saw its top edge against the sky). Above ARCH_WALL's height it is a separate
+# object baked in its own group ("walltop"), seen by the camera only: it casts no shadow and
+# hides no sky from the hall, so the hall's light stays as it was baked with the 9 m wall.
+ARCH_WALL_TOP = round(SPRING_Z + NAVE_HALF_W, 3)   # 18.2
 ARCH_MEANDER = dict(periods_half=15, cols=7, rows=7, gold=0.6)   # 7 strips a period (pitch 26.5 px), 7 levels
 ARCH_COLOURS = {                # sRGB as seen; started from medians of k-means clusters over each band
     # Round 10 (Maria): the pinks are the wall's cream as it shows beside the arch (218, 209, 183),
