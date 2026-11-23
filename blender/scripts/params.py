@@ -283,13 +283,24 @@ BAKE_DENSITY_SCALE = {"vault_wall": 4.0, "vault_": 8.0,        # the vault ornam
                       "floor_lower_sides": 0.6, "facade": 0.8, "entablature": 1.6, "string_course": 1.6,
                       "nave_pilaster_capital": 2.0, "arm2_pilaster_capital": 2.0, "nave_pilaster_base": 1.6,
                       "arm2_pilaster_base": 1.6, "crossing_base": 1.6, "end_entablature": 1.6, "end_door": 1.6,
-                      "end_pilaster_base": 1.6, "arch_front_edge": 1.6, "arch_back_edge": 1.6, "bay1_": 1.4,
-                      "facade_": 1.4, "drum_base_ring": 1.4, "drum_sill": 1.4, "drum_top_cornice": 1.4,
-                      "step_nosing": 2.0, "tondo_frame": 1.4, "crossing_blind_arch": 1.4,
+                      "end_pilaster_base": 1.6, "bay1_": 1.4, "facade_": 1.4,
+                      "step_nosing": 2.0, "crossing_blind_arch": 1.4,
+                      # Round 12: the ceiling round the dome, as the dome view shows it (1512 x 982 at
+                      # 2x: about 100-115 device px per metre on the arches' soffits and the
+                      # pendentives, 200 on the tondo rings, 75-100 on the drum's rings): about
+                      # 2 device px a texel in a rough bake. The vaults' ends: DOME_VIEW_VAULTS.
+                      "arch_front_soffit": 3.6, "arch_back_soffit": 3.6, "arch_front_edge": 3.6, "arch_back_edge": 3.6,
+                      "pendentives": 3.6, "tondo_frame": 6.5, "tondo_disc": 3.6,
+                      "drum_base_ring": 3.2, "drum_sill": 2.4, "drum_top_cornice": 2.4,
                       # Round 11: the dome's coffers. At 1.0 the lowest ring's step walls (6.6 cm)
                       # and treads (6.5-14 cm) were one or two texels (bake.dome_unwrap); at 3.0
                       # a step wall gets 2-3 texels on every ring.
                       "dome_coffers": 3.0}
+# Round 12: the coffered vaults' ends the dome view shows (it reaches y 30.6 and 49.6), their
+# coffers whole: those with their middle beyond these y are one lightmap island per vault, unrolled
+# on the texel grid (finish.coffer_sheet lm_islands), at this density factor; the rest of each
+# vault is a second sheet at 1.0 (finish.vault).
+DOME_VIEW_VAULTS = dict(nave_y=29.4, arm2_y=50.8, density=3.6)
 BAKE_HALL_X = 7.4                         # m: nothing beyond this behind the facade is seen
 BAKE_ISLAND_MAX = 2.5                     # m: longer surfaces are cut into islands this long
 BAKE_SKIP = ("ground_beyond",)            # not baked or exported: the web draws it (hall.json "groundBeyond")

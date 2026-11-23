@@ -465,7 +465,8 @@ def crossing(M):
                rib=P.COFFER_RIB, steps=P.COFFER_STEPS, splay=P.COFFER_SPLAY)
     fs = P.COFFER_FIELD_S * k
     coffer_sheet("arch_back_soffit", CH, SZ, ya, yb, (-fs, fs, ya, yb), pat,
-                 [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]])
+                 [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]],
+                 lm_islands=lambda s, y: (0, 1.0))          # one lightmap sheet on the texel grid
     # Thin light edge where the coffers meet the crossing (fresco: no archivolt, a light line).
     # Round 8: its underside 6 mm inside the opening. The pendentives' facets dip up to 2.5 mm
     # below the arch's line right at its face, and that sliver, baked dark, showed as a black
@@ -513,11 +514,14 @@ def crossing(M):
             nrm = -d.normalized()                          # into the crossing
             a = Vector((0, 0, 1)).cross(nrm).normalized()  # horizontal tangent
             bvec = nrm.cross(a).normalized()
-            ts64 = np.linspace(0, 2 * math.pi, 64, endpoint=False)
+            # The ring starts at its top (towards the drum: bvec points up), where the lightmap strip
+            # along it (finish.sweep) has its one closing cut; the same 64 points as from t = 0.
+            ts64 = np.linspace(math.pi / 2, math.pi / 2 + 2 * math.pi, 64, endpoint=False)
             ring = [c + rt * (math.cos(t) * a + math.sin(t) * bvec) for t in ts64]
             ups = [(math.cos(t) * a + math.sin(t) * bvec) for t in ts64]
-            sweep(f"tondo_frame_{sx}_{sy}", frame_profile(0.22, 0.14, embed=0.1), ring, [nrm] * len(ring), ups,
-                  "stone", stone, closed=True)
+            fr = sweep(f"tondo_frame_{sx}_{sy}", frame_profile(0.22, 0.14, embed=0.1), ring, [nrm] * len(ring), ups,
+                       "stone", stone, closed=True, u_along_path=True)
+            fr["lm_grid_aligned"] = True   # bake.layout: the strip unturned, so both ends of its closing cut sample alike
             # Plain disc slightly sunk behind the ring (the painted reliefs left out).
             bm = bmesh.new()
             disc = [bm.verts.new(c - nrm * 0.02 + (rt + 0.02) * (math.cos(t) * a + math.sin(t) * bvec))
@@ -593,6 +597,12 @@ def tondo_fit(CH, Rs, band=0.22, clear=0.3):
 
 
 def revolve_profile(name, prof_rz, centre, kind, mats, segments=144):
+    """A ring moulding: the profile (r, z) turned round a vertical axis. Round 12: its lightmap is
+    one strip along the ring, as finish.sweep's ("lightmap_sweep": u the length round the ring at
+    the profile's outer radius, the same for every profile point, so the strip is a rectangle and
+    its closing cut at angle 0 a straight column; v the length along the profile). bake.py's grid
+    cuts and smart project had broken the drum's rings into short islands whose light stepped at
+    every cut."""
     bm = bmesh.new()
     cx, cy = centre
     rings = []
@@ -600,12 +610,24 @@ def revolve_profile(name, prof_rz, centre, kind, mats, segments=144):
         a = 2 * math.pi * kk / segments
         rings.append([bm.verts.new((cx + r * math.cos(a), cy + r * math.sin(a), z)) for r, z in prof_rz])
     n = len(prof_rz)
+    uvl = bm.loops.layers.uv.new("lightmap_sweep")
+    vs = [0.0]
+    for j in range(1, n):
+        vs.append(vs[-1] + math.hypot(prof_rz[j][0] - prof_rz[j - 1][0], prof_rz[j][1] - prof_rz[j - 1][1]))
+    r_ref = max(r for r, z in prof_rz)
+
+    def u(kk, j):
+        return r_ref * 2 * math.pi * kk / segments
     for kk in range(segments):
         a, b = rings[kk], rings[(kk + 1) % segments]
         for j in range(n - 1):
-            bm.faces.new((a[j], a[j + 1], b[j + 1], b[j]))
+            f = bm.faces.new((a[j], a[j + 1], b[j + 1], b[j]))
+            for loop, (k_, j_) in zip(f.loops, ((kk, j), (kk, j + 1), (kk + 1, j + 1), (kk + 1, j))):
+                loop[uvl].uv = (u(k_, j_), vs[j_])
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
-    return _obj(name, bm, kind, mats, smooth_angle=40)
+    ob = _obj(name, bm, kind, mats, smooth_angle=40)
+    ob["lm_grid_aligned"] = True       # bake.layout: its strip stays as laid, along the texel rows
+    return ob
 
 
 def drum_cornices(M, ycen, R_IN):
