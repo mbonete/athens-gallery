@@ -684,29 +684,25 @@ def underside_shade(x):
 
 
 def down_weight(nz):
-    """How much of the underside shade a face takes, by how far it turns down (round 12): none at
-    n.z -0.45, all at -0.55, smoothstep between. It was all-or-nothing at -0.5, a straight light
-    step across every curved surface there (the vaults' and arches' sides, the right pendentives);
-    the dome view's denser lightmaps (round 12) showed it as a hard line."""
-    t = min(1.0, max(0.0, (-0.45 - nz) / 0.1))
+    """How much of the underside shade a face takes, by how far it turns down: none at n.z -0.25,
+    all at -0.75, smoothstep between, so on a curved underside the shade comes in over the curve.
+    It was all-or-nothing at -0.5, a straight light step across every curved surface there; round
+    12 ramped it over -0.45..-0.55 round the dome only, and Maria then saw the step on the end
+    door's arch ("this shadow band looks out of place", 2026-11-23): now everywhere, and wider."""
+    t = min(1.0, max(0.0, (-0.25 - nz) / 0.5))
     return t * t * (3 - 2 * t)
 
 
-def in_dome_view(ob, c, p_index=None):
-    """The ceiling round the dome, as the dome view shows it (round 12's scope): the crossing above
-    the springing (the arches' soffits and edges, pendentives, tondi, drum, dome) and the vaults'
-    end sheets (finish.vault: "lm_island" 0)."""
-    if (P.CROSS_Y0 - P.TRANSVERSE_T - 0.01 <= c.y <= P.CROSS_Y1 + P.TRANSVERSE_T + 0.01
-            and c.z > P.SPRING_Z - 0.01 and abs(c.x) < P.NAVE_HALF_W + 0.3):
-        return True
-    a = ob.data.attributes.get("lm_island") if ob.name.endswith("_vault_coffers") else None
-    return a is not None and p_index is not None and a.data[p_index].value == 0
 
+def side_weight(nx):
+    """How much of the right wall's shade a face takes, by how far it turns to -X: none at n.x
+    -0.25, all at -0.75, smoothstep between (as down_weight for the underside shade)."""
+    t = min(1.0, max(0.0, (-0.25 - nx) / 0.5))
+    return t * t * (3 - 2 * t)
 
 def face_factor(c, n, ux=None, nz=None):
-    """What the lightmap carries beyond the light, per face (nz: the corner's smoothed normal z,
-    for the underside weight, given in the dome view's scope only; elsewhere the face's own
-    normal and the step at -0.5 as before round 12):
+    """What the lightmap carries beyond the light, per face (nz: the corner's normal z smoothed
+    over its neighbours, for the underside weight; the face's own by default):
     - Raphael's right side: downward faces x underside_shade(x) (down_weight); faces turned to -X, and every face
       inside a right-hand recess (Raphael paints the right bays' recesses in shade, though the
       convention sun is not blocked there), x RIGHT_WALL;
@@ -715,11 +711,16 @@ def face_factor(c, n, ux=None, nz=None):
     f = Vector((1.0, 1.0, 1.0))
     if c.z > P.DRUM_Z1 + 0.005:          # the dome: lit all round by the drum's windows (round 6)
         return f
-    w = (1.0 if n.z < -0.5 else 0.0) if nz is None else down_weight(nz)
+    w = down_weight(n.z if nz is None else nz)
     if w > 0:
         f *= 1.0 - (1.0 - underside_shade(c.x if ux is None else ux)) * w
-    if c.x > 0.5 and (n.x < -0.5 or c.x > P.NAVE_HALF_W + 0.05) and c.y > P.FACADE_Y1 and c.z < P.SPRING_Z + 0.5:
-        f = Vector([a * b for a, b in zip(f, P.RIGHT_WALL)])
+    if c.x > 0.5 and c.y > P.FACADE_Y1 and c.z < P.SPRING_Z + 0.5:
+        # faces turned to -X take the right wall's shade by how far they turn (side_weight), so a
+        # curved face (an arch's soffit on the right) shades in over the curve; it was all-or-
+        # nothing at n.x -0.5, a hard edge across the end door's soffit (Maria, 2026-11-23).
+        w = 1.0 if c.x > P.NAVE_HALF_W + 0.05 else side_weight(n.x)
+        if w > 0:
+            f = Vector([a * (1.0 - (1.0 - b) * w) for a, b in zip(f, P.RIGHT_WALL)])
     if (abs(c.x) > P.NAVE_HALF_W - 0.9 and P.BAY1_SIDE_RECESS[0] - 0.05 < c.y < P.ARM2_Y1 and c.z < P.SPRING_Z + 0.5):
         f = Vector([a * b for a, b in zip(f, P.SIDE_TINT)])
     return f
@@ -838,7 +839,7 @@ def factor_attribute(ob):
     cos30 = math.cos(math.radians(30))
     for p in me.polygons:
         c, n = mw @ p.center, fn[p.index]
-        smooth = -0.75 < n.z < -0.25 and in_dome_view(ob, c, p.index)
+        smooth = -0.75 < n.z < -0.25
         for li in p.loop_indices:          # per corner: the underside shade varies across a face
             nz = None
             if smooth:                     # the corner's normal, smoothed over faces within 30 deg
