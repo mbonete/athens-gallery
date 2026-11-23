@@ -214,11 +214,62 @@ print(f"[post {time.time() - t0:5.1f}s] stitched {len(seam_q)} seam texels; step
       f"max {report['seam_step_levels_before']['max']}, after p95 {report['seam_step_levels_after']['p95']} "
       f"max {report['seam_step_levels_after']['max']}")
 
+def close_strips(lin, cov, isl, pos, K=6):
+    """Strips closed on themselves round the dome (the drum's rings, the tondi's frames, the oculus'
+    ring: one island laid along the texel rows, finish.sweep u_along_path, revolve_profile), whose
+    first and last texels of every row meet in the world across the closing cut: both ends of each
+    row are brought to their mean, tapering over K texels, so the light runs on across the cut
+    exactly (round 12: the stitch treats an island's two ends as one side and leaves the cut as
+    baked). Only in the crossing above the springing, the dome view's scope. Returns the rows closed."""
+    ys, xs = np.nonzero(cov)
+    ids = isl[ys, xs].astype(np.int64)
+    key = ids * lin.shape[0] + ys
+    order = np.lexsort((xs, key))
+    key, ys, xs = key[order], ys[order], xs[order]
+    first = np.r_[True, key[1:] != key[:-1]]
+    last = np.r_[key[1:] != key[:-1], True]
+    ra, xa, xb = ys[first], xs[first], xs[last]
+    pa = pos[ra, xa]
+    ok = (xb - xa >= 4 * K) & (pa[:, 1] > P.CROSS_Y0) & (pa[:, 1] < P.CROSS_Y1) & (pa[:, 2] > P.SPRING_Z)
+    ra, xa, xb = ra[ok], xa[ok], xb[ok]
+    step = np.linalg.norm(pos[ra, xa + 1] - pos[ra, xa], axis=1)          # one texel, in metres
+    gap = np.linalg.norm(pos[ra, xb] - pos[ra, xa], axis=1)
+    rowisl = isl[ra, xa]
+    closed = gap <= 2.0 * np.maximum(step, 1e-4)
+    # only islands closed along most of their rows (a strip, not a chance row of a flat panel)
+    u, inv = np.unique(rowisl, return_inverse=True)
+    share = np.bincount(inv, closed) / np.bincount(inv)
+    closed &= share[inv] > 0.8
+    for r, a0, b0 in zip(ra[closed], xa[closed], xb[closed]):
+        mean = (lin[r, a0] + lin[r, b0]) / 2
+        da, db = mean - lin[r, a0], mean - lin[r, b0]
+        for k in range(K):
+            w = 1.0 - k / K
+            if cov[r, a0 + k]:
+                lin[r, a0 + k] += da * w
+            if cov[r, b0 - k]:
+                lin[r, b0 - k] += db * w
+    return int(closed.sum())
+
+
 # 3. factor, fill, write
 for gi, (g, a) in enumerate(groups.items()):
     m = where[:, 0] == gi
     lin = a["light"].copy()
     lin[where[m, 1], where[m, 2]] = out[m]
+    before_close = lin.copy()
+    nclosed = close_strips(lin, a["cov"] & (a["light"].max(-1) > DARK), a["isl"], a["pos"])
+    print(f"[post {time.time() - t0:5.1f}s] {g}: {nclosed} rows of strips closed on themselves made continuous")
+    # The margin round a closed strip's ends (Cycles' "extend", texels no face covers) takes the
+    # change close_strips made to its nearest covered texel, so filtering at the cut reads the
+    # joined light. Elsewhere the margins stay as baked, as before round 12.
+    delta = lin - before_close
+    margin = a["baked"] & ~a["cov"]
+    dist, lab = cv2.distanceTransformWithLabels((~a["cov"]).astype(np.uint8), cv2.DIST_L2, 5, labelType=cv2.DIST_LABEL_PIXEL)
+    ys, xs = np.nonzero(a["cov"])
+    mm = margin & (dist <= P.BAKE[QUALITY]["margin"] + 1.5)
+    k = lab[mm] - 1
+    lin[mm] += delta[ys[k], xs[k]]
     e = enc(lin * a["factor"])
     e = fill_nearest(e, a["baked"])
     png = np.clip(np.round(e), 0, 255).astype(np.uint8)

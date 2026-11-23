@@ -135,6 +135,7 @@ def cull_hidden(ob):
     - undersides of floors and steps;
     - the far side of the end wall;
     - the outer shells of the drum and dome;
+    - the pendentives' box sides at x = +-CROSS_HALF (they face into the crossing's side walls);
     - the crossing walls' faces toward the crossing above the drum's base. The walls rise 1.5 m
       past it (their nave sides show there), and the drum's inside is tangent to those faces on
       the four axes: along each tangent line the two coincide and fight, a flickering black line
@@ -167,6 +168,8 @@ def cull_hidden(ob):
                 (abs(c.y - P.CROSS_Y1) < 0.02 and n.y < -0.98) or (abs(c.y - P.CROSS_Y0) < 0.02 and n.y > 0.98)
                 or (abs(abs(c.x) - P.CROSS_HALF) < 0.02 and abs(n.x) > 0.98 and n.x * c.x < 0)):
             gone.append(f)
+        elif ob.name == "pendentives" and abs(n.x) > 0.99:
+            gone.append(f)       # the box's sides at x = +-CROSS_HALF, facing into the side walls
         elif ob.name.startswith(("drum", "dome")) and c.z > P.DRUM_Z0 + 0.5:
             radial = Vector((c.x, c.y - ycen, 0))
             out = Vector((c.x, c.y - ycen, c.z - P.DRUM_Z1 if c.z > P.DRUM_Z1 else 0.0))
@@ -232,6 +235,7 @@ def split_long(ob, step):
     inv = mw.inverted()
     rot = mw.to_3x3()
     whole = keeps_flat_whole(ob)
+    grid = bm.faces.layers.int.get("lm_island")        # faces laid on the grid already: never cut
     planes = []
     for axis in range(3):
         lo = min((mw @ v.co)[axis] for v in bm.verts)
@@ -240,7 +244,7 @@ def split_long(ob, step):
             continue
         k = math.floor(lo / step) + 1
         while k * step < hi - 1e-4:
-            curved = [f for f in bm.faces if not (whole and is_flat(f, rot))]
+            curved = [f for f in bm.faces if not (whole and is_flat(f, rot)) and not (grid and f[grid] >= 0)]
             if not curved:
                 break
             geom = list({e for f in curved for e in f.edges}) + curved + list({v for f in curved for v in f.verts})
@@ -256,6 +260,7 @@ def split_long(ob, step):
         world = {v: mw @ v.co for v in bm.verts}
         cut = [e for e in bm.edges
                if any(not (whole and is_flat(f, rot)) for f in e.link_faces)
+               and not (grid and any(f[grid] >= 0 for f in e.link_faces))
                and any(abs(world[e.verts[0]][ax] - val) < 1e-4 and abs(world[e.verts[1]][ax] - val) < 1e-4
                        for ax, val in planes)]
         if cut:
@@ -344,12 +349,99 @@ def dome_unwrap(ob):
 GRID_ALIGNED = ("dome_coffers",)
 
 
+def pendentive_uvs(ob):
+    """Round 12: each pendentive one lightmap island. Its faces on the sphere (radius CROSS_HALF
+    sqrt 2 about the crossing's middle at the springing) are mapped by an azimuthal equidistant
+    projection about the direction of their quadrant's middle (true to scale along every great
+    circle through it, within 4 % across the triangle), as "lightmap_grid" with "lm_island" the
+    quadrant; any other face keeps the usual unwrap. Smart project and the grid cuts had broken the
+    four triangles into hundreds of islands, their light stepping at every cut."""
+    me = ob.data
+    mw = ob.matrix_world
+    C = Vector((0, (P.CROSS_Y0 + P.CROSS_Y1) / 2, P.SPRING_Z))
+    Rs = P.CROSS_HALF * math.sqrt(2)
+    me.uv_layers.new(name="lightmap_grid")
+    me.attributes.new("lm_island", "INT", "FACE")
+    me.attributes.new("lm_density", "FLOAT", "FACE")
+    # fetched after all three exist: adding an attribute can leave earlier Python references stale
+    uv, isl, den = me.uv_layers["lightmap_grid"], me.attributes["lm_island"], me.attributes["lm_density"]
+    quad = {}
+    for p in me.polygons:
+        c = mw @ p.center - C
+        if abs(c.length - Rs) > 0.03:
+            isl.data[p.index].value, den.data[p.index].value = -1, 1.0
+            continue
+        quad.setdefault((c.x > 0, c.y > 0), []).append(p)
+    for qi, (key, faces) in enumerate(sorted(quad.items())):
+        mid = sum(((mw @ p.center - C) * p.area for p in faces), Vector()).normalized()
+        e1 = Vector((0, 0, 1)).cross(mid).normalized()             # horizontal across the quadrant
+        e2 = mid.cross(e1)
+        for p in faces:
+            isl.data[p.index].value, den.data[p.index].value = qi, 1.0
+            for li in p.loop_indices:
+                w = (mw @ me.vertices[me.loops[li].vertex_index].co - C).normalized()
+                ang = math.acos(max(-1.0, min(1.0, w.dot(mid))))
+                t = w - mid * w.dot(mid)
+                t = t.normalized() if t.length > 1e-9 else e1
+                uv.data[li].uv = (Rs * ang * t.dot(e1) + 100.0 * qi, Rs * ang * t.dot(e2))
+
+
+def grid_unwrap(ob):
+    """Objects whose faces carry their own lightmap UVs on the texel grid for some or all faces
+    ("lightmap_grid", face attribute "lm_island" >= 0: finish.coffer_sheet's unrolled sheets,
+    pendentive_uvs): those faces keep them, one island per "lm_island", set apart from each other;
+    the other faces are cut and smart-projected as unwrap_one does. layout() leaves the grid
+    islands unturned and scales each by its faces' "lm_density"."""
+    me = ob.data
+    grid_faces = [p.index for p in me.polygons if me.attributes["lm_island"].data[p.index].value >= 0]
+    rest = len(grid_faces) < len(me.polygons)
+    if rest:
+        split_long(ob, P.BAKE_ISLAND_MAX)                 # cuts only the other faces
+    me = ob.data
+    # Read into lists first: adding UV layers below can leave attribute references stale.
+    gl = [d.value for d in me.attributes["lm_island"].data]
+    gdata = [d.uv.copy() for d in me.uv_layers["lightmap_grid"].data]
+    for uvl in [u for u in me.uv_layers if u.name not in ("detail", "lightmap")]:
+        me.uv_layers.remove(uvl)
+    if "detail" not in me.uv_layers:            # created first: TEXCOORD_0 in the glTF
+        me.uv_layers.new(name="detail")
+    uv = me.uv_layers.get("lightmap") or me.uv_layers.new(name="lightmap")
+    me.uv_layers.active = uv
+    if rest:
+        for p in me.polygons:
+            p.select = gl[p.index] < 0
+        bpy.ops.object.select_all(action="DESELECT")
+        ob.select_set(True)
+        bpy.context.view_layer.objects.active = ob
+        bpy.context.tool_settings.mesh_select_mode = (False, False, True)     # the faces' own selection
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.0, area_weight=0.0,
+                                 correct_aspect=True, scale_to_bounds=False)
+        bpy.ops.uv.select_all(action="SELECT")
+        bpy.ops.uv.pack_islands(udim_source="ACTIVE_UDIM", rotate=True, scale=True, margin_method="FRACTION",
+                                margin=0.01, shape_method="AABB")
+        bpy.ops.object.mode_set(mode="OBJECT")
+    # The grid faces' own UVs (metres), well away from the smart-projected ones (0..1): islands()
+    # joins faces by shared vertex and UV only, and layout() places every island on its own.
+    me = ob.data
+    uv = me.uv_layers["lightmap"]                     # fetched again after edit mode
+    for p in me.polygons:
+        if gl[p.index] >= 0:
+            for li in p.loop_indices:
+                uv.data[li].uv = gdata[li] + Vector((1000.0, 1000.0))
+    return max(uv_coverage([ob]), 1e-4)
+
+
 def unwrap_one(ob):
     """Smart-project one object on its own (multi-object packing is unreliable here: some groups
     came out collapsed or overlapping). Returns the share of the unit square its islands cover."""
     if ob.name == "dome_coffers":
         return dome_unwrap(ob)
+    if ob.name == "pendentives":
+        pendentive_uvs(ob)
     me = ob.data
+    if "lightmap_grid" in me.uv_layers:
+        return grid_unwrap(ob)
     if "lightmap_sweep" in me.uv_layers:
         # A swept moulding: its own UVs along the run (finish.sweep), facets along the texel rows.
         data = [d.uv.copy() for d in me.uv_layers["lightmap_sweep"].data]
@@ -453,7 +545,15 @@ def layout(objs):
                     sx += w3 * math.cos(t)
                     sy += w3 * math.sin(t)
             ang = math.atan2(sy, sx) / 4
-            if abs(ang) > 1e-4 and ob.name not in GRID_ALIGNED:
+            gattr = me.attributes.get("lm_island")
+            # Left as laid: islands on the texel grid already, and strips closed on themselves (ring
+            # mouldings, the tondi's frames: "lm_grid_aligned"). Turned by a fraction of a degree, a
+            # strip's rows drift across the texel rows along its length, and at its closing cut the two
+            # ends sample a crease's two faces differently (a step of up to 40 levels on the drum's top
+            # cornice, round 12).
+            on_grid = (ob.name in GRID_ALIGNED or ob.get("lm_grid_aligned")
+                       or (gattr is not None and all(gattr.data[p.index].value >= 0 for p in faces)))
+            if abs(ang) > 1e-4 and not on_grid:
                 ca, sa = math.cos(-ang), math.sin(-ang)
                 cx = sum(uv[i].uv.x for i in loops) / len(loops)
                 cy = sum(uv[i].uv.y for i in loops) / len(loops)
@@ -467,6 +567,9 @@ def layout(objs):
                 pts = [uv[i].uv for i in p.loop_indices]
                 a2i += abs(sum(pts[j].x * pts[j - 1].y - pts[j - 1].x * pts[j].y for j in range(len(pts)))) / 2
             f = CFG["density"] * density_scale(ob) * math.sqrt(a3 / a2i) if a2i > 1e-12 else 1.0
+            dattr = me.attributes.get("lm_density")     # per-face factor (finish.coffer_sheet lm_islands)
+            if dattr is not None:
+                f *= max(dattr.data[p.index].value for p in faces)
             xs = [uv[i].uv.x for i in loops]
             ys = [uv[i].uv.y for i in loops]
             lo = Vector((min(xs), min(ys)))
@@ -580,9 +683,31 @@ def underside_shade(x):
     return 1.0 - (1.0 - P.RIGHT_UNDERSIDE) * t * t * (3 - 2 * t)
 
 
-def face_factor(c, n, ux=None):
-    """What the lightmap carries beyond the light, per face:
-    - Raphael's right side: downward faces x underside_shade(x); faces turned to -X, and every face
+def down_weight(nz):
+    """How much of the underside shade a face takes, by how far it turns down (round 12): none at
+    n.z -0.45, all at -0.55, smoothstep between. It was all-or-nothing at -0.5, a straight light
+    step across every curved surface there (the vaults' and arches' sides, the right pendentives);
+    the dome view's denser lightmaps (round 12) showed it as a hard line."""
+    t = min(1.0, max(0.0, (-0.45 - nz) / 0.1))
+    return t * t * (3 - 2 * t)
+
+
+def in_dome_view(ob, c, p_index=None):
+    """The ceiling round the dome, as the dome view shows it (round 12's scope): the crossing above
+    the springing (the arches' soffits and edges, pendentives, tondi, drum, dome) and the vaults'
+    end sheets (finish.vault: "lm_island" 0)."""
+    if (P.CROSS_Y0 - P.TRANSVERSE_T - 0.01 <= c.y <= P.CROSS_Y1 + P.TRANSVERSE_T + 0.01
+            and c.z > P.SPRING_Z - 0.01 and abs(c.x) < P.NAVE_HALF_W + 0.3):
+        return True
+    a = ob.data.attributes.get("lm_island") if ob.name.endswith("_vault_coffers") else None
+    return a is not None and p_index is not None and a.data[p_index].value == 0
+
+
+def face_factor(c, n, ux=None, nz=None):
+    """What the lightmap carries beyond the light, per face (nz: the corner's smoothed normal z,
+    for the underside weight, given in the dome view's scope only; elsewhere the face's own
+    normal and the step at -0.5 as before round 12):
+    - Raphael's right side: downward faces x underside_shade(x) (down_weight); faces turned to -X, and every face
       inside a right-hand recess (Raphael paints the right bays' recesses in shade, though the
       convention sun is not blocked there), x RIGHT_WALL;
     - the side walls of the nave and the second arm (walls, pilasters, recesses, their mouldings,
@@ -590,8 +715,9 @@ def face_factor(c, n, ux=None):
     f = Vector((1.0, 1.0, 1.0))
     if c.z > P.DRUM_Z1 + 0.005:          # the dome: lit all round by the drum's windows (round 6)
         return f
-    if n.z < -0.5:
-        f *= underside_shade(c.x if ux is None else ux)
+    w = (1.0 if n.z < -0.5 else 0.0) if nz is None else down_weight(nz)
+    if w > 0:
+        f *= 1.0 - (1.0 - underside_shade(c.x if ux is None else ux)) * w
     if c.x > 0.5 and (n.x < -0.5 or c.x > P.NAVE_HALF_W + 0.05) and c.y > P.FACADE_Y1 and c.z < P.SPRING_Z + 0.5:
         f = Vector([a * b for a, b in zip(f, P.RIGHT_WALL)])
     if (abs(c.x) > P.NAVE_HALF_W - 0.9 and P.BAY1_SIDE_RECESS[0] - 0.05 < c.y < P.ARM2_Y1 and c.z < P.SPRING_Z + 0.5):
@@ -699,10 +825,29 @@ def factor_attribute(ob):
     attr = me.color_attributes.get("bake_factor") or me.color_attributes.new("bake_factor", "FLOAT_COLOR", "CORNER")
     mw = ob.matrix_world
     rot = mw.to_3x3()
+    fn = [(rot @ p.normal).normalized() for p in me.polygons]
+    near = [i for i, n in enumerate(fn) if -0.75 < n.z < -0.25]     # faces near down_weight's ramp
+    vf = {}
+    for i in near:
+        for v in me.polygons[i].vertices:
+            vf.setdefault(v, [])
     for p in me.polygons:
-        c, n = mw @ p.center, (rot @ p.normal).normalized()
+        for v in p.vertices:
+            if v in vf:
+                vf[v].append(p.index)
+    cos30 = math.cos(math.radians(30))
+    for p in me.polygons:
+        c, n = mw @ p.center, fn[p.index]
+        smooth = -0.75 < n.z < -0.25 and in_dome_view(ob, c, p.index)
         for li in p.loop_indices:          # per corner: the underside shade varies across a face
-            f = face_factor(c, n, ux=(mw @ me.vertices[me.loops[li].vertex_index].co).x)
+            nz = None
+            if smooth:                     # the corner's normal, smoothed over faces within 30 deg
+                acc = Vector()
+                for q in vf[me.loops[li].vertex_index]:
+                    if fn[q].dot(n) > cos30:
+                        acc += fn[q] * me.polygons[q].area
+                nz = acc.normalized().z if acc.length > 1e-12 else n.z
+            f = face_factor(c, n, ux=(mw @ me.vertices[me.loops[li].vertex_index].co).x, nz=nz)
             if ob.name.startswith(("vault_", "opening_archivolt_intrados")):   # the front wall's ornament, the soffit: the bake's light only
                 f = Vector((1.0, 1.0, 1.0))
             attr.data[li].color = (f.x, f.y, f.z, 1.0)
@@ -927,6 +1072,9 @@ for name, objs in groups.items():
         for a in ("bake_factor", "bake_island"):
             if a in me.color_attributes:
                 me.color_attributes.remove(me.color_attributes[a])
+        for a in ("lm_island", "lm_density"):
+            if a in me.attributes:
+                me.attributes.remove(me.attributes[a])
         for uvl in [u for u in me.uv_layers if u.name not in ("detail", "lightmap")]:
             me.uv_layers.remove(uvl)
     bpy.ops.object.select_all(action="DESELECT")

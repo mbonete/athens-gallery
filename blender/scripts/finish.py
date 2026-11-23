@@ -129,14 +129,23 @@ def tiles(pat, s_lo, s_hi, y_lo, y_hi):
 
 
 # ================================================================ coffered barrel vault
-def coffer_sheet(name, radius, spring, y0, y1, field, pat, mats, cut=0.25):
+def coffer_sheet(name, radius, spring, y0, y1, field, pat, mats, cut=0.25, lm_islands=None):
     """Inner surface of a barrel vault (axis along y, springing at x = +-radius, z = spring):
     a field [s0, s1] x [fy0, fy1] of stepped coffers framed by plain bands up to the springing
-    and the ends. Material 0 = ribs, bands and treads; 1 = coffer panels; 2 = coffer risers."""
+    and the ends. Material 0 = ribs, bands and treads; 1 = coffer panels; 2 = coffer risers.
+    lm_islands(s, y) -> (island, density factor) or None, per coffer (its middle) and per plain
+    face (its centre): those faces get their lightmap UVs here, in the unrolled sheet ("lightmap_grid":
+    s round, y along, every coffer upright on the texel grid; a sunk point drawn in towards its
+    coffer's middle by its depth, so the step walls open into bands as wide as they are deep, as
+    bake.dome_unwrap does), with face attributes "lm_island" and "lm_density" for bake.py; faces
+    it returns None for keep bake.py's own unwrap."""
     s_half = radius * math.pi / 2
     fs0, fs1, fy0, fy1 = field
     bm = bmesh.new()
     vmap = {}
+    tile_of = bm.faces.layers.int.new("lm_tile")
+    centres = []                               # per coffer: its middle (s, y) and half its smaller side
+    cur = [-1]
 
     def V(s, y, d):
         key = (round(s, 6), round(y, 6), round(d, 6))
@@ -152,7 +161,9 @@ def coffer_sheet(name, radius, spring, y0, y1, field, pat, mats, cut=0.25):
         if len(out) > 1 and out[0] is out[-1]:
             out.pop()
         if len(set(out)) >= 3:
-            bm.faces.new(out).material_index = mat
+            f = bm.faces.new(out)
+            f.material_index = mat
+            f[tile_of] = cur[0]
 
     def flat(ccw, d, mat):                     # faces the hall (normal -d)
         add([V(s, y, d) for s, y in reversed(ccw)], mat)
@@ -168,8 +179,12 @@ def coffer_sheet(name, radius, spring, y0, y1, field, pat, mats, cut=0.25):
     for poly in field_tiles:
         r = _inset(poly, pat["rib"] / 2)
         if r is None:                          # sliver at the field edge: plain
+            cur[0] = -1
             flat(poly, 0.0, 0)
             continue
+        ss, yy = [p[0] for p in poly], [p[1] for p in poly]
+        cur[0] = len(centres)
+        centres.append((sum(ss) / len(ss), sum(yy) / len(yy), 0.5 * min(max(ss) - min(ss), max(yy) - min(yy))))
         ring(poly, 0.0, r, 0.0, 0)
         d = 0.0
         for k, (depth, tread) in enumerate(steps):
@@ -185,6 +200,8 @@ def coffer_sheet(name, radius, spring, y0, y1, field, pat, mats, cut=0.25):
                 ring(r, d, nxt, d, 3 if len(mats) > 3 else 0)
                 r = nxt
         flat(r, d, 1 if d > 0 else 0)
+
+    cur[0] = -1
 
     def on(axis, value):
         return {p for poly in field_tiles for p in poly if abs(p[axis] - value) < 1e-7}
@@ -213,6 +230,29 @@ def coffer_sheet(name, radius, spring, y0, y1, field, pat, mats, cut=0.25):
         if abs(abs(s) - s_half) > 1e-4:
             bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], dist=1e-6,
                                    plane_co=(s, 0, 0), plane_no=(1, 0, 0))
+    if lm_islands is not None:
+        uvl = bm.loops.layers.uv.new("lightmap_grid")
+        isl = bm.faces.layers.int.new("lm_island")
+        den = bm.faces.layers.float.new("lm_density")
+        for f in bm.faces:
+            t = f[tile_of]
+            if t >= 0:
+                cs, cy, half = centres[t]
+                got = lm_islands(cs, cy)
+            else:                              # a plain face: in an island only if all of it is;
+                half = None                    # across two islands, in the one of lower density
+                gots = [lm_islands(v.co.x, v.co.y) for v in f.verts]
+                got = None if None in gots else min(gots, key=lambda g: g[1])
+            f[isl], f[den] = (-1, 1.0) if got is None else got
+            if got is None:
+                continue
+            for loop in f.loops:
+                s, y, d = loop.vert.co
+                if half and d > 1e-6:
+                    k = max(0.2, 1 - d / half)
+                    s, y = cs + (s - cs) * k, cy + (y - cy) * k
+                loop[uvl].uv = (s, y + 100.0 * got[0])     # islands set apart
+    bm.faces.layers.int.remove(tile_of)
     for v in bm.verts:
         s, y, d = v.co
         rr, t = radius + d, s / radius
@@ -347,10 +387,14 @@ def archivolt():
     return pr.closed(embed=0.0)  # its back is the arch face; embedding it would overlap the soffit
 
 
-def sweep(name, prof, path, outs, ups, kind, mats, closed=False):
+def sweep(name, prof, path, outs, ups, kind, mats, closed=False, u_along_path=False):
     """Sweep a closed profile (p, q) along a path: point = c + out * p + up * q. outs/ups carry the
     mitre (see plan_path / plane_path). closed=True joins the last ring to the first (a frame
-    round a rectangle); otherwise both ends are capped with the profile."""
+    round a rectangle); otherwise both ends are capped with the profile. u_along_path: the
+    lightmap's u is the length along the path itself for every profile point (round 12: a ring,
+    the tondi's frames), so the strip is a rectangle and its closing cut a straight column; with
+    each point's own run the inner rows ended short of the outer ones, and at that ragged end the
+    bake's margin took a neighbouring row's light, a step across the cut."""
     bm = bmesh.new()
     rings = [[bm.verts.new(c + o * p + u * q) for p, q in prof] for c, o, u in zip(path, outs, ups)]
     n = len(prof)
@@ -361,8 +405,12 @@ def sweep(name, prof, path, outs, ups, kind, mats, closed=False):
     uvl = bm.loops.layers.uv.new("lightmap_sweep")
     pts3 = [[v.co.copy() for v in r] for r in rings] + ([[v.co.copy() for v in rings[0]]] if closed else [])
     us = [[0.0] * n]
+    cs = list(path) + ([path[0]] if closed else [])
     for k in range(1, len(pts3)):
-        us.append([us[-1][j] + (pts3[k][j] - pts3[k - 1][j]).length for j in range(n)])
+        if u_along_path:
+            us.append([us[-1][0] + (Vector(cs[k]) - Vector(cs[k - 1])).length] * n)
+        else:
+            us.append([us[-1][j] + (pts3[k][j] - pts3[k - 1][j]).length for j in range(n)])
     vs = [0.0]
     for j in range(1, n + 1):
         a, b = prof[j - 1], prof[j % n]
@@ -740,8 +788,16 @@ def vault(tag, y0, y1, field_y0, M):
     if field_y0 > y0 + 1e-6:                      # plain band before the field: its own object
         coffer_sheet(f"{tag}_vault_band", NW, SZ, y0, field_y0, (-fs, fs, field_y0, field_y0), pat,
                      [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]])
+    # Lightmap: two sheets on the texel grid. The end the dome view shows, denser
+    # (params.DOME_VIEW_VAULTS), and the rest at the hall's density. Smart project (bake.unwrap_one)
+    # folded these coffers onto themselves: its islands overlapped (196 texels claimed by faces
+    # 0.5 m or more apart in hall-look's own nave atlas, more when run on part of the vault), and
+    # each such texel showed one face's light on another, as bright and dark patches.
+    dv = P.DOME_VIEW_VAULTS
+    end = (lambda s, y: (0, dv["density"]) if y >= dv["nave_y"] else (1, 1.0)) if tag == "nave" else \
+          (lambda s, y: (0, dv["density"]) if y <= dv["arm2_y"] else (1, 1.0))
     coffer_sheet(f"{tag}_vault_coffers", NW, SZ, field_y0, y1, (-fs, fs, field_y0, y1), pat,
-                 [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]])
+                 [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]], lm_islands=end)
     back = P.COFFER_BACK
     bm = bmesh.new()
     outer = [(math.cos(t) * (NW + 0.6), SZ + math.sin(t) * (NW + 0.6)) for t in np.linspace(0, math.pi, 73)]
@@ -825,7 +881,8 @@ def apply():
                rib=P.COFFER_RIB, steps=P.COFFER_STEPS, splay=P.COFFER_SPLAY)
     fs = P.COFFER_FIELD_S * k
     coffer_sheet("arch_front_soffit", CH, SZ, Y1, P.CROSS_Y0, (-fs, fs, Y1, P.CROSS_Y0), pat,
-                 [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]])
+                 [M["vault_rib"], M["coffer"], M["coffer_riser"], M["coffer_tread"]],
+                 lm_islands=lambda s, y: (0, 1.0))          # one lightmap sheet on the texel grid
 
     # Walls: stucco; pilasters; one entablature run per side from the facade front to the end
     # wall, breaking forward over every pilaster and wrapping the crossing piers.
