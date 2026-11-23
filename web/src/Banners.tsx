@@ -89,12 +89,13 @@ function drawBanner(g: CanvasRenderingContext2D, img: ImageBitmap, d: Detail, si
     wrap(g, "The hall is rebuilt in 3D from the fresco (Vatican, 1509–1511). Each painting hangs at its true size.", pad, y, iw, 46);
   } else {
     g.font = `92px ${FACE}`;
-    y += 110;
+    y += 100;
     g.fillText("How to visit", pad - 3, y);
-    y += 90;
+    y += 78;
     const how: [string, string][] = TOUCH
       ? [["Walk", "Spread two fingers; pinch to walk back"], ["A painting", "Tap it to walk up; pinch to zoom"], ["The dome", "Tap it to look up"]]
-      : [["Walk", "Scroll, or pinch on a trackpad"], ["A painting", "Click it to walk up, again to zoom; drag to look around"],
+      : [["Walk", "Scroll, or pinch on a trackpad"], ["Look around", "Drag with the right button, or hold Shift and drag"],
+         ["A painting", "Click it to walk up, again to zoom; drag to move across it"],
          ["The dome", "Click it to look up"], ["Keys", "Arrows to walk; Tab and Enter open a painting"]];
     for (const [k, v] of how) {
       g.fillStyle = MUTED;
@@ -102,7 +103,7 @@ function drawBanner(g: CanvasRenderingContext2D, img: ImageBitmap, d: Detail, si
       g.fillText(k, pad, y);
       g.fillStyle = CREAM;
       g.font = `40px ${FACE}`;
-      y = wrap(g, v, pad, y + 50, iw, 50) + 22;
+      y = wrap(g, v, pad, y + 44, iw, 46) + 18;     // five lines with Look around: set tighter to fit above the base
     }
   }
 }

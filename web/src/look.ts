@@ -22,7 +22,7 @@ export const PITCH_LIMIT = 35 * DEG;
 /** Near the entrance the model ends just outside Raphael's frame: turned further than this, the
  * start view shows the sky beside the entrance wall and the end of the floor. There the turn is
  * held to these, widening to the full limits (with the square of the distance) over the first
- * TAPER_M metres of the walk. ?look=wide turns the full limits on everywhere. */
+ * TAPER_M metres of the walk. In development, ?look=wide turns the full limits on everywhere. */
 export const ENTRANCE_YAW = 25 * DEG;
 export const ENTRANCE_PITCH_UP = 15 * DEG;
 export const TAPER_M = 14;
@@ -72,7 +72,7 @@ let stage: HTMLElement | null = null;
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const dur = (s: number) => (reduced() ? CUT_S : s);
 const clamp = (v: number, lim: number, low = lim) => Math.min(lim, Math.max(-low, v));
-const WIDE = new URLSearchParams(window.location.search).get("look") === "wide";
+const WIDE = import.meta.env.DEV && new URLSearchParams(window.location.search).get("look") === "wide";
 const walking = () => getState().mode === "walk" && rig.drive === "scroll" && !!rig.camera;
 const atRest = () => look.yaw === 0 && look.pitch === 0;
 const MAC = typeof navigator !== "undefined" && /Mac/.test(navigator.platform);

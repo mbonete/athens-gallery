@@ -9,7 +9,8 @@ const HOW: [string, string][] = TOUCH
     ]
   : [
       ["Walk", "Scroll, or pinch on a trackpad"],
-      ["A painting", "Click it to walk up, again to zoom; drag to look around"],
+      ["Look around", "Drag with the right button, or hold Shift and drag"],
+      ["A painting", "Click it to walk up, again to zoom; drag to move across it"],
       ["The dome", "Click it to look up"],
       ["Keys", "Arrows to walk; Tab and Enter open a painting"],
     ];
