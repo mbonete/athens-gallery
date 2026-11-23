@@ -25,7 +25,7 @@ WORKS = {
     "vangogh-almond-blossom": ("vangogh-almond.jpg", None, None, 2048),
     "kandinsky-composition-8": ("kandinsky-comp8.jpg", (47, 110, 3872, 2765), None, 2048),  # inside the frame
     "hiroshige-asakusa-torinomachi": ("hiroshige-asakusa.jpg", None, None, 1400),
-    "titian-rape-of-europa": ("titian-europa.jpg", None, None, 2048),
+    "titian-rape-of-europa": ("titian-europa-gardner.jpg", None, None, 2048),  # the Gardner's own photograph (CC BY-NC-ND 4.0)
     "bosch-garden-of-earthly-delights": ("bosch-garden.jpg", (150, 150, 29790, 16883), 12000, 4096),
 }
 

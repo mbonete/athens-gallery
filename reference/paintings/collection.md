@@ -13,7 +13,7 @@ museum's where I could read them; disagreements are marked.
 | 6 | Hylas and the Nymphs | John William Waterhouse, 1896 | Oil on canvas | **Conflict:** 132.1 × 197.5 (Commons, Google Arts & Culture) vs 98.2 × 163.3 (Wikipedia, Art Renewal); possibly framed vs unframed. Manchester's own record not reachable (Art UK blocked) | Manchester Art Gallery, 1896.15 | Public domain (d. 1917) | Commons 8261 × 4961 ("WahooArt"): real canvas texture at full size, some dust specks. Good |
 | 7 | Almond Blossom | Vincent van Gogh, February 1890, Saint-Rémy-de-Provence | Oil on canvas | 73.3 × 92.4 | Van Gogh Museum, Amsterdam (Vincent van Gogh Foundation), s0176V1962 | Public domain | Commons 7149 × 5649, from the Van Gogh Museum. Excellent. Museum credit: "Van Gogh Museum, Amsterdam (Vincent van Gogh Foundation)" |
 | 8 | Asakusa Ricefields and Torinomachi Festival, from One Hundred Famous Views of Edo | Utagawa Hiroshige, 1857 (11th month) | Woodblock print (nishiki-e); ink and colour on paper | 33.2 × 22.1 (vertical ōban) | The Met, New York, JP60, Rogers Fund 1914 | Public domain; Met Open Access | Met DP121510, 2627 × 3905, full sheet, proportions match. Good |
-| 9 | The Rape of Europa | Titian, 1559–1562 | Oil on canvas | 178 × 205 | Isabella Stewart Gardner Museum, Boston, P26e1 | Public domain | Commons, Google Art Project scan, 3544 × 2946: proportions ~4% wider than 178 × 205, hung at 2.05 m wide. The Gardner offers no open download. The Prado's "El rapto de Europa" is Rubens's copy, not this |
+| 9 | The Rape of Europa | Titian, 1559–1562 | Oil on canvas | 178 × 205 | Isabella Stewart Gardner Museum, Boston, P26e1 | Public domain; the image CC BY-NC-ND 4.0 | The Gardner's own photograph, 2281 × 2000 (gardnermuseum.org/experience/collection/10978, file images/art/23/06/113147.jpg): proportions within 1% of 178 × 205, true colour. Was the Commons Google Art Project scan (3544 × 2946, ~4.5% too wide, dull and grainy): replaced 2026-11-23 at Maria's request; the old note "the Gardner offers no open download" was wrong (the Gardner allows free download for educational, personal and non-commercial use under CC BY-NC-ND 4.0; high-res for study via collection@isgm.org). The Prado's "El rapto de Europa" is Rubens's copy, not this |
 
 ## Decisions (2026-11-19)
 
@@ -53,7 +53,7 @@ Download each to `reference/paintings/originals/<file>`, then run
 | klimt-serpents2.jpg | https://upload.wikimedia.org/wikipedia/commons/d/d6/Gustav_Klimt_-_Water_Serpents_II.jpg |
 | waterhouse-hylas.jpg | https://upload.wikimedia.org/wikipedia/commons/8/88/John_William_Waterhouse_-_Hylas_and_the_Nymphs_%281896%2C_Manchester_Art_Gallery%29.jpg |
 | hiroshige-asakusa.jpg | https://images.metmuseum.org/CRDImages/as/original/DP121510.jpg |
-| titian-europa.jpg | https://upload.wikimedia.org/wikipedia/commons/3/38/Titian_-_Rape_of_Europa_-_Google_Art_Project.jpg |
+| titian-europa-gardner.jpg | https://www.gardnermuseum.org/sites/default/files/images/art/23/06/113147.jpg (was titian-europa.jpg, https://upload.wikimedia.org/wikipedia/commons/3/38/Titian_-_Rape_of_Europa_-_Google_Art_Project.jpg) |
 
 The fresco (`reference/download/athens-original.jpg`, and the 3840 px version used for
 measuring) is https://upload.wikimedia.org/wikipedia/commons/a/af/The_School_of_Athens_by_Raffaello_Sanzio_da_Urbino_in_Vatican-Chroma_denoise_version.jpg

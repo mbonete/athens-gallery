@@ -109,10 +109,10 @@ export const PAINTINGS: Painting[] = [
     slug: "titian-rape-of-europa", place: "dome-left",
     title: "The Rape of Europa", artist: "Titian", date: "1559–1562",
     medium: "Oil on canvas", dimensions: "178 × 205 cm",
-    widthM: 2.05, imageW: 3544, imageH: 2946,
+    widthM: 2.05, imageW: 2281, imageH: 2000,
     museum: "Isabella Stewart Gardner Museum, Boston",
-    source: "https://gardnermuseum.emuseum.com/objects/236/the-rape-of-europa",
-    licence: "Image: Google Art Project, via Wikimedia Commons (public domain)",
+    source: "https://www.gardnermuseum.org/experience/collection/10978",
+    licence: "Image: Isabella Stewart Gardner Museum, Boston (CC BY-NC-ND 4.0)",
     maxZoom: 1.5, ...files("titian-rape-of-europa"), hotspots: [],
   },
   {
