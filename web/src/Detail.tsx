@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { focusHotspot, dom, leave, zoomStep } from "./transition";
+import { focusHotspot, dom, leave, relayout, zoomStep } from "./transition";
 import { useStore } from "./store";
 import { BackArrow } from "./icons";
 
@@ -23,10 +23,13 @@ export function Detail() {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && leave();
     window.addEventListener("hotspot", onHotspot);
     window.addEventListener("keydown", onKey);
+    // The viewer, the panel and the pose are laid out for one window size.
+    window.addEventListener("resize", relayout);
     return () => {
       window.removeEventListener("hotspot", onHotspot);
       window.removeEventListener("zoomstate", onZoom);
       window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", relayout);
     };
   }, []);
 

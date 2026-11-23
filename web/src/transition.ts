@@ -144,6 +144,25 @@ function clipPanel() {
     `inset(${c.y - P.y}px ${P.x + P.w - c.x - c.w}px ${P.y + P.h - c.y - c.h}px ${c.x - P.x}px)`;
 }
 
+/** The walk-up and the unfold, as how far each has got (0-1, eased) between ends that relayout()
+ * can solve again: the pose and the panel are laid out for one window size. */
+const walkUp = { from: rig.pose, to: rig.pose, t: 0 };
+const unfold = { from: { ...clipNow }, t: 0 };
+const POSE_KEYS = ["x", "y", "z", "yaw", "sym"] as const;
+function poseAlong() {
+  const { from, to, t } = walkUp;
+  for (const k of POSE_KEYS) rig.pose[k] = from[k] + (to[k] - from[k]) * t;
+}
+function clipAlong() {
+  const { from, t } = unfold;
+  const P = clipFrame;
+  clipNow.x = from.x + (P.x - from.x) * t;
+  clipNow.y = from.y + (P.y - from.y) * t;
+  clipNow.w = from.w + (P.w - from.w) * t;
+  clipNow.h = from.h + (P.h - from.h) * t;
+  clipPanel();
+}
+
 export function enter(p: Painting, opts: { push?: boolean } = {}) {
   if (getState().mode !== "walk" || !rig.camera) return;
   loadZoom().catch(() => {});
@@ -151,9 +170,8 @@ export function enter(p: Painting, opts: { push?: boolean } = {}) {
   if (opts.push !== false) history.pushState({ painting: p.slug }, "", `#painting/${p.slug}`);
 
   returnProgress = rig.drive === "scroll" ? rig.progress : returnProgress;
-  const rect = targetRect();
   const from = { ...rig.pose };
-  const to = walkUpPose(p, rect);
+  Object.assign(walkUp, { from, to: walkUpPose(p, targetRect()), t: 0 });
   rig.drive = "manual";
   rig.pose = { ...from };
 
@@ -162,24 +180,41 @@ export function enter(p: Painting, opts: { push?: boolean } = {}) {
   // transparent and lets clicks through: it can still take focus (Keys.tsx moves it to Back).
   const plaque = rig.plaques.get(p.slug)!;
   const panel = dom.panel!;
-  const end = panelRect();
-  placePanel(end);
-  clipFrame = end;
-  Object.assign(clipNow, labelInPanel(plaque, to, end));
-  clipPanel();
+  clipFrame = panelRect();
+  placePanel(clipFrame);
+  Object.assign(unfold, { from: labelInPanel(plaque, walkUp.to, clipFrame), t: 0 });
+  clipAlong();
   gsap.set(panel, { opacity: 0, visibility: "visible", pointerEvents: "none", "--content": 1 });
 
   const myVisit = ++visit;
   const tl = gsap.timeline();
   enterTl = tl;
-  tl.to(rig.pose, { ...to, duration: dur(1.3), ease: "power2.inOut" }, 0);
+  tl.to(walkUp, { t: 1, duration: dur(1.3), ease: "power2.inOut", onUpdate: poseAlong }, 0);
   tl.to(rig, { light: 0.12, duration: dur(1.1), ease: "power1.inOut" }, dur(0.1));
   tl.call(() => {
     (plaque as THREE.Mesh).visible = false;
     gsap.set(panel, { opacity: 1, pointerEvents: "auto" });
   }, [], dur(1.1));
-  tl.to(clipNow, { ...end, duration: dur(0.4), ease: "power3.out", onUpdate: clipPanel }, dur(1.1));
-  tl.call(() => myVisit === visit && openZoom(p, rect, myVisit), [], dur(1.3));
+  tl.to(unfold, { t: 1, duration: dur(0.4), ease: "power3.out", onUpdate: clipAlong }, dur(1.1));
+  tl.call(() => myVisit === visit && openZoom(p, myVisit), [], dur(1.3));
+  rig.kick();
+}
+
+/** The window changed size (a browser toolbar came or went, the window was resized, the page
+ * zoom changed) with a painting open or opening. The canvas follows at once, but the walk-up's
+ * pose, the panel and the zoom viewer were laid out in px for the old size, so the viewer no
+ * longer lay over the 3D painting: it showed beside it, offset and at another scale. Lay them
+ * all out again for the new size. */
+export function relayout() {
+  const { mode, active: p } = getState();
+  if (!p || (mode !== "entering" && mode !== "detail")) return;
+  walkUp.to = walkUpPose(p, targetRect());
+  poseAlong();
+  clipFrame = panelRect();
+  placePanel(clipFrame);
+  unfold.from = labelInPanel(rig.plaques.get(p.slug)!, walkUp.to, clipFrame);
+  clipAlong();
+  placeZoom(p);
   rig.kick();
 }
 
@@ -192,6 +227,14 @@ function paintingRect(p: Painting, rect: Rect): Rect {
   const w = Math.round(pw * s);
   const h = Math.round(ph * s);
   return { x: Math.round(rect.x + (rect.w - w) / 2), y: Math.round(rect.y + (rect.h - h) / 2), w, h };
+}
+
+/** The zoom viewer exactly over the painting where the walk-up leaves it, for the window as it
+ * is now; the + and - buttons at its lower right corner. */
+function placeZoom(p: Painting) {
+  const pr = paintingRect(p, targetRect());
+  Object.assign(dom.osd!.style, { left: `${pr.x}px`, top: `${pr.y}px`, width: `${pr.w}px`, height: `${pr.h}px` });
+  Object.assign(dom.zoomUi!.style, { left: `${pr.x + pr.w}px`, top: `${pr.y + pr.h}px` });
 }
 
 /** Zoom state for the + and - buttons and the cursor (Detail.tsx listens to "zoomstate"). */
@@ -212,7 +255,7 @@ export function zoomStep(dir: 1 | -1) {
   viewer.viewport.applyConstraints(reduced());
 }
 
-async function openZoom(p: Painting, rect: ReturnType<typeof targetRect>, myVisit: number) {
+async function openZoom(p: Painting, myVisit: number) {
   const current = () => myVisit === visit && getState().mode === "entering";
   if (!current()) return;
   // Normally loaded long before; if the fetch failed, the 3D painting stays and Back still works.
@@ -220,13 +263,13 @@ async function openZoom(p: Painting, rect: ReturnType<typeof targetRect>, myVisi
   if (!OpenSeadragon || !current()) return;
   // Click to zoom, drag to pan (Maria, 2026-11-21): the viewer is exactly the painting's rect, and
   // the image always fills it (visibilityRatio 1), so the painting never leaves its frame and the
-  // 3D one behind it never shows. Mouse: a click zooms x2 on that spot, at full zoom a click goes
+  // 3D one behind it never shows. The rect is in whole px, so its proportions miss the painting's
+  // by a fraction of a px: home fills it (homeFillsViewer) rather than fitting inside it, which
+  // left that sliver uncovered on one side once zoomed back out (the constraint doesn't centre an
+  // image smaller than the view). Mouse: a click zooms x2 on that spot, at full zoom a click goes
   // back to the whole painting; drag pans; the wheel zooms. Touch: pinch, double-tap, one-finger drag.
   const el = dom.osd!;
-  const pr = paintingRect(p, rect);
-  Object.assign(el.style, { left: `${pr.x}px`, top: `${pr.y}px`, width: `${pr.w}px`, height: `${pr.h}px` });
-  const ui = dom.zoomUi!;
-  Object.assign(ui.style, { left: `${pr.x + pr.w}px`, top: `${pr.y + pr.h}px` });
+  placeZoom(p);
   gsap.set(el, { opacity: 0, visibility: "visible" });
   viewer?.destroy();
   viewer = OpenSeadragon({
@@ -234,6 +277,7 @@ async function openZoom(p: Painting, rect: ReturnType<typeof targetRect>, myVisi
     tileSources: p.dzi,
     showNavigationControl: false,
     visibilityRatio: 1,
+    homeFillsViewer: true,
     constrainDuringPan: true,
     minZoomImageRatio: 1,
     maxZoomPixelRatio: p.maxZoom ?? 2.5,
