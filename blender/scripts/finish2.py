@@ -1346,25 +1346,47 @@ def vault_relief(M, wall):
     xc, zc = b(G.XC), b(G.YC)
     x0, x1 = b(G.XC - G.HW), b(G.XC + G.HW)
     z0, z1 = b(G.Y0), b(G.Y1)
-    # 1. The wall's face inside the tile: cut on the tile's edges, given the ornament.
+    # 1. The wall's face round the ornament: cut on the tile's edges (the paint's extent) and on
+    # lines that every relief covers, given the ornament where the tile reaches.
+    # "vault_wall" (the face with the denser lightmap) is bounded by reliefs all round, so no edge
+    # of it shows on bare wall (Maria, 2026-11-23: "these short out-of-the-blue lines have to
+    # disappear": the tile's rectangle ended on the plain wall above each field, beside the rib,
+    # and the two lightmaps met there along a soft line). It takes the fields up to their
+    # vertical frames (cut along the frame's middle) and the whole wall between the ribs (cut
+    # along each rib's axis) up to the band at 9 m; the plain wall outside the ribs and the
+    # fields stays the wall's. Inside the tile it is painted ("vault_front"); between the ribs
+    # past the tile it is plain stone, the tile's ground being that stone in phase, so the grain
+    # runs on and only the paint stops where the tile does.
+    fw = b(G.FRAME_W)
+    xcut = {side: b(G.XC + side * G.FIELD_EDGE) - side * fw / 2 for side in (-1, 1)}
+    cuts = [((x0, 0, 0), (1, 0, 0)), ((x1, 0, 0), (1, 0, 0)), ((0, 0, z0), (0, 0, 1)), ((0, 0, z1), (0, 0, 1)),
+            ((xcut[-1], 0, 0), (1, 0, 0)), ((xcut[1], 0, 0), (1, 0, 0))]
+    for side in (-1, 1):
+        _, n_up = G.rib_axes(side)
+        cuts.append(((xc, 0, zc), (n_up[0], 0, n_up[1])))
     bm = bmesh.new()
     bm.from_mesh(wall.data)
-    for co, no in (((x0, 0, 0), (1, 0, 0)), ((x1, 0, 0), (1, 0, 0)), ((0, 0, z0), (0, 0, 1)), ((0, 0, z1), (0, 0, 1))):
+    for co, no in cuts:
         bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], plane_co=co, plane_no=no)
     bm.to_mesh(wall.data)
     bm.free()
-    wall.data.materials.append(white)
-    mi = len(wall.data.materials) - 1
-    for poly in wall.data.polygons:
-        c = poly.center
-        if (poly.normal.y < -0.99 and abs(c.y - P.ARCH_Y) < 1e-3 and x0 < c.x < x1 and z0 < c.z < z1):
-            poly.material_index = mi
+
+    def ornament_face(c):
+        """The wall face's polygon centre c (Blender) lies in vault_wall's outline."""
+        if c.z <= z0:
+            return False
+        t = {side: G.rib_strip_st(side, c.x * G.S, c.z * G.S)[1] for side in (-1, 1)}
+        if t[-1] > 0 and t[1] > 0:
+            return True                                                    # between the ribs
+        return (t[-1] < 0 and c.x > xcut[-1]) or (t[1] < 0 and c.x < xcut[1])   # a field
+    stone_mat = M["stone"]
     # That face becomes an object of its own, "vault_wall", so the bake gives it a denser lightmap
     # (params.BAKE_DENSITY_SCALE): the reliefs' contact shade and cast shadows on it are a few cm
     # wide, and at the wall's 16 px/m (rough) they smeared into dark stains (Maria: "mold").
     bm = bmesh.new()
     bm.from_mesh(wall.data)
-    faces = [f for f in bm.faces if f.material_index == mi]
+    faces = [f for f in bm.faces if f.normal.y < -0.99 and abs(f.calc_center_median().y - P.ARCH_Y) < 1e-3
+             and ornament_face(f.calc_center_median())]
     nb = bmesh.new()
     vmap = {}
     for f in faces:
@@ -1373,11 +1395,13 @@ def vault_relief(M, wall):
             if v not in vmap:
                 vmap[v] = nb.verts.new(v.co)
             vs.append(vmap[v])
-        nb.faces.new(vs)
+        nf = nb.faces.new(vs)
+        c = f.calc_center_median()
+        nf.material_index = 0 if (x0 < c.x < x1 and z0 < c.z < z1) else 1
     bmesh.ops.delete(bm, geom=faces, context="FACES")
     bm.to_mesh(wall.data)
     bm.free()
-    vw = _obj("vault_wall", nb, "stone", [white])
+    vw = _obj("vault_wall", nb, "stone", [white, stone_mat])
     vw.visible_shadow = False                      # as the wall it was cut from
     objs = [vw]
     WALL_TOP = P.ARCH_WALL[1] - P.ARCH_IMPOST_H / 2 - 1e-4   # the band's soffit (finish2.opening_arch), 0.1 mm under it

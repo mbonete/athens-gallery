@@ -641,6 +641,12 @@ def layout(objs):
             c = bpy.data.collections.get(cname)
             if c is not None and ob.name in c.objects:
                 cls += bit
+        # The front wall's face round the ornament ("vault_wall") meets the plain wall only under
+        # reliefs (finish2.vault_relief): no stitch across that boundary. A rib's cast shadow on
+        # one side is real; stitched, it was carried under the rib onto the other side as a
+        # smudge (the blend is 0.3 m wide).
+        if ob.name == "vault_wall":
+            cls += 8
         return float(cls)
     for idx, it in enumerate(items):
         ob, loops = it[2], it[3]
