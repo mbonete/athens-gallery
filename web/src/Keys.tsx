@@ -9,6 +9,7 @@ import { useEffect, useRef, type RefObject } from "react";
 import { DOME } from "./data/dome";
 import { domeBox, lookUp } from "./dome";
 import { walkTo } from "./input";
+import { recentre } from "./look";
 import { rig } from "./rig";
 import { getState, useStore } from "./store";
 import { enter } from "./transition";
@@ -182,6 +183,7 @@ export function Keys({ stage }: { stage: RefObject<HTMLDivElement | null> }) {
   const onFocus = (key: string) => {
     rig.kick(); // a frame for KeyRing to put the button over its painting
     if (restoring || !walking() || !stage.current) return;
+    recentre(); // where to walk is judged looking straight ahead (look.ts)
     const id = ++focusId;
     if (key === DOME_KEY) bringDome(stage.current, id).catch(() => {});
     else bringPainting(stationOf(key)!, stage.current.getBoundingClientRect());
