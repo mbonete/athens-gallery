@@ -1165,6 +1165,19 @@ def opening_arch(M):
     upper = _obj("opening_wall_top", top, "stone", stone)
     _camera_only(upper)
     objs.append(upper)
+    # A moulded band across the whole wall at the old top (Maria's choice, 2026-11-23): the
+    # springing cornice's profile, its 12 cm centred on 9 m, so it covers the joint between the
+    # wall and the wall top (their lightmaps meet there); the ribs land on its soffit (R4). It
+    # runs round both ends of the wall, mitred, and stops square on the wall's back plane: the
+    # ends at the turn limits read as returns. Like the arch's members it casts no shadow.
+    zb = H - P.ARCH_IMPOST_H / 2
+    band_prof = Profile(zb, n=4)
+    band_prof.h(P.ARCH_PILASTER_D + 0.012).v(0.05).cyma_reversa(0.025, 0.035).h(0.012)
+    band_prof.v(zb + P.ARCH_IMPOST_H - band_prof.q)
+    run = [(-W, Y + D), (-W, Y), (W, Y), (W, Y + D)]
+    band_ob = sweep("opening_string_course", band_prof.closed(), *plan_path(run, 1), "stone", stone)
+    band_ob.visible_shadow = False
+    objs.append(band_ob)
     # The vault ornament round the arch, on the wall and in relief (these cast their shadows).
     objs += vault_relief(M, wall)
     return objs
@@ -1367,7 +1380,7 @@ def vault_relief(M, wall):
     vw = _obj("vault_wall", nb, "stone", [white])
     vw.visible_shadow = False                      # as the wall it was cut from
     objs = [vw]
-    WALL_TOP = P.ARCH_WALL[1]
+    WALL_TOP = P.ARCH_WALL[1] - P.ARCH_IMPOST_H / 2 - 1e-4   # the band's soffit (finish2.opening_arch), 0.1 mm under it
     rr = b(G.ROUNDEL_R) - 0.005                     # the roundel's disc (5 mm inside the painted ring)
     rib_w, fw = b(G.RIB_W), b(G.FRAME_W)
     for side in (-1, 1):
@@ -1382,28 +1395,18 @@ def vault_relief(M, wall):
                [(0.034, 0.034), (hw - 0.012, 0.034), (hw, 0.030), (hw, 0.0)]
         far = rc + e_s * 12.0
         rib = _ribbon(f"vault_rib_{side}", [rc, far], prof, lambda p: n_up, white, into, below_top)
-        # Above the old top the rib runs on to the wall's end (at 50 degrees it reaches the end,
-        # z 11.4 m, before the new top), cut plumb there, flush with the wall's end face: a second
-        # object, cut level at 9 m where the first ends, baked with the wall above. Like the rib
-        # below it casts its shadow (on the wall; into bay 1, through the wall, which casts none,
-        # 14-19 m away it is a sun's-width blur, as the lower rib's is there).
-        beyond = lambda p: p[1] >= WALL_TOP                                       # noqa: E731
-        within = lambda p: abs(p[0]) < P.ARCH_WALL[0]                            # noqa: E731
-        rib_top = _ribbon(f"vault_rib_top_{side}", [rc, far], prof, lambda p: n_up, white, beyond, within)
-        rib_top["bake_group"] = "walltop"
         # The rib's front past the tile's edge (the paint stops there, and its UVs wrapped round
         # the tile: a white or gold patch where they crossed its top strip, Maria's pale patch):
-        # from S_SWITCH on, the fronts take the rib's own painted strip ("vault_rib", the same
-        # paint and grain as the tile's, continued along the rib; vault_geom.RIB_STRIP).
+        # from RIB_SWITCH on, the fronts take the rib's own painted strip ("vault_rib", the same
+        # paint and grain as the tile's, continued along the rib; vault_geom.RIB_S0).
         strip = white.copy()
         strip.name = f"vault_rib_strip_{side}"
         for k in ("uv_origin", "side_uv"):
             if k in strip:
                 del strip[k]
         strip["detail"], strip["tile"], strip["rib_strip"] = "vault_rib", list(G.RIB_TILE_B), side
-        for ob in (rib, rib_top):
-            _strip_fronts(ob, side, strip)
-        objs += [rib, rib_top]
+        _strip_fronts(rib, side, strip)
+        objs.append(rib)
         # the field's frame: a fillet and an ovolo, on the field's side of its edge
         fprof = [(0.0, 0.0), (0.0, 0.030), (0.010, 0.036), (0.022, 0.036),
                  (0.032, 0.034), (fw - 0.004, 0.031), (fw, 0.030), (fw, 0.0)]

@@ -278,7 +278,7 @@ BAKE_GROUPS = [("front", -999, 15.0), ("facade", 15.0, 19.0), ("nave", 19.0, 33.
 BAKE_DENSITY_SCALE = {"vault_wall": 4.0, "vault_": 8.0,        # the vault ornament: the wall round it and its reliefs
                       "opening_archivolt_intrados": 8.0,      # the meander's soffit: one strip along the arc, 10.3 m x 0.29 m (1310 x 37 px rough, 2300 x 64 final)
                       "opening_archivolt": 12.0,              # the opening arch's bands: their 2 cm steps were a third of a texel at 16 px/m (Maria's smeared strip, 2026-11-22)
-                      "opening_reveal": 8.0, "opening_impost": 6.0,   # arch piers: the thin wall's square sides and underside, the cornice
+                      "opening_reveal": 8.0, "opening_impost": 6.0, "opening_string_course": 3.0,   # arch piers: the thin wall's square sides and underside, the cornice
                       "opening_pilaster": 4.0,                        # the pilasters and their plinths
                       "facade_shell": 4.0, "shell_": 4.0,     # deco round: the shells' flutes (first: prefix match)
                       "floor_lower_sides": 0.6, "facade": 0.8, "entablature": 1.6, "string_course": 1.6,
@@ -369,7 +369,8 @@ ARCH_WALL = (12.0, 9.0)         # front wall: half-width and height (designed; c
 # The front wall rises on to the nave's crown (Maria, 2026-11-23: "taller"; turned up at the
 # entrance she saw its top edge against the sky). Above ARCH_WALL's height it is a separate
 # object baked in its own group ("walltop"), seen by the camera only: it casts no shadow and
-# hides no sky from the hall, so the hall's light stays as it was baked with the 9 m wall.
+# hides no sky from the hall, so the hall's light stays as it was baked with the 9 m wall. A
+# moulded band at 9 m covers the joint (finish2.opening_arch); the ribs end on it.
 ARCH_WALL_TOP = round(SPRING_Z + NAVE_HALF_W, 3)   # 18.2
 ARCH_MEANDER = dict(periods_half=15, cols=7, rows=7, gold=0.6)   # 7 strips a period (pitch 26.5 px), 7 levels
 ARCH_COLOURS = {                # sRGB as seen; started from medians of k-means clusters over each band

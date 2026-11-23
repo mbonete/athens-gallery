@@ -107,15 +107,15 @@ def boss_outline(phi):
 
 
 # The ribs' painted strip ("vault_rib" detail tile, tools/vault_ornament.rib_strip): the rib runs
-# on past the tile's edge to the wall's end (finish2.vault_relief), so its front takes the same
+# on past the tile's edge to the band at 9 m (finish2.vault_relief), so its front takes the same
 # paint and grain from a strip laid along it, from inside the tile (where the two show the same
-# texels' worth of paint, so the change of texture can't be seen) to past the wall's end. One row
+# texels' worth of paint, so the change of texture can't be seen) to past its end. One row
 # per rib (left below, right above), at the tile's own texel density.
 RIB_S0 = 3.40                      # web metres along the rib from the arch's centre (the roundel ends at 3.09)
 RIB_SWITCH = 3.60                  # rib fronts wholly past this take the strip; the rest stay in the tile (to 4.0)
-RIB_TEX_W, RIB_ROW_PX = 3840, 64   # px along the strip; px across each row
+RIB_TEX_W, RIB_ROW_PX = 2560, 64   # px along the strip; px across each row
 RIB_TEX_H = 2 * RIB_ROW_PX
-RIB_L = RIB_TEX_W / PPM            # 7.75 m: to s 11.15, past the wall's end (11.0 at most)
+RIB_L = RIB_TEX_W / PPM            # 5.17 m: to s 8.57, past the ribs' ends on the band at 8.94 m (8.34 at most)
 RIB_ROW = RIB_ROW_PX / PPM         # 0.129 m across a row: the rib (0.10) and 1.5 cm of wall each side
 RIB_TILE_B = (b(RIB_L), b(2 * RIB_ROW))
 
