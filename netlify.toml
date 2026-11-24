@@ -1,0 +1,21 @@
+# Netlify (mystudiolo.netlify.app) builds the gallery from git on every push to main.
+# The site is the Vite app in web/; Netlify installs its dependencies there, builds, and
+# publishes web/dist. The paintings (web/public/paintings) are committed so they ship with it.
+[build]
+  base = "web"
+  command = "npm run build"
+  publish = "dist"
+
+# Vite's bundles carry a content hash in their names: they never change.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The paintings' tiles and textures change only when tools/prepare_collection.py is rerun: a day
+# of browser cache, then revalidated. The hall model (/models) keeps Netlify's default (always
+# revalidated), because hall.json is bundled with the code and must match the model it lights.
+[[headers]]
+  for = "/paintings/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
