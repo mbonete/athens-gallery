@@ -539,6 +539,14 @@ if "export" in VIEW_NAMES or "json" in VIEW_NAMES:
                             "x": [round(min(c.x for c in gx) * k, 3), round(max(c.x for c in gx) * k, 3)],
                             "z": [three(0, max(c.y for c in gx), 0)[2], three(0, min(c.y for c in gx), 0)[2]],
                             "colour": list(P.GROUND_BEYOND_COLOUR)}
+    # The same ground round the building out to the horizon, at the forecourt's level, outside the
+    # footprint of the modelled floors (forecourt and platform): turned at the entrance, the visitor
+    # sees past the facade's corners (Maria, 2026-11-24, the phone's wider turn). Drawn by the web.
+    fc = [ob.matrix_world @ Vector(c) for ob in (bpy.data.objects["floor_lower"], bpy.data.objects["platform"])
+          for c in ob.bound_box]
+    data["groundAround"] = {"y": 0.0, "extent": 1500,
+                            "hole": {"x": [round(min(c.x for c in fc) * k, 3), round(max(c.x for c in fc) * k, 3)],
+                                     "z": [three(0, max(c.y for c in fc), 0)[2], three(0, min(c.y for c in fc), 0)[2]]}}
     data["door"] = {"z": three(0, P.ARM2_Y1, 0)[2], "width": round(2 * P.DOOR_HALF * k, 3),
                     "springZ": round((P.DOOR_SPRING) * k, 3)}
     (WEB / "src" / "data" / "hall.json").write_text(json.dumps(data, indent=2))

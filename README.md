@@ -37,9 +37,10 @@ frames the canvas at the fresco's proportions to check the opening view.
 - The page doesn't scroll. Walking only goes along the corridor, facing forward, from
   Raphael's eye (1.3 m) up to standing height: spread two fingers to walk forward (doubling
   the spread = 7 m), pinch to walk back; on a Mac, trackpad pinch the same way, or the mouse
-  wheel (~2 m per notch); arrow keys too. One finger only taps. No pull-to-refresh, no
-  browser zoom (`src/input.ts`). The camera turns only when the visitor taps a painting
-  (painting, frame and label share one generous target).
+  wheel (~2 m per notch); arrow keys too. On touch, one-finger drag looks around and a short
+  contact remains a tap; adding a second finger hands the gesture to the walk. No pull-to-refresh
+  or browser zoom (`src/input.ts`, `src/look.ts`). A painting, frame and label share one generous
+  tap target.
 - Tapping the painting or its label walks up until it fills the screen next to the panel;
   the hall dims; OpenSeadragon takes over on the same pixels (checked by toggling it: same
   edges and colours, only sharper). The label becomes the panel. Back (button, Esc or
@@ -50,7 +51,9 @@ frames the canvas at the fresco's proportions to check the opening view.
   export (`hall.json`).
 - Data and image sources for each work: `reference/paintings/collection.md`. Placement: six in the nave's bays, Titian (left) and Kandinsky (right) on the
   crossing's side walls, the Bosch standing open in the far doorway; the walk stops 5.5 m before it. `tools/prepare_collection.py` crops,
-  resizes and tiles them (`tools/dzi.py`, same layout as `vips dzsave`); 123 MB of tiles.
+  resizes and tiles them (`tools/dzi.py`, same layout as `vips dzsave`); 123 MB of tiles. It also
+  writes <=1024 px hall textures for touch-first devices; pass `--mobile-only` to rebuild just those
+  nine files without regenerating the deep-zoom tiles.
 - Tapping picks on screen (`src/pick.ts`): each piece's outline with its label, grown to at
   least 48 px, smallest match wins. 3D hit boxes failed: on the side walls a nearer piece
   hid the targets behind it.
@@ -62,24 +65,27 @@ frames the canvas at the fresco's proportions to check the opening view.
   screen reader announces it) and returns to the button on the way out. Escape leaves a
   painting or the dome. Up/Down arrows, PageUp/PageDown, Space/Shift+Space and Home/End
   walk. A tap or click on the canvas doesn't move focus. The canvas is an image with a label.
-- OpenSeadragon is a separate chunk, fetched once the hall is ready and the browser is idle
-  (or when a walk-up starts, if that comes first); the 1.3 s walk-up is longer than the fetch.
+- The 3D gallery is a separate chunk from its phone entry screen, so a portrait phone does not
+  fetch Three.js, the hall or the paintings. OpenSeadragon is another separate chunk, fetched once
+  the hall is ready and the browser is idle (or when a walk-up starts, if that comes first); the
+  1.3 s walk-up is longer than the fetch.
 
 ## What is not real yet
 
-- **Phone view, flagged for later (2026-11-19):**
-  - Walking with a spread keeps the camera facing down the corridor, so a side-wall painting
-    slides off the screen as you approach: in portrait (about 50° wide) it leaves the frame
-    within about 9 m. You can't get next to a painting and see it without tapping it.
-  - People spread their fingers *over* the painting they want, expecting to approach it
-    (like maps). Proposed fix: a spread that starts over a painting drives that painting's
-    walk-up (and carries on into the zoom); over the corridor it walks. Not built yet.
-  - Tap picking (`src/pick.ts`) and the portrait walk-up / bottom-sheet panel haven't been
-    tested on the phone.
+- **Phone visit:** portrait phones get a lightweight request to rotate. The gallery starts in
+  landscape, with a 1.5 DPR cap and the nine smaller hall textures (1.7 MB on the wire and about
+  32 MiB decoded, instead of 10.95 MB and about 176 MiB). The full DZI is still used inside a
+  painting. Browsers allow fullscreen only on a tap, never on a rotation, so the taps that start
+  a visit ask for fullscreen held in landscape (`src/fullscreen.ts`): the rotate screen's button,
+  the welcome card's "Enter the gallery", and a "Full screen" pill shown while walking outside
+  fullscreen. iPhone browsers have no page fullscreen. The phone's wider turn at the entrance sees
+  past the facade's corners onto the flat ground that now runs round the building
+  (`hall.json` groundAround). Tested on the A55 (look, fullscreen, the ground); `tools/browser/phone.mjs`
+  checks the gate, look, walk, tap and focus. Still to check on an iPhone.
 
 - **Web:** no facts yet (Maria writes them); the panel shows museum data only.
   The hall's light is baked (rough bake so far: see `renders/hall-stage3/`). Under reduced motion the walk-up, Back, the dome and the keyboard's walk to a painting are cuts; the visitor's own walking still glides. Not tested on an
-  iPhone. Only OpenSeadragon is split from the main JavaScript.
+  iPhone.
 
 - **Depth is a choice, not a measurement.** One image fixes the view, not the depth. The
   model assumes the domed crossing is square (Gate 1).

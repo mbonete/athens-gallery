@@ -17,6 +17,10 @@ import { progressNear, STATIONS } from "./walk";
 
 // Dev check: ?fresco frames the canvas at the fresco's proportions (3840 x 2661).
 const FRESCO_FRAME = import.meta.env.DEV && new URLSearchParams(location.search).has("fresco");
+// Phone GPUs render fewer pixels than desktop while keeping enough density for the hall's fine
+// lines. The painting detail viewer still uses its own full-resolution image pyramid.
+const PHONE = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse) and (max-width: 1024px)").matches;
+const MAX_DPR = PHONE ? 1.5 : 2;
 
 const CANVAS_LABEL = `The architecture of Raphael's School of Athens in 3D, with ${PAINTINGS.length} paintings`;
 
@@ -73,7 +77,7 @@ export function App() {
             still, looks at an open painting or up into the dome. */}
         <Canvas
           frameloop="demand"
-          dpr={[1, 2]}
+          dpr={[1, MAX_DPR]}
           gl={{ antialias: true, toneMapping: THREE.AgXToneMapping, toneMappingExposure: 1.0 }}
           onCreated={({ gl }) => {
             gl.setClearColor("#c9d4e2");

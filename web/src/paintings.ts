@@ -21,12 +21,24 @@ export type Painting = {
   licence: string;
   dzi: string;
   texture: string;
+  /** Smaller hall texture for coarse-pointer devices. Deep zoom still uses `dzi`. */
+  mobileTexture: string;
   /** Deepest zoom, in screen pixels per image pixel (lower for weak reproductions). */
   maxZoom?: number;
   hotspots: Hotspot[];
 };
 
-const files = (slug: string) => ({ dzi: `/paintings/${slug}.dzi`, texture: `/paintings/${slug}-texture.jpg` });
+const files = (slug: string) => ({
+  dzi: `/paintings/${slug}.dzi`,
+  texture: `/paintings/${slug}-texture.jpg`,
+  mobileTexture: `/paintings/${slug}-mobile-texture.jpg`,
+});
+
+/** The hall needs only screen-sized reproductions on touch-first devices. The full-resolution
+ * DZI remains available when a visitor opens a painting. Keeping this decision at module load
+ * also gives R3F's loader cache one stable URL per painting and lets the banners share it. */
+const MOBILE_HALL = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
+export const hallTexture = (painting: Painting) => MOBILE_HALL ? painting.mobileTexture : painting.texture;
 
 // Museum data only (reference/paintings/collection.md). Facts are Maria's to add as hotspots.
 export const PAINTINGS: Painting[] = [

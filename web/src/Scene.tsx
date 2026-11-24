@@ -8,7 +8,7 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { PaintingTextureLoader } from "./paintingTexture";
 import hall from "./data/hall.json";
-import { displayH, displayW, type Painting } from "./paintings";
+import { displayH, displayW, hallTexture, type Painting } from "./paintings";
 import { moving, rig } from "./rig";
 import { ShiftCamera } from "./ShiftCamera";
 import { getState, setState } from "./store";
@@ -170,21 +170,40 @@ function lightmapBicubic(mat: THREE.MeshBasicMaterial) {
 
 /** The flat ground beyond the end door, seen through it (build.py's ground_beyond, hall.json):
  * drawn here rather than packed in the GLB, whose single quantization grid it would stretch to
- * 4.3 mm a step (bake.py). Flat and unlit, dimmed with the hall. */
+ * 4.3 mm a step (bake.py). Flat and unlit, dimmed with the hall. The same ground runs round the
+ * building to the horizon (hall.json groundAround), so a visitor turned at the entrance sees land
+ * past the facade's corners, not the forecourt's edge over empty sky: four strips round the
+ * footprint of the modelled floors, which they never overlap. */
 function GroundBeyond() {
-  const g = (hall as unknown as { groundBeyond?: { y: number; x: number[]; z: number[]; colour: number[] } }).groundBeyond;
+  const h = hall as unknown as {
+    groundBeyond?: { y: number; x: number[]; z: number[]; colour: number[] };
+    groundAround?: { y: number; extent: number; hole: { x: number[]; z: number[] } };
+  };
+  const g = h.groundBeyond;
   const base = useMemo(() => new THREE.Color().setRGB(...((g?.colour ?? [0.42, 0.42, 0.33]) as [number, number, number])), [g]);
   const mat = useMemo(() => new THREE.MeshBasicMaterial({ color: base.clone(), toneMapped: false }), [base]);
   useFrame(() => {
     mat.color.copy(base).multiplyScalar(rig.light);
   });
-  if (!g) return null;
-  const [x0, x1] = g.x;
-  const [z0, z1] = g.z;
-  return (
-    <mesh position={[(x0 + x1) / 2, g.y, (z0 + z1) / 2]} rotation={[-Math.PI / 2, 0, 0]} material={mat}>
+  const strips = useMemo(() => {
+    const a = h.groundAround;
+    if (!a) return [];
+    const R = a.extent;
+    const [hx0, hx1] = a.hole.x;
+    const [hz0, hz1] = a.hole.z; // far (into the hall), near (behind the start)
+    return [[-R, hx0, -R, R], [hx1, R, -R, R], [hx0, hx1, hz1, R], [hx0, hx1, -R, hz0]].map(
+      ([x0, x1, z0, z1]) => ({ y: a.y, x0, x1, z0, z1 }));
+  }, [h.groundAround]);
+  const plane = (y: number, x0: number, x1: number, z0: number, z1: number, key?: number) => (
+    <mesh key={key} position={[(x0 + x1) / 2, y, (z0 + z1) / 2]} rotation={[-Math.PI / 2, 0, 0]} material={mat}>
       <planeGeometry args={[x1 - x0, Math.abs(z1 - z0)]} />
     </mesh>
+  );
+  return (
+    <>
+      {g ? plane(g.y, g.x[0], g.x[1], g.z[0], g.z[1]) : null}
+      {strips.map((s, i) => plane(s.y, s.x0, s.x1, s.z0, s.z1, i))}
+    </>
   );
 }
 
@@ -320,7 +339,7 @@ function HungPainting({ painting, side, z, wallX, room }: {
   painting: Painting; side: number; z: number; wallX: number; room: number;
 }) {
   const { gl } = useThree();
-  const tex = useLoader(PaintingTextureLoader, painting.texture, (l) => void (l.renderer = gl));
+  const tex = useLoader(PaintingTextureLoader, hallTexture(painting), (l) => void (l.renderer = gl));
   const w = displayW(painting);
   const h = displayH(painting);
   const floor = hall.floor[hall.floor.length - 1][1];

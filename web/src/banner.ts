@@ -10,6 +10,8 @@ let tl: gsap.core.Tween | null = null;
 let returnProgress = 0;
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const dur = (s: number) => (reduced() ? 0.01 : s);
+const PHONE_LANDSCAPE = typeof matchMedia !== "undefined" &&
+  matchMedia("(pointer: coarse) and (orientation: landscape) and (max-height: 600px)").matches;
 
 /** Seen from the axis side: the camera turns 12 deg about the banner towards the axis. The close
  * view stands about 2.1 m back, outside the entrance arch; straight on, the arch's jamb would hide
@@ -33,6 +35,12 @@ function closePose(mesh: THREE.Mesh): Pose {
 }
 
 export function viewBanner(side: string, opts: { push?: boolean } = {}) {
+  // A 2.1 m tall, 0.85 m wide banner can only be about 150 CSS px wide when it fills a landscape
+  // phone vertically. Reopen its crisp HTML counterpart instead of enlarging blurred 3D text.
+  if (PHONE_LANDSCAPE) {
+    window.dispatchEvent(new Event("phoneintro"));
+    return;
+  }
   const mesh = rig.banners.get(side);
   if (!mesh || getState().mode !== "walk" || rig.drive !== "scroll" || !rig.camera) return;
   setState({ mode: "banner-in" });

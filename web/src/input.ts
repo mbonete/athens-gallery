@@ -2,7 +2,7 @@
 // is moved by gestures, and rig.progress glides toward it every frame.
 //
 // - Touch: spread two fingers to walk forward, pinch them together to walk back. One finger
-//   only taps (paintings).
+//   taps a painting or drags to look around (look.ts).
 // - Trackpad pinch (Chrome/Edge/Firefox send it as ctrl + wheel; Safari as gesture events):
 //   the same.
 // - Mouse wheel / two-finger trackpad scroll: down walks forward (for mice without a pinch).
@@ -56,7 +56,9 @@ export function attachWalkInput(el: HTMLElement) {
   };
   const onTouchMove = (e: TouchEvent) => {
     if (e.touches.length !== 2) return;
-    e.preventDefault(); // no page zoom
+    // No page zoom. A pinch that began as a one-finger look arrives uncancelable (the stage's
+    // touch-action: none already stops the page zooming); preventing it then only logs an error.
+    if (e.cancelable) e.preventDefault();
     const s = spread(e.touches);
     if (spread0 > 0 && s > 0) walk(Math.log(s / spread0) * M_PER_LOG);
     spread0 = s;

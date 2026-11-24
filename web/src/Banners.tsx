@@ -1,7 +1,7 @@
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { PAINTINGS } from "./paintings";
+import { hallTexture, PAINTINGS } from "./paintings";
 import { rig } from "./rig";
 import { useStore } from "./store";
 import { bannerUniforms, baseGeometry, litBanner, measureLight, shadowDecals, type Metal } from "./bannerLight";
@@ -35,9 +35,11 @@ const MUTED = "#b9b1a3";
 const FACE = "Cardo, Georgia, 'Times New Roman', serif";
 const FONTS = ["150px Cardo", "italic 46px Cardo", "46px Cardo", "34px Cardo", "italic 26px Cardo"];
 
-type Detail = { slug: string; crop: [number, number, number, number] }; // x, y, w, h in texture px
-const LEFT: Detail = { slug: "klimt-water-serpents-ii", crop: [980, 0, 770, 1132] };
-const RIGHT: Detail = { slug: "hokusai-great-wave", crop: [120, 0, 936, 1377] };
+type Detail = { slug: string; crop: [number, number, number, number] }; // x, y, w, h as fractions of the texture
+// The old crops divided by their 2048-wide texture sizes, so the same details are used by the
+// desktop and mobile hall textures. Both details use the full image height.
+const LEFT: Detail = { slug: "klimt-water-serpents-ii", crop: [980 / 2048, 0, 770 / 2048, 1] };
+const RIGHT: Detail = { slug: "hokusai-great-wave", crop: [120 / 2048, 0, 936 / 2048, 1] };
 
 function wrap(g: CanvasRenderingContext2D, text: string, x: number, y: number, max: number, lh: number) {
   let line = "";
@@ -60,7 +62,9 @@ function drawBanner(g: CanvasRenderingContext2D, img: ImageBitmap, d: Detail, si
   const pad = 70;
   g.fillStyle = GROUND;
   g.fillRect(0, 0, cw, ch);
-  const [sx, sy, sw, sh] = d.crop;
+  const [fx, fy, fw, fh] = d.crop;
+  const sx = fx * img.width, sy = fy * img.height;
+  const sw = fw * img.width, sh = fh * img.height;
   const iw = cw - 2 * pad;
   const ih = Math.round((iw * sh) / sw);
   // The bitmap's rows run bottom-up (PaintingTextureLoader): take the crop from there and draw it
@@ -93,7 +97,8 @@ function drawBanner(g: CanvasRenderingContext2D, img: ImageBitmap, d: Detail, si
     g.fillText("How to visit", pad - 3, y);
     y += 78;
     const how: [string, string][] = TOUCH
-      ? [["Walk", "Spread two fingers; pinch to walk back"], ["A painting", "Tap it to walk up; pinch to zoom"], ["The dome", "Tap it to look up"]]
+      ? [["Walk", "Spread two fingers; pinch to walk back"], ["Look around", "Touch the hall and slide one finger left, right, up or down"],
+         ["A painting", "Tap it to walk up; pinch to zoom"], ["The dome", "Tap it to look up"]]
       : [["Walk", "Scroll, or pinch on a trackpad"], ["Look around", "Drag with the right button, or hold Shift and drag"],
          ["A painting", "Click it to walk up, again to zoom; drag to move across it"],
          ["The dome", "Click it to look up"], ["Keys", "Arrows to walk; Tab and Enter open a painting"]];
@@ -111,7 +116,7 @@ function drawBanner(g: CanvasRenderingContext2D, img: ImageBitmap, d: Detail, si
 function useBannerTexture(d: Detail, side: "left" | "right") {
   const p = PAINTINGS.find((q) => q.slug === d.slug)!;
   const gl = useThree((s) => s.gl);
-  const art = useLoader(PaintingTextureLoader, p.texture, (l) => void (l.renderer = gl));
+  const art = useLoader(PaintingTextureLoader, hallTexture(p), (l) => void (l.renderer = gl));
   return useMemo(() => {
     const c = document.createElement("canvas");
     c.width = W * PX;

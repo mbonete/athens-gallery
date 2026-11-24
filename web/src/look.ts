@@ -1,6 +1,7 @@
 // Looking around while standing on the walk (a test, Maria 2026-11-23: "allow users to rotate the
 // camera when they want"). Desktop: hold the right mouse button and drag, or hold Shift and drag
-// (a trackpad's click-drag, or the left button). A plain click still opens what's under it.
+// (a trackpad's click-drag, or the left button). Touch: drag one finger; a short touch remains a
+// tap, and adding a second finger hands the gesture to the spread/pinch walk (input.ts).
 //
 // The turn is an offset on the walk's pose that the render loop adds every frame (Scene.tsx), so
 // the walk, the walk-ups, the dome and the banners keep their own poses. Walking (scroll, pinch,
@@ -26,8 +27,16 @@ export const PITCH_LIMIT = 35 * DEG;
 export const ENTRANCE_YAW = 25 * DEG;
 export const ENTRANCE_PITCH_UP = 15 * DEG;
 export const TAPER_M = 14;
+/** A landscape phone's narrow screen made the desktop entrance cap feel like the gesture had
+ * stopped working. Give touch visitors more room immediately, then reach the full turn sooner;
+ * 70 degrees at the entrance is still avoided because it exposes the open end of the model. */
+export const PHONE_ENTRANCE_YAW = 45 * DEG;
+export const PHONE_TAPER_M = 7;
 /** Drag gain. At 1 the spot under the pointer stays under it (exactly so on the horizon). */
 export const SENSITIVITY = 1;
+/** Touch drag gain: 1, the same grab as the mouse (the hall follows the finger). It was 3 while a
+ * capture bug stopped every swipe after its first move (onLost), which made the turn feel stuck. */
+export const TOUCH_SENSITIVITY = 1;
 /** true: the hall moves with the pointer, as in a photo sphere. false: the view turns towards
  * the pointer, as in a game. */
 export const GRAB = true;
@@ -42,8 +51,10 @@ export const HANDOFF_S = 1.3;
 export const HANDOFF_EASE = "power2.inOut";
 /** Under reduced motion every ease is a cut this long (s); the drag itself still follows the pointer. */
 export const CUT_S = 0.01;
-/** Shift + left button: a press that moves less than this (CSS px) is still a click. */
+/** Mouse Shift + left button: a press that moves less than this (CSS px) is still a click. */
 export const SLOP_PX = 4;
+/** A finger naturally wanders more than a mouse: keep movement within this distance a tap. */
+export const TOUCH_SLOP_PX = 10;
 /** Two right-clicks this close in time (ms, release to press) and place (CSS px) recentre. */
 export const DOUBLE_MS = 400;
 export const DOUBLE_PX = 8;
@@ -62,7 +73,7 @@ export const look = { yaw: 0, pitch: 0 };
 let ease: gsap.core.Tween | null = null;
 let recentring = false;
 type Sample = { t: number; yaw: number; pitch: number };
-type Drag = { id: number; x: number; y: number; right: boolean; turning: boolean; moved: number; samples: Sample[] };
+type Drag = { id: number; x: number; y: number; touch: boolean; right: boolean; turning: boolean; moved: number; samples: Sample[] };
 let drag: Drag | null = null;
 /** The press under way, or the one just released, turned the view: it isn't a click (pick.ts). */
 let turned = false;
@@ -76,6 +87,7 @@ const WIDE = import.meta.env.DEV && new URLSearchParams(window.location.search).
 const walking = () => getState().mode === "walk" && rig.drive === "scroll" && !!rig.camera;
 const atRest = () => look.yaw === 0 && look.pitch === 0;
 const MAC = typeof navigator !== "undefined" && /Mac/.test(navigator.platform);
+const phoneLook = () => window.matchMedia("(pointer: coarse) and (max-height: 600px)").matches;
 
 /** A press that asks for the context menu: the right button, or Control + click on a Mac. */
 export const secondary = (e: PointerEvent | MouseEvent) => e.button === 2 || (MAC && e.button === 0 && e.ctrlKey);
@@ -126,15 +138,18 @@ export function recentre(seconds = RECENTRE_S, curve = RECENTRE_EASE) {
 /** How far the view may turn where the visitor stands. */
 function limits() {
   if (WIDE) return { yaw: YAW_LIMIT, up: PITCH_LIMIT };
-  const t = Math.min(1, Math.max(0, -rig.pose.z / TAPER_M)) ** 2;
-  return { yaw: ENTRANCE_YAW + (YAW_LIMIT - ENTRANCE_YAW) * t, up: ENTRANCE_PITCH_UP + (PITCH_LIMIT - ENTRANCE_PITCH_UP) * t };
+  const phone = phoneLook();
+  const entranceYaw = phone ? PHONE_ENTRANCE_YAW : ENTRANCE_YAW;
+  const taperM = phone ? PHONE_TAPER_M : TAPER_M;
+  const t = Math.min(1, Math.max(0, -rig.pose.z / taperM)) ** 2;
+  return { yaw: entranceYaw + (YAW_LIMIT - entranceYaw) * t, up: ENTRANCE_PITCH_UP + (PITCH_LIMIT - ENTRANCE_PITCH_UP) * t };
 }
 
 /** Radians per CSS px of drag: what one pixel spans at the middle of the view. */
-function radPerPx() {
+function radPerPx(touch: boolean) {
   const cam = rig.camera!;
   const h = stage?.clientHeight || window.innerHeight;
-  return (SENSITIVITY * (cam.tanUp + cam.tanDown)) / h;
+  return (SENSITIVITY * (touch ? TOUCH_SENSITIVITY : 1) * (cam.tanUp + cam.tanDown)) / h;
 }
 
 function endDrag(glide: boolean) {
@@ -171,16 +186,26 @@ function beginTurn(e: PointerEvent) {
   turned = true;
   stopEase();
   stage!.setPointerCapture(e.pointerId);
-  stage!.style.cursor = GRAB ? "grabbing" : "move";
+  if (!drag!.touch) stage!.style.cursor = GRAB ? "grabbing" : "move";
 }
 
 export function attachLook(el: HTMLElement) {
   stage = el;
 
   const onDown = (e: PointerEvent) => {
+    // A second touch must not reset `turned`: the primary finger may already have turned the view.
+    // touchstart below ends that drag and pick.ts separately cancels its pending tap.
+    if (!e.isPrimary) return;
     turned = false;
     if (ease && !recentring) stopEase(); // a press catches the release glide
-    if (e.pointerType !== "mouse" || drag || !walking()) return;
+    if (drag || !walking()) return;
+    const touch = e.pointerType === "touch";
+    if (touch) {
+      if (e.button !== 0) return;
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, touch: true, right: false, turning: false, moved: 0, samples: [] };
+      return;
+    }
+    if (e.pointerType !== "mouse") return;
     const right = secondary(e);
     if (!right && !(e.button === 0 && e.shiftKey)) return;
     if (right) {
@@ -191,7 +216,7 @@ export function attachLook(el: HTMLElement) {
         return;
       }
     }
-    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, right, turning: false, moved: 0, samples: [] };
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, touch: false, right, turning: false, moved: 0, samples: [] };
     if (right) beginTurn(e); // the right button never clicks anything: it turns from the first pixel
   };
 
@@ -200,14 +225,15 @@ export function attachLook(el: HTMLElement) {
     if (!d || e.pointerId !== d.id) return;
     if (!walking()) return endDrag(false);
     if (!d.turning) {
-      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < SLOP_PX) return;
+      const slop = d.touch ? TOUCH_SLOP_PX : SLOP_PX;
+      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < slop) return;
       beginTurn(e); // and turn from the press, so the spot pressed stays under the pointer
     }
     const dx = e.clientX - d.x, dy = e.clientY - d.y;
     d.x = e.clientX;
     d.y = e.clientY;
     d.moved += Math.hypot(dx, dy);
-    const k = radPerPx() * (GRAB ? 1 : -1);
+    const k = radPerPx(d.touch) * (GRAB ? 1 : -1);
     const lim = limits();
     look.yaw = clamp(look.yaw + dx * k, lim.yaw);
     look.pitch = clamp(look.pitch + dy * k, lim.up, PITCH_LIMIT);
@@ -224,6 +250,15 @@ export function attachLook(el: HTMLElement) {
     endDrag(true);
   };
   const onCancel = (e: PointerEvent) => drag && e.pointerId === drag.id && endDrag(false);
+  // A touch is captured implicitly by the element it lands on (the canvas). When beginTurn moves
+  // the capture to the stage, the canvas's lostpointercapture bubbles up here: only the stage's
+  // own loss ends the drag (else every swipe stopped after its first move).
+  const onLost = (e: PointerEvent) => e.target === el && onCancel(e);
+  // Pointer events keep the primary finger captured after a turn. End it as soon as another
+  // finger arrives so input.ts can own the two-finger spread/pinch without the view also turning.
+  const onTouchStart = (e: TouchEvent) => {
+    if (e.touches.length > 1 && drag?.touch) endDrag(false);
+  };
 
   // The browser's menu would take the right button; on the canvas only (the stage holds nothing else).
   const onMenu = (e: MouseEvent) => e.preventDefault();
@@ -239,7 +274,8 @@ export function attachLook(el: HTMLElement) {
   el.addEventListener("pointermove", onMove);
   el.addEventListener("pointerup", onUp);
   el.addEventListener("pointercancel", onCancel);
-  el.addEventListener("lostpointercapture", onCancel);
+  el.addEventListener("lostpointercapture", onLost);
+  el.addEventListener("touchstart", onTouchStart);
   el.addEventListener("contextmenu", onMenu);
   window.addEventListener("keydown", onKey);
   return () => {
@@ -249,7 +285,8 @@ export function attachLook(el: HTMLElement) {
     el.removeEventListener("pointermove", onMove);
     el.removeEventListener("pointerup", onUp);
     el.removeEventListener("pointercancel", onCancel);
-    el.removeEventListener("lostpointercapture", onCancel);
+    el.removeEventListener("lostpointercapture", onLost);
+    el.removeEventListener("touchstart", onTouchStart);
     el.removeEventListener("contextmenu", onMenu);
     window.removeEventListener("keydown", onKey);
     stage = null;

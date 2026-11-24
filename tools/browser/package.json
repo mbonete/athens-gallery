@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Browser checks and review shots of the hall on a running dev server (GALLERY_URL). Chrome, headless, Metal.",
   "scripts": {
+    "phone": "node phone.mjs",
     "smoke": "node smoke.mjs",
     "shots": "node shots.mjs"
   },
