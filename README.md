@@ -78,9 +78,9 @@ frames the canvas at the fresco's proportions to check the opening view.
   painting. Browsers allow fullscreen only on a tap, never on a rotation, so the taps that start
   a visit ask for fullscreen held in landscape (`src/fullscreen.ts`): the rotate screen's button,
   the welcome card's "Enter the gallery", and a "Full screen" pill shown while walking outside
-  fullscreen. iPhone browsers have no page fullscreen. The phone's wider turn at the entrance sees
-  past the facade's corners onto the flat ground that now runs round the building
-  (`hall.json` groundAround). Tested on the A55 (look, fullscreen, the ground); `tools/browser/phone.mjs`
+  fullscreen. iPhone browsers have no page fullscreen. Phones turn within the desktop's limits
+  (`src/look.ts`): as wide a view, less high, so never more of the building. Past the facade's
+  corners, flat ground runs round the building (`hall.json` groundAround). Tested on the A55 (look, fullscreen, the ground); `tools/browser/phone.mjs`
   checks the gate, look, walk, tap and focus. Still to check on an iPhone.
 
 - **Web:** no facts yet (Maria writes them); the panel shows museum data only.

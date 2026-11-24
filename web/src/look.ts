@@ -23,15 +23,13 @@ export const PITCH_LIMIT = 35 * DEG;
 /** Near the entrance the model ends just outside Raphael's frame: turned further than this, the
  * start view shows the sky beside the entrance wall and the end of the floor. There the turn is
  * held to these, widening to the full limits (with the square of the distance) over the first
- * TAPER_M metres of the walk. In development, ?look=wide turns the full limits on everywhere. */
+ * TAPER_M metres of the walk. In development, ?look=wide turns the full limits on everywhere.
+ * Phones share these limits (Maria, 2026-11-24): a landscape phone sees as wide as the desktop
+ * (frustumFor caps both at 42 degrees each side) and less high, so it never shows more of the
+ * building than the desktop does. */
 export const ENTRANCE_YAW = 25 * DEG;
 export const ENTRANCE_PITCH_UP = 15 * DEG;
 export const TAPER_M = 14;
-/** A landscape phone's narrow screen made the desktop entrance cap feel like the gesture had
- * stopped working. Give touch visitors more room immediately, then reach the full turn sooner;
- * 70 degrees at the entrance is still avoided because it exposes the open end of the model. */
-export const PHONE_ENTRANCE_YAW = 45 * DEG;
-export const PHONE_TAPER_M = 7;
 /** Drag gain. At 1 the spot under the pointer stays under it (exactly so on the horizon). */
 export const SENSITIVITY = 1;
 /** Touch drag gain: 1, the same grab as the mouse (the hall follows the finger). It was 3 while a
@@ -87,7 +85,6 @@ const WIDE = import.meta.env.DEV && new URLSearchParams(window.location.search).
 const walking = () => getState().mode === "walk" && rig.drive === "scroll" && !!rig.camera;
 const atRest = () => look.yaw === 0 && look.pitch === 0;
 const MAC = typeof navigator !== "undefined" && /Mac/.test(navigator.platform);
-const phoneLook = () => window.matchMedia("(pointer: coarse) and (max-height: 600px)").matches;
 
 /** A press that asks for the context menu: the right button, or Control + click on a Mac. */
 export const secondary = (e: PointerEvent | MouseEvent) => e.button === 2 || (MAC && e.button === 0 && e.ctrlKey);
@@ -138,11 +135,8 @@ export function recentre(seconds = RECENTRE_S, curve = RECENTRE_EASE) {
 /** How far the view may turn where the visitor stands. */
 function limits() {
   if (WIDE) return { yaw: YAW_LIMIT, up: PITCH_LIMIT };
-  const phone = phoneLook();
-  const entranceYaw = phone ? PHONE_ENTRANCE_YAW : ENTRANCE_YAW;
-  const taperM = phone ? PHONE_TAPER_M : TAPER_M;
-  const t = Math.min(1, Math.max(0, -rig.pose.z / taperM)) ** 2;
-  return { yaw: entranceYaw + (YAW_LIMIT - entranceYaw) * t, up: ENTRANCE_PITCH_UP + (PITCH_LIMIT - ENTRANCE_PITCH_UP) * t };
+  const t = Math.min(1, Math.max(0, -rig.pose.z / TAPER_M)) ** 2;
+  return { yaw: ENTRANCE_YAW + (YAW_LIMIT - ENTRANCE_YAW) * t, up: ENTRANCE_PITCH_UP + (PITCH_LIMIT - ENTRANCE_PITCH_UP) * t };
 }
 
 /** Radians per CSS px of drag: what one pixel spans at the middle of the view. */
