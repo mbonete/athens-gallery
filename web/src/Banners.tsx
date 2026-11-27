@@ -99,7 +99,7 @@ function drawBanner(g: CanvasRenderingContext2D, img: ImageBitmap, d: Detail, si
     const how: [string, string][] = TOUCH
       ? [["Walk", "Spread two fingers; pinch to walk back"], ["Look around", "Touch the hall and slide one finger left, right, up or down"],
          ["A painting", "Tap it to walk up; pinch to zoom"], ["The dome", "Tap it to look up"]]
-      : [["Walk", "Scroll, or pinch on a trackpad"], ["Look around", "Drag with the right button, or hold Shift and drag"],
+      : [["Walk", "Scroll, or pinch on a trackpad"], ["Look around", "Click and drag"],
          ["A painting", "Click it to walk up, again to zoom; drag to move across it"],
          ["The dome", "Click it to look up"], ["Keys", "Arrows to walk; Tab and Enter open a painting"]];
     for (const [k, v] of how) {

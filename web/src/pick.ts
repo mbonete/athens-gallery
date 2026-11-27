@@ -76,7 +76,7 @@ export function attachPicking(el: HTMLElement) {
     down = e.isPrimary && e.button === 0 && !secondary(e) ? { x: e.clientX, y: e.clientY, t: performance.now(), up: lookingUp() } : null;
   };
   const onUp = (e: PointerEvent) => {
-    // A tap, not the end of a pinch, a drag or a turn (Shift + drag, look.ts).
+    // A tap, not the end of a pinch, a drag or a turn (look.ts).
     if (!down || !e.isPrimary || turnedThisPress() || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10) return;
     // Looking up into the dome, a tap anywhere goes back (only one that starts and ends there:
     // taps during the tilts do nothing).

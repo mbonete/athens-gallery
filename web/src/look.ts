@@ -1,7 +1,8 @@
 // Looking around while standing on the walk (a test, Maria 2026-11-23: "allow users to rotate the
-// camera when they want"). Desktop: hold the right mouse button and drag, or hold Shift and drag
-// (a trackpad's click-drag, or the left button). Touch: drag one finger; a short touch remains a
-// tap, and adding a second finger hands the gesture to the spread/pinch walk (input.ts).
+// camera when they want"). Desktop: click and drag (Maria, 2026-11-27: the plain drag, no longer
+// Shift + drag only); a press that moves less than SLOP_PX remains a click. The right button turns
+// from the first pixel. Touch: drag one finger; a short touch remains a tap, and adding a second
+// finger hands the gesture to the spread/pinch walk (input.ts).
 //
 // The turn is an offset on the walk's pose that the render loop adds every frame (Scene.tsx), so
 // the walk, the walk-ups, the dome and the banners keep their own poses. Walking (scroll, pinch,
@@ -49,7 +50,7 @@ export const HANDOFF_S = 1.3;
 export const HANDOFF_EASE = "power2.inOut";
 /** Under reduced motion every ease is a cut this long (s); the drag itself still follows the pointer. */
 export const CUT_S = 0.01;
-/** Mouse Shift + left button: a press that moves less than this (CSS px) is still a click. */
+/** Mouse left button: a press that moves less than this (CSS px) is still a click. */
 export const SLOP_PX = 4;
 /** A finger naturally wanders more than a mouse: keep movement within this distance a tap. */
 export const TOUCH_SLOP_PX = 10;
@@ -201,7 +202,7 @@ export function attachLook(el: HTMLElement) {
     }
     if (e.pointerType !== "mouse") return;
     const right = secondary(e);
-    if (!right && !(e.button === 0 && e.shiftKey)) return;
+    if (!right && e.button !== 0) return;
     if (right) {
       const l = lastRight;
       lastRight = null;
