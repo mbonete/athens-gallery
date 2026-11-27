@@ -21,6 +21,8 @@ const context = await browser.newContext({
   deviceScaleFactor: 2,
   hasTouch: true,
   isMobile: true,
+  // The gallery follows the browser's language (web/src/i18n.ts); the checks below use the English names.
+  locale: "en-US",
 });
 const page = await context.newPage();
 const errors = [];

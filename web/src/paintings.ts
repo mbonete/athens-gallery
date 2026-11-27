@@ -1,5 +1,13 @@
 // The paintings in the hall. Data comes from each museum's record; nothing is invented.
+import { getLang } from "./i18n";
+
 export type Hotspot = { x: number; y: number; text: string };
+
+/** The words on a painting's label and panel. In Spanish (`es`), only the fields that change:
+ * the established Spanish title (the Prado's own for the Bosch), the Spanish name of the artist
+ * where there is one (Tiziano, el Bosco), technique, dates and credit lines translated, decimal
+ * commas. Museums keep their own names; their cities take the Spanish spelling. */
+type Words = { title: string; artist: string; date: string; medium: string; dimensions: string; museum: string; credit?: string; licence: string };
 
 export type Painting = {
   slug: string;
@@ -26,7 +34,11 @@ export type Painting = {
   /** Deepest zoom, in screen pixels per image pixel (lower for weak reproductions). */
   maxZoom?: number;
   hotspots: Hotspot[];
+  es: Partial<Words>;
 };
+
+/** The painting's words in the visitor's language (i18n.ts). */
+export const words = (p: Painting): Words => (getLang() === "es" ? { ...p, ...p.es } : p);
 
 const files = (slug: string) => ({
   dzi: `/paintings/${slug}.dzi`,
@@ -51,6 +63,10 @@ export const PAINTINGS: Painting[] = [
     source: "https://gallica.bnf.fr/ark:/12148/btv1b9005130b",
     licence: "Image: Source gallica.bnf.fr / BnF (public domain)",
     ...files("mucha-summer"), hotspots: [],
+    es: {
+      title: "El verano, de la serie Las estaciones", medium: "Litografía en color, impresa por F. Champenois",
+      museum: "Bibliothèque nationale de France, París", licence: "Imagen: Source gallica.bnf.fr / BnF (dominio público)",
+    },
   },
   {
     slug: "klimt-water-serpents-ii", place: 2,
@@ -61,6 +77,10 @@ export const PAINTINGS: Painting[] = [
     source: "https://commons.wikimedia.org/wiki/File:Gustav_Klimt_-_Water_Serpents_II.jpg",
     licence: "Image: reproduction from a printed book, via Wikimedia Commons (public domain)",
     maxZoom: 1, ...files("klimt-water-serpents-ii"), hotspots: [],
+    es: {
+      title: "Serpientes de agua II", medium: "Óleo sobre lienzo", museum: "Colección privada",
+      licence: "Imagen: reproducción de un libro impreso, vía Wikimedia Commons (dominio público)",
+    },
   },
   {
     slug: "waterhouse-hylas", place: 3,
@@ -71,6 +91,10 @@ export const PAINTINGS: Painting[] = [
     source: "https://artuk.org/discover/artworks/hylas-and-the-nymphs-206346",
     licence: "Image: via Wikimedia Commons (public domain)",
     ...files("waterhouse-hylas"), hotspots: [],
+    es: {
+      title: "Hilas y las ninfas", medium: "Óleo sobre lienzo", dimensions: "98,2 × 163,3 cm",
+      credit: "Adquirido al artista, 1896", licence: "Imagen: vía Wikimedia Commons (dominio público)",
+    },
   },
   {
     slug: "vangogh-almond-blossom", place: 4,
@@ -81,6 +105,11 @@ export const PAINTINGS: Painting[] = [
     source: "https://www.vangoghmuseum.nl/en/collection/s0176V1962",
     licence: "Image: Van Gogh Museum, Amsterdam (Vincent van Gogh Foundation), via Wikimedia Commons",
     ...files("vangogh-almond-blossom"), hotspots: [],
+    es: {
+      title: "Almendro en flor", date: "febrero de 1890", medium: "Óleo sobre lienzo", dimensions: "73,3 × 92,4 cm",
+      museum: "Van Gogh Museum, Ámsterdam", credit: "Fundación Vincent van Gogh",
+      licence: "Imagen: Van Gogh Museum, Ámsterdam (Fundación Vincent van Gogh), vía Wikimedia Commons",
+    },
   },
   {
     slug: "hokusai-great-wave", place: 5,
@@ -92,6 +121,13 @@ export const PAINTINGS: Painting[] = [
     source: "https://www.metmuseum.org/art/collection/search/45434",
     licence: "Image: The Met, Open Access (public domain)",
     ...files("hokusai-great-wave"), hotspots: [],
+    es: {
+      title: "Bajo la ola de Kanagawa (La gran ola)", date: "h. 1830–32",
+      medium: "Xilografía; tinta y color sobre papel", dimensions: "25,7 × 37,9 cm",
+      museum: "The Metropolitan Museum of Art, Nueva York",
+      credit: "Colección H. O. Havemeyer, legado de la Sra. H. O. Havemeyer, 1929",
+      licence: "Imagen: The Met, Open Access (dominio público)",
+    },
   },
   {
     // Placed by Maria (2026-11-19): under the dome, right wall (swapped with Hiroshige).
@@ -103,6 +139,11 @@ export const PAINTINGS: Painting[] = [
     source: "https://www.guggenheim.org/artwork/1924",
     licence: "Image: visitor's photograph (CC0), via Wikimedia Commons",
     maxZoom: 1.5, ...files("kandinsky-composition-8"), hotspots: [],
+    es: {
+      title: "Composición 8", date: "julio de 1923", medium: "Óleo sobre lienzo",
+      museum: "Solomon R. Guggenheim Museum, Nueva York",
+      licence: "Imagen: fotografía de un visitante (CC0), vía Wikimedia Commons",
+    },
   },
   {
     // Placed by Maria (2026-11-19): nave, third bay, right wall (swapped with Kandinsky).
@@ -115,6 +156,12 @@ export const PAINTINGS: Painting[] = [
     source: "https://www.metmuseum.org/art/collection/search/36539",
     licence: "Image: The Met, Open Access (public domain)",
     ...files("hiroshige-asakusa-torinomachi"), hotspots: [],
+    es: {
+      title: "Arrozales de Asakusa y festival Torinomachi, de la serie Cien famosas vistas de Edo",
+      medium: "Xilografía (nishiki-e); tinta y color sobre papel", dimensions: "33,2 × 22,1 cm",
+      museum: "The Metropolitan Museum of Art, Nueva York", credit: "Fondo Rogers, 1914",
+      licence: "Imagen: The Met, Open Access (dominio público)",
+    },
   },
   {
     // Placed by Maria (2026-11-19): under the dome, left wall.
@@ -126,6 +173,10 @@ export const PAINTINGS: Painting[] = [
     source: "https://www.gardnermuseum.org/experience/collection/10978",
     licence: "Image: Isabella Stewart Gardner Museum, Boston (CC BY-NC-ND 4.0)",
     maxZoom: 1.5, ...files("titian-rape-of-europa"), hotspots: [],
+    es: {
+      title: "El rapto de Europa", artist: "Tiziano", medium: "Óleo sobre lienzo",
+      licence: "Imagen: Isabella Stewart Gardner Museum, Boston (CC BY-NC-ND 4.0)",
+    },
   },
   {
     slug: "bosch-garden-of-earthly-delights", place: "end",
@@ -136,6 +187,11 @@ export const PAINTINGS: Painting[] = [
     source: "https://www.museodelprado.es/en/the-collection/art-work/the-garden-of-earthly-delights-triptych/02388242-6d6a-4e9e-a992-e1311eab3609",
     licence: "Image: Museo del Prado scan, via Wikimedia Commons (public domain)",
     ...files("bosch-garden-of-earthly-delights"), hotspots: [],
+    es: {
+      title: "El jardín de las delicias", artist: "El Bosco", medium: "Óleo sobre tabla de roble (tríptico)",
+      dimensions: "185,8 × 325,5 cm abierto",
+      licence: "Imagen: escaneado del Museo del Prado, vía Wikimedia Commons (dominio público)",
+    },
   },
 ];
 

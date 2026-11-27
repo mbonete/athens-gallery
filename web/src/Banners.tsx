@@ -1,7 +1,8 @@
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { hallTexture, PAINTINGS } from "./paintings";
+import { hallTexture, PAINTINGS, words } from "./paintings";
+import { t as strings } from "./i18n";
 import { rig } from "./rig";
 import { useStore } from "./store";
 import { bannerUniforms, baseGeometry, litBanner, measureLight, shadowDecals, type Metal } from "./bannerLight";
@@ -73,10 +74,11 @@ function drawBanner(g: CanvasRenderingContext2D, img: ImageBitmap, d: Detail, si
   g.setTransform(1, 0, 0, -1, 0, 2 * pad + ih);
   g.drawImage(img, sx, img.height - sy - sh, sw, sh, pad, pad, iw, ih);
   g.restore();
-  const p = PAINTINGS.find((q) => q.slug === d.slug)!;
+  const p = words(PAINTINGS.find((q) => q.slug === d.slug)!);
+  const s = strings();
   g.fillStyle = MUTED;
   g.font = `italic 26px ${FACE}`;
-  let y = wrap(g, `${p.artist}, ${p.title}, ${p.date} (detail)`, pad, pad + ih + 44, iw, 32);
+  let y = wrap(g, `${p.artist}, ${p.title}, ${p.date} (${s.detail})`, pad, pad + ih + 44, iw, 32);
   g.fillStyle = CREAM;
   if (side === "left") {
     g.font = `150px ${FACE}`;
@@ -84,25 +86,25 @@ function drawBanner(g: CanvasRenderingContext2D, img: ImageBitmap, d: Detail, si
     g.fillText("Studiolo", pad - 6, y);
     y += 80;
     g.font = `46px ${FACE}`;
-    y = wrap(g, "Nine favourite paintings, chosen by Maria Bonete, hung in the architecture of Raphael’s", pad, y, iw, 60);
+    const [before, fresco, after] = s.lead;
+    y = wrap(g, before, pad, y, iw, 60);
+    // The fresco's title in italic on its own line, the rest of the sentence after it in roman.
     g.font = `italic 46px ${FACE}`;
-    g.fillText("School of Athens.", pad, y);
+    g.fillText(fresco, pad, y);
+    const x = pad + g.measureText(fresco).width;
+    g.font = `46px ${FACE}`;
+    if (x + g.measureText(after).width <= pad + iw) g.fillText(after, x, y);
+    else g.fillText(after.trim(), pad, (y += 60));
     y += 80;
     g.fillStyle = MUTED;
     g.font = `34px ${FACE}`;
-    wrap(g, "The hall is rebuilt in 3D from the fresco (Vatican, 1509–1511). Each painting hangs at its true size.", pad, y, iw, 46);
+    wrap(g, s.noteBanner, pad, y, iw, 46);
   } else {
     g.font = `92px ${FACE}`;
     y += 100;
-    g.fillText("How to visit", pad - 3, y);
+    g.fillText(s.howTitle, pad - 3, y);
     y += 78;
-    const how: [string, string][] = TOUCH
-      ? [["Walk", "Spread two fingers; pinch to walk back"], ["Look around", "Touch the hall and slide one finger left, right, up or down"],
-         ["A painting", "Tap it to walk up; pinch to zoom"], ["The dome", "Tap it to look up"]]
-      : [["Walk", "Scroll, or pinch on a trackpad"], ["Look around", "Click and drag"],
-         ["A painting", "Click it to walk up, again to zoom; drag to move across it"],
-         ["The dome", "Click it to look up"], ["Keys", "Arrows to walk; Tab and Enter open a painting"]];
-    for (const [k, v] of how) {
+    for (const [k, v] of TOUCH ? s.howTouch : s.howMouse) {
       g.fillStyle = MUTED;
       g.font = `34px ${FACE}`;
       g.fillText(k, pad, y);

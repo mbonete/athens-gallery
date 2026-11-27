@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from "react";
 import { createRoot } from "react-dom/client";
 import { fullscreenLandscape } from "./fullscreen";
+import { t } from "./i18n";
 // Cardo (OFL), after Griffo's Aldine roman: the labels' face, served from the project (Latin only).
 import "@fontsource/cardo/latin-400.css";
 import "@fontsource/cardo/latin-400-italic.css";
@@ -33,15 +34,16 @@ const phonePortrait = () => window.matchMedia(PHONE_PORTRAIT).matches;
 
 function RotatePhone() {
   const [trying, setTrying] = useState(false);
-  const [message, setMessage] = useState("");
+  const [failed, setFailed] = useState(false);
+  const s = t();
 
   const tryLandscape = async () => {
     setTrying(true);
-    setMessage("");
+    setFailed(false);
 
     await fullscreenLandscape();
 
-    if (phonePortrait()) setMessage("Your browser could not rotate automatically. Please turn your phone sideways.");
+    if (phonePortrait()) setFailed(true);
     setTrying(false);
   };
 
@@ -56,15 +58,15 @@ function RotatePhone() {
           </svg>
         </div>
         <p className="rotate-kicker">Studiolo</p>
-        <h1 id="rotate-title">Turn your phone sideways</h1>
-        <p className="rotate-copy" id="rotate-copy">The gallery is designed to be visited in landscape.</p>
+        <h1 id="rotate-title">{s.rotateTitle}</h1>
+        <p className="rotate-copy" id="rotate-copy">{s.rotateCopy}</p>
         <button className="rotate-button" type="button" onClick={tryLandscape} disabled={trying} autoFocus>
-          {trying ? "Requesting landscape…" : "Try landscape automatically"}
+          {trying ? s.rotateTrying : s.rotateTry}
         </button>
         <p className="rotate-help" id="rotate-help">
-          If the screen does not turn, switch off rotation lock or open Studiolo on a computer.
+          {s.rotateHelp}
         </p>
-        <p className="rotate-status" role="status" aria-live="polite">{message}</p>
+        <p className="rotate-status" role="status" aria-live="polite">{failed ? s.rotateFailed : ""}</p>
       </div>
     </div>
   );
@@ -75,6 +77,7 @@ function Entry() {
   // Once the gallery has started, keep it mounted behind the gate if the visitor turns the phone
   // upright. This preserves their place; the first portrait visit still downloads no gallery chunk.
   const [started, setStarted] = useState(() => !phonePortrait());
+  const s = t();
 
   useEffect(() => {
     if (!portraitPhone) setStarted(true);
@@ -84,7 +87,7 @@ function Entry() {
     <>
       {started ? (
         <div className="gallery-shell" inert={portraitPhone} aria-hidden={portraitPhone || undefined}>
-          <Suspense fallback={<div className="loading">Loading the gallery…</div>}>
+          <Suspense fallback={<div className="loading">{s.loadingGallery}</div>}>
             <Gallery />
           </Suspense>
         </div>

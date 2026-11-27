@@ -2,26 +2,11 @@ import { useEffect, useState } from "react";
 import { fullscreenLandscape, useFullscreen } from "./fullscreen";
 import { Expand } from "./icons";
 import { useStore } from "./store";
+import { t } from "./i18n";
 
 const TOUCH = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
 const PHONE_LANDSCAPE = typeof matchMedia !== "undefined" &&
   matchMedia("(pointer: coarse) and (orientation: landscape) and (max-height: 600px)").matches;
-
-/** How to visit, for the device in hand: the same words as the right banner (Banners.tsx). */
-const HOW: [string, string][] = TOUCH
-  ? [
-      ["Walk", "Spread two fingers; pinch to walk back"],
-      ["Look around", "Touch the hall and slide one finger left, right, up or down"],
-      ["A painting", "Tap it to walk up; pinch to zoom"],
-      ["The dome", "Tap it to look up"],
-    ]
-  : [
-      ["Walk", "Scroll, or pinch on a trackpad"],
-      ["Look around", "Click and drag"],
-      ["A painting", "Click it to walk up, again to zoom; drag to move across it"],
-      ["The dome", "Click it to look up"],
-      ["Keys", "Arrows to walk; Tab and Enter open a painting"],
-    ];
 
 /** The exhibition's title and how to visit. Desktop visitors read them on the two banners in the
  * hall. On a landscape phone those tall banners cannot make body text legible even when they fill
@@ -31,6 +16,10 @@ export function Intro() {
   const [open, setOpen] = useState(PHONE_LANDSCAPE);
   const full = useFullscreen();
   const walking = useStore((s) => s.mode === "walk");
+  const s = t();
+  // How to visit, for the device in hand: the same words as the right banner (Banners.tsx).
+  const how = TOUCH ? s.howTouch : s.howMouse;
+  const [before, fresco, after] = s.lead;
 
   useEffect(() => {
     if (!PHONE_LANDSCAPE) return;
@@ -45,7 +34,7 @@ export function Intro() {
     if (full || !walking || !document.fullscreenEnabled) return null;
     return (
       <button type="button" className="close fullscreen-pill" onClick={() => void fullscreenLandscape()}>
-        <Expand />Full screen
+        <Expand />{s.fullScreen}
       </button>
     );
   }
@@ -63,22 +52,21 @@ export function Intro() {
       <div className="phone-intro-about">
         <h1 id={PHONE_LANDSCAPE ? "phone-intro-title" : undefined}>Studiolo</h1>
         <p>
-        Nine favourite paintings, chosen by Maria Bonete, hung in the architecture of Raphael’s{" "}
-        <cite>School of Athens</cite>.
+        {before} <cite>{fresco}</cite>{after}
         </p>
-        <p className="phone-intro-note">The hall is rebuilt in 3D from the fresco (Vatican, 1509–1511).</p>
+        <p className="phone-intro-note">{s.note}</p>
       </div>
       <div className="phone-intro-how">
-        <h2>How to visit</h2>
+        <h2>{s.howTitle}</h2>
         <dl>
-          {HOW.map(([k, v]) => (
+          {how.map(([k, v]) => (
             <div key={k}>
               <dt>{k}</dt>
               <dd>{v}</dd>
             </div>
           ))}
         </dl>
-        {PHONE_LANDSCAPE ? <button type="button" onClick={enter}>Enter the gallery</button> : null}
+        {PHONE_LANDSCAPE ? <button type="button" onClick={enter}>{s.enter}</button> : null}
       </div>
     </header>
   );

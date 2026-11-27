@@ -14,6 +14,7 @@ import { attachPicking } from "./pick";
 import { attachLook } from "./look";
 import { enter, leave, loadZoom } from "./transition";
 import { progressNear, STATIONS } from "./walk";
+import { t } from "./i18n";
 
 // Dev check: ?fresco frames the canvas at the fresco's proportions (3840 x 2661).
 const FRESCO_FRAME = import.meta.env.DEV && new URLSearchParams(location.search).has("fresco");
@@ -22,7 +23,7 @@ const FRESCO_FRAME = import.meta.env.DEV && new URLSearchParams(location.search)
 const PHONE = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse) and (max-width: 1024px)").matches;
 const MAX_DPR = PHONE ? 1.5 : 2;
 
-const CANVAS_LABEL = `The architecture of Raphael's School of Athens in 3D, with ${PAINTINGS.length} paintings`;
+const CANVAS_LABEL = t().canvas(PAINTINGS.length);
 
 export function App() {
   const ready = useStore((s) => s.ready);
@@ -93,7 +94,7 @@ export function App() {
           </Suspense>
         </Canvas>
       </div>
-      {!ready && <div className="loading">Loading the hall…</div>}
+      {!ready && <div className="loading">{t().loadingHall}</div>}
       <Intro />
       <Keys stage={stage} />
       <Detail />

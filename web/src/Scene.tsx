@@ -8,7 +8,8 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { PaintingTextureLoader } from "./paintingTexture";
 import hall from "./data/hall.json";
-import { displayH, displayW, hallTexture, type Painting } from "./paintings";
+import { displayH, displayW, hallTexture, words, type Painting } from "./paintings";
+import { t as words_ } from "./i18n";
 import { moving, rig } from "./rig";
 import { ShiftCamera } from "./ShiftCamera";
 import { getState, setState } from "./store";
@@ -409,17 +410,22 @@ function labelTexture(p: Painting) {
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 8;
   const draw = () => {
+    const w = words(p);
     g.fillStyle = "#f4f1ea";
     g.fillRect(0, 0, 600, 400);
     g.fillStyle = "#2a2724";
     g.font = `italic 40px ${FACE}`;
-    wrap(g, p.title, 36, 74, 528, 46);
+    wrap(g, w.title, 36, 74, 528, 46);
     g.font = `29px ${FACE}`;
-    g.fillText(`${p.artist}, ${p.date}`, 36, 250);
+    g.fillText(`${w.artist}, ${w.date}`, 36, 250);
     g.font = `23px ${FACE}`;
     g.fillStyle = "#6b655d";
-    g.fillText(`${p.medium}, ${p.dimensions}`, 36, 300);
-    g.fillText("Tap to look closer", 36, 356);
+    // One line: a long medium (the Hiroshige's, most Spanish ones) is set smaller to fit the label.
+    const line = `${w.medium}, ${w.dimensions}`;
+    g.font = `${Math.max(16, Math.min(23, Math.floor((23 * 528) / g.measureText(line).width)))}px ${FACE}`;
+    g.fillText(line, 36, 300);
+    g.font = `23px ${FACE}`;
+    g.fillText(words_().labelAction, 36, 356);
     t.needsUpdate = true;
     rig.kick();
   };

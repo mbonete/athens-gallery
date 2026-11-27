@@ -13,6 +13,8 @@ import { recentre } from "./look";
 import { rig } from "./rig";
 import { getState, useStore } from "./store";
 import { enter } from "./transition";
+import { t } from "./i18n";
+import { words } from "./paintings";
 import { cameraAt, inside, paintingAndLabelBox, paintingBox, type Box } from "./view";
 import { poseAt, progressAt, STATIONS, type Station } from "./walk";
 
@@ -150,6 +152,7 @@ let pendingOpen = 0;
 
 export function Keys({ stage }: { stage: RefObject<HTMLDivElement | null> }) {
   const mode = useStore((s) => s.mode);
+  const say = t();
   const active = useStore((s) => s.active);
   const ready = useStore((s) => s.ready);
   const wrap = useRef<HTMLDivElement>(null);
@@ -215,7 +218,8 @@ export function Keys({ stage }: { stage: RefObject<HTMLDivElement | null> }) {
     <div ref={wrap} className="keys" inert={!ready || mode !== "walk"}>
       {STOPS.map((s) => {
         const key = keyOf(s);
-        const name = s === DOME_KEY ? "Look up into the dome" : `${s.painting.title}, ${s.painting.artist}`;
+        const w = s === DOME_KEY ? null : words(s.painting);
+        const name = w ? `${w.title}, ${w.artist}` : say.lookUpDome;
         return (
           <button key={key} data-key={key} aria-label={name} onFocus={() => onFocus(key)} onClick={() => open(key)} />
         );
