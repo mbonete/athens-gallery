@@ -54,6 +54,10 @@ export const CUT_S = 0.01;
 export const SLOP_PX = 4;
 /** A finger naturally wanders more than a mouse: keep movement within this distance a tap. */
 export const TOUCH_SLOP_PX = 10;
+/** Turned at least this far from straight ahead, the view faces what it's turned to: a two-finger
+ * spread over a painting opens it instead of walking (input.ts). Below it, a spread always walks,
+ * so a stray few degrees left over from a tap that slid don't turn a walk into a walk-up. */
+export const ASIDE = 10 * DEG;
 /** Two right-clicks this close in time (ms, release to press) and place (CSS px) recentre. */
 export const DOUBLE_MS = 400;
 export const DOUBLE_PX = 8;
@@ -93,6 +97,9 @@ export const secondary = (e: PointerEvent | MouseEvent) => e.button === 2 || (MA
 export const turnedThisPress = () => turned;
 /** For pick.ts: a turn is being dragged (no hover picking meanwhile). */
 export const turning = () => !!drag?.turning;
+/** For input.ts: the view is turned aside (ASIDE or more) and not on its way back to straight
+ * ahead, as it is just after walking. */
+export const turnedAside = () => !recentring && Math.hypot(look.yaw, look.pitch) >= ASIDE;
 
 // ---------------------------------------------------------------------------------- the view
 

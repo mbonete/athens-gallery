@@ -2,20 +2,31 @@
 // is moved by gestures, and rig.progress glides toward it every frame.
 //
 // - Touch: spread two fingers to walk forward, pinch them together to walk back. One finger
-//   taps a painting or drags to look around (look.ts).
+//   taps a painting or drags to look around (look.ts). With the view turned aside to face a
+//   painting, a spread that begins over it opens it, as a tap would (Maria, 2026-11-27: "when I
+//   turn the camera to face a painting I get the urge to zoom in, but I am returned to the main
+//   scrolling view"); a pinch there still walks back. The same goes for an entrance banner.
 // - Trackpad pinch (Chrome/Edge/Firefox send it as ctrl + wheel; Safari as gesture events):
 //   the same.
 // - Mouse wheel / two-finger trackpad scroll: down walks forward (for mice without a pinch).
 // - Keyboard: ArrowUp/ArrowDown, PageUp/PageDown, Space/Shift+Space, Home/End. Space is left to a
 //   focused button (it opens the painting; see Keys.tsx).
-import { recentre } from "./look";
+import { viewBanner } from "./banner";
+import { recentre, turnedAside } from "./look";
+import { pickAt, pickBanner } from "./pick";
 import { rig } from "./rig";
 import { getState } from "./store";
+import { enter } from "./transition";
 import { TOTAL } from "./walk";
 
 /** Metres walked per doubling of the finger spread. */
 const M_PER_DOUBLING = 7;
 const M_PER_LOG = M_PER_DOUBLING / Math.LN2;
+/** Over a painting the view is turned to face: the fingers this much further apart than where
+ * they began open it. Until then the hall holds still, so the view doesn't swing round first. */
+const OPEN_SPREAD = 1.2;
+/** Pinched this much closer instead, the gesture walks back as usual. */
+const BACK_SPREAD = 1 / 1.1;
 /** Metres per wheel pixel (a mouse notch is ~100 px -> 2 m). */
 const M_PER_WHEEL_PX = 0.02;
 const M_PER_KEY = 2;
@@ -47,12 +58,31 @@ export function walkTo(progress: number) {
 const control = (t: EventTarget | null) =>
   t instanceof Element && !!t.closest("button, a, input, select, textarea, [contenteditable]");
 
+/** What a spread between fingers centred on (x, y) opens: the banner or painting there, the same
+ * targets a tap uses (pick.ts), once the visitor has turned the view aside to face it. Looking
+ * straight ahead a spread always walks, even over the paintings on the side walls. */
+function facing(x: number, y: number, el: HTMLElement): (() => void) | null {
+  if (!turnedAside()) return null;
+  const b = pickBanner(x, y, el);
+  if (b) return () => viewBanner(b);
+  const p = pickAt(x, y, el);
+  return p ? () => enter(p) : null;
+}
+
 export function attachWalkInput(el: HTMLElement) {
   let spread0 = 0;
+  /** The pinch began over what the view faces: a spread opens it instead of walking. */
+  let aim: (() => void) | null = null;
+  /** How far the fingers have parted since then (log of the ratio). */
+  let parted = 0;
   const spread = (t: TouchList) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
 
   const onTouchStart = (e: TouchEvent) => {
-    if (e.touches.length === 2) spread0 = spread(e.touches);
+    if (e.touches.length !== 2) return;
+    const [a, b] = [e.touches[0], e.touches[1]];
+    spread0 = spread(e.touches);
+    parted = 0;
+    aim = facing((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2, el);
   };
   const onTouchMove = (e: TouchEvent) => {
     if (e.touches.length !== 2) return;
@@ -60,11 +90,22 @@ export function attachWalkInput(el: HTMLElement) {
     // touch-action: none already stops the page zooming); preventing it then only logs an error.
     if (e.cancelable) e.preventDefault();
     const s = spread(e.touches);
-    if (spread0 > 0 && s > 0) walk(Math.log(s / spread0) * M_PER_LOG);
+    if (spread0 > 0 && s > 0) {
+      const d = Math.log(s / spread0);
+      if (!aim) walk(d * M_PER_LOG);
+      else if ((parted += d) >= Math.log(OPEN_SPREAD)) {
+        const open = aim;
+        aim = null;
+        open(); // the walk-up; the rest of this pinch walks nothing (walk() waits for the walk)
+      } else if (parted <= Math.log(BACK_SPREAD)) aim = null; // pinching instead: walk back from here
+    }
     spread0 = s;
   };
   const onTouchEnd = (e: TouchEvent) => {
-    if (e.touches.length < 2) spread0 = 0;
+    if (e.touches.length < 2) {
+      spread0 = 0;
+      aim = null;
+    }
   };
 
   const onWheel = (e: WheelEvent) => {

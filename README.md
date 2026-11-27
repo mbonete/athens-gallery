@@ -38,7 +38,9 @@ frames the canvas at the fresco's proportions to check the opening view.
   Raphael's eye (1.3 m) up to standing height: spread two fingers to walk forward (doubling
   the spread = 7 m), pinch to walk back; on a Mac, trackpad pinch the same way, or the mouse
   wheel (~2 m per notch); arrow keys too. On touch, one-finger drag looks around and a short
-  contact remains a tap; adding a second finger hands the gesture to the walk. No pull-to-refresh
+  contact remains a tap; adding a second finger hands the gesture to the walk. With the view turned
+  at least 10° to face a painting (or an entrance banner), a spread that begins over it opens it as
+  a tap does, and a pinch there still walks back (`ASIDE`, `OPEN_SPREAD`). No pull-to-refresh
   or browser zoom (`src/input.ts`, `src/look.ts`). A painting, frame and label share one generous
   tap target.
 - Tapping the painting or its label walks up until it fills the screen next to the panel;
@@ -81,7 +83,8 @@ frames the canvas at the fresco's proportions to check the opening view.
   fullscreen. iPhone browsers have no page fullscreen. Phones turn within the desktop's limits
   (`src/look.ts`): as wide a view, less high, so never more of the building. Past the facade's
   corners, flat ground runs round the building (`hall.json` groundAround). Tested on the A55 (look, fullscreen, the ground); `tools/browser/phone.mjs`
-  checks the gate, look, walk, tap and focus. Still to check on an iPhone.
+  checks the gate, look, walk, tap, the turned spread that opens a painting, and focus. Still to
+  check on an iPhone.
 
 - **Web:** no facts yet (Maria writes them); the panel shows museum data only.
   The hall's light is baked (rough bake so far: see `renders/hall-stage3/`). Under reduced motion the walk-up, Back, the dome and the keyboard's walk to a painting are cuts; the visitor's own walking still glides. Not tested on an
