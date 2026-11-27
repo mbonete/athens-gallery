@@ -27,7 +27,7 @@ The hall is the fresco's own architecture: the camera is solved from the fresco,
 
 - Walk: scroll or trackpad pinch, two-finger spread on touch, arrow and Page keys.
 - A painting: click or tap walks up to it (on touch, so does a two-finger spread over it once the view is turned to face it); the wall label unfolds into an information panel; click to zoom, drag to pan, pinch and double-tap on touch.
-- The dome: a tap walks under it and looks up; another tap comes back.
+- The dome: a tap walks under it and looks up (on touch, so does a two-finger spread over it once the view is turned up to it); another tap, or pinching the fingers together, comes back.
 - Links open a painting directly (`#painting/<slug>`). Back, Escape and the browser's back button return to the walk.
 
 ## Capabilities and Constraints

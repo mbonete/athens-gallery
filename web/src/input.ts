@@ -5,13 +5,17 @@
 //   taps a painting or drags to look around (look.ts). With the view turned aside to face a
 //   painting, a spread that begins over it opens it, as a tap would (Maria, 2026-11-27: "when I
 //   turn the camera to face a painting I get the urge to zoom in, but I am returned to the main
-//   scrolling view"); a pinch there still walks back. The same goes for an entrance banner.
+//   scrolling view"); a pinch there still walks back. The same goes for an entrance banner and
+//   for the dome, which it looks up into (Maria, the same day). Looking up into the dome or at a
+//   banner, pinching the fingers together comes back to the walk, as a tap does ("zoom back
+//   should also exit the dome").
 // - Trackpad pinch (Chrome/Edge/Firefox send it as ctrl + wheel; Safari as gesture events):
 //   the same.
 // - Mouse wheel / two-finger trackpad scroll: down walks forward (for mice without a pinch).
 // - Keyboard: ArrowUp/ArrowDown, PageUp/PageDown, Space/Shift+Space, Home/End. Space is left to a
 //   focused button (it opens the painting; see Keys.tsx).
-import { viewBanner } from "./banner";
+import { leaveBanner, viewBanner } from "./banner";
+import { domeAt, lookDown, lookUp } from "./dome";
 import { recentre, turnedAside } from "./look";
 import { pickAt, pickBanner } from "./pick";
 import { rig } from "./rig";
@@ -27,6 +31,8 @@ const M_PER_LOG = M_PER_DOUBLING / Math.LN2;
 const OPEN_SPREAD = 1.2;
 /** Pinched this much closer instead, the gesture walks back as usual. */
 const BACK_SPREAD = 1 / 1.1;
+/** Looking up into the dome or at a banner: the fingers this much closer go back to the walk. */
+const CLOSE_SPREAD = 1 / OPEN_SPREAD;
 /** Metres per wheel pixel (a mouse notch is ~100 px -> 2 m). */
 const M_PER_WHEEL_PX = 0.02;
 const M_PER_KEY = 2;
@@ -60,29 +66,65 @@ const control = (t: EventTarget | null) =>
 
 /** What a spread between fingers centred on (x, y) opens: the banner or painting there, the same
  * targets a tap uses (pick.ts), once the visitor has turned the view aside to face it. Looking
- * straight ahead a spread always walks, even over the paintings on the side walls. */
-function facing(x: number, y: number, el: HTMLElement): (() => void) | null {
+ * straight ahead a spread always walks, even over the paintings on the side walls. "dome": none
+ * of those, but the dome may be there; ask domeAt, which answers a frame or two later. */
+function facing(x: number, y: number, el: HTMLElement): (() => void) | "dome" | null {
   if (!turnedAside()) return null;
   const b = pickBanner(x, y, el);
   if (b) return () => viewBanner(b);
   const p = pickAt(x, y, el);
-  return p ? () => enter(p) : null;
+  return p ? () => enter(p) : "dome";
+}
+
+/** What pinching the fingers together leaves: the dome's look up or a banner's close-up. */
+function closing(): (() => void) | null {
+  const m = getState().mode;
+  return m === "dome" ? () => lookDown() : m === "banner" ? () => leaveBanner() : null;
 }
 
 export function attachWalkInput(el: HTMLElement) {
   let spread0 = 0;
   /** The pinch began over what the view faces: a spread opens it instead of walking. */
   let aim: (() => void) | null = null;
-  /** How far the fingers have parted since then (log of the ratio). */
+  /** Asking whether the dome is under the fingers: the hall holds still until it answers. */
+  let probing = false;
+  /** How far the fingers have parted since the pinch began (log of the ratio). */
   let parted = 0;
+  /** Counts pinches, so a late answer about the dome only counts for the pinch that asked. */
+  let pinch = 0;
+  /** This pinch opened or closed a view: the rest of it does nothing, so a pinch still closing
+   * once the dome has come back down doesn't walk back as well. */
+  let spent = false;
   const spread = (t: TouchList) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  const opens = () => parted >= Math.log(OPEN_SPREAD);
+  const open = () => {
+    const go = aim!;
+    aim = null;
+    spent = true;
+    go(); // the walk-up
+  };
 
   const onTouchStart = (e: TouchEvent) => {
     if (e.touches.length !== 2) return;
     const [a, b] = [e.touches[0], e.touches[1]];
+    const x = (a.clientX + b.clientX) / 2, y = (a.clientY + b.clientY) / 2;
     spread0 = spread(e.touches);
     parted = 0;
-    aim = facing((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2, el);
+    spent = false;
+    const id = ++pinch;
+    const f = facing(x, y, el);
+    aim = f === "dome" ? null : f;
+    probing = f === "dome";
+    if (!probing) return;
+    const done = (hit: boolean) => {
+      if (id !== pinch || !probing) return; // the pinch ended, or turned into a walk back
+      probing = false;
+      if (hit) {
+        aim = lookUp;
+        if (opens()) open();
+      } else walk(parted * M_PER_LOG); // not the dome: walk what the fingers spread meanwhile
+    };
+    domeAt(x, y, el).then(done, () => done(false));
   };
   const onTouchMove = (e: TouchEvent) => {
     if (e.touches.length !== 2) return;
@@ -90,14 +132,19 @@ export function attachWalkInput(el: HTMLElement) {
     // touch-action: none already stops the page zooming); preventing it then only logs an error.
     if (e.cancelable) e.preventDefault();
     const s = spread(e.touches);
-    if (spread0 > 0 && s > 0) {
+    if (spread0 > 0 && s > 0 && !spent) {
       const d = Math.log(s / spread0);
-      if (!aim) walk(d * M_PER_LOG);
-      else if ((parted += d) >= Math.log(OPEN_SPREAD)) {
-        const open = aim;
-        aim = null;
-        open(); // the walk-up; the rest of this pinch walks nothing (walk() waits for the walk)
-      } else if (parted <= Math.log(BACK_SPREAD)) aim = null; // pinching instead: walk back from here
+      const close = closing();
+      if (close) {
+        if ((parted += d) <= Math.log(CLOSE_SPREAD)) {
+          spent = true;
+          close();
+        }
+      } else if (!aim && !probing) walk(d * M_PER_LOG);
+      else if ((parted += d) <= Math.log(BACK_SPREAD)) {
+        aim = null; // pinching instead: walk back from here
+        probing = false;
+      } else if (aim && opens()) open();
     }
     spread0 = s;
   };
@@ -105,6 +152,7 @@ export function attachWalkInput(el: HTMLElement) {
     if (e.touches.length < 2) {
       spread0 = 0;
       aim = null;
+      probing = false;
     }
   };
 

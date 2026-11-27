@@ -39,8 +39,9 @@ frames the canvas at the fresco's proportions to check the opening view.
   the spread = 7 m), pinch to walk back; on a Mac, trackpad pinch the same way, or the mouse
   wheel (~2 m per notch); arrow keys too. On touch, one-finger drag looks around and a short
   contact remains a tap; adding a second finger hands the gesture to the walk. With the view turned
-  at least 10° to face a painting (or an entrance banner), a spread that begins over it opens it as
-  a tap does, and a pinch there still walks back (`ASIDE`, `OPEN_SPREAD`). No pull-to-refresh
+  at least 10° to face a painting (or an entrance banner, or the dome, which it looks up into), a
+  spread that begins over it opens it as a tap does, and a pinch there still walks back (`ASIDE`, `OPEN_SPREAD`). Looking up into the dome or at a
+  banner, pinching the fingers together comes back to the walk, as a tap does. No pull-to-refresh
   or browser zoom (`src/input.ts`, `src/look.ts`). A painting, frame and label share one generous
   tap target.
 - Tapping the painting or its label walks up until it fills the screen next to the panel;

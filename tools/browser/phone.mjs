@@ -201,6 +201,63 @@ ok("turned to a painting, a spread over it opens it", walkedUp && zoomOpened && 
   onScreen(faced) ? `${aside}, turned ${turn.toFixed(0)} deg` : `painting not on screen after turning ${turn.toFixed(0)} deg`);
 ok("opening it by spreading walks nothing first", Math.abs(facedAfter - facedFrom) < 1e-6, `${facedFrom.toFixed(4)} -> ${facedAfter.toFixed(4)}`);
 
+// Turned aside over neither a painting nor the dome (the floor), a spread walks: the dome's late
+// answer hands back what the fingers spread meanwhile.
+await toStation(aside);
+await settle();
+await faceIt(aside);
+await page.waitForTimeout(100);
+const floorFrom = await page.evaluate(() => window.__gallery.rig.target);
+await pinch(422, 380, 60, 140);
+await page.waitForTimeout(150);
+const floorAfter = await page.evaluate(() => ({ target: window.__gallery.rig.target, mode: window.__gallery.getState().mode }));
+ok("turned to the floor, a spread walks", floorAfter.mode === "walk" && floorAfter.target > floorFrom,
+  `${floorFrom.toFixed(3)} -> ${floorAfter.target.toFixed(3)}, ${floorAfter.mode}`);
+
+// Looking up at the dome from the crossing's edge, a spread over it looks up into it, as a tap does.
+const domeStation = await page.evaluate(() => window.__gallery.STATIONS.find((s) => s.painting.place === "dome-left").painting.slug);
+await toStation(domeStation);
+await settle();
+const domeTurn = await page.evaluate(() => {
+  const L = window.__look;
+  L.look.yaw = 0;
+  L.look.pitch = L.limits().up;
+  window.__gallery.rig.kick();
+  return (L.look.pitch * 180) / Math.PI;
+});
+await page.waitForTimeout(150);
+const domePt = await page.evaluate(async () => {
+  const pts = await window.__dome.mask(12);
+  const el = document.querySelector(".stage");
+  const cx = el.clientWidth / 2, cy = el.clientHeight / 2;
+  return pts.sort((a, b) => Math.hypot(a[0] - cx, a[1] - cy) - Math.hypot(b[0] - cx, b[1] - cy))[0] ?? null;
+});
+let domeUp = false, domeDown = false;
+if (domePt) {
+  await pinch(domePt[0], domePt[1], 50, 110);
+  domeUp = await page.waitForFunction(() => window.__gallery.getState().mode === "dome", null, { timeout: 15000 }).then(() => true, () => false);
+}
+ok("turned up to the dome, a spread over it looks up", domeUp,
+  domePt ? `at ${domePt.map((v) => v.toFixed(0)).join(",")}, pitched ${domeTurn.toFixed(0)} deg` : `no dome on screen, pitched ${domeTurn.toFixed(0)} deg`);
+
+// Zooming back out comes down again (Maria, 2026-11-27), and the rest of that pinch walks nothing.
+/** Pinch the fingers together in the middle of the screen; is the walk back, and where? */
+const pinchBack = async () => {
+  const from = await page.evaluate(() => window.__gallery.getState().mode);
+  await pinch(422, 195, 160, 40, 20);
+  const back = await page.waitForFunction(() => window.__gallery.getState().mode === "walk", null, { timeout: 15000 }).then(() => true, () => false);
+  return { from, back, target: await page.evaluate(() => window.__gallery.rig.target) };
+};
+if (domeUp) {
+  domeDown = await pinchBack();
+  await page.waitForTimeout(100);
+}
+const domeAfter = await page.evaluate(() => window.__gallery.rig.target);
+ok("in the dome, a pinch looks back down", domeDown?.back === true, domeDown ? `from ${domeDown.from}` : "never looked up");
+ok("looking down by pinching walks nothing after", domeDown && Math.abs(domeAfter - domeDown.target) < 1e-6,
+  domeDown ? `${domeDown.target.toFixed(4)} -> ${domeAfter.toFixed(4)}` : "");
+
+
 const place = await page.evaluate(() => window.__gallery.rig.target);
 await page.setViewportSize({ width: 390, height: 844 });
 await page.locator(".rotate-phone").waitFor({ state: "visible" });
